@@ -1,6 +1,6 @@
 {
   "name": "antelopetools",
-  "version": "v0.1.11",
+  "version": "v0.1.12",
   "description": "Antelope Tools WebApp",
   "repository": "https://github.com/edenia/antelope-tools.git",
   "scripts": {
@@ -9,7 +9,7 @@
     "eject": "react-scripts eject",
     "lint": "lint-staged",
     "test": "react-app-rewired test --env=jsdom",
-    "start:local": "env-cmd -f ../.env react-app-rewired start"
+    "start:local": "env-cmd -f ../.env react-app-rewired --openssl-legacy-provider start"
   },
   "husky": {
     "hooks": {
