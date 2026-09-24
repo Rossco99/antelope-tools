@@ -18,7 +18,7 @@ run:
 @:
 
 clean:
-	@docker-compose stop
+	@docker compose stop
 	@rm -rf tmp/postgres
 	@rm -rf tmp/hapi
 	@rm -rf tmp/hapi-evm
@@ -86,7 +86,7 @@ mainnet:
 	make start
 
 stop:
-	@docker-compose stop
+	@docker compose stop
 
 start:
 	make start-postgres
@@ -97,21 +97,21 @@ start:
 	make -j 3 start-hasura-cli start-logs start-webapp
 
 start-postgres:
-	@docker-compose up -d --build postgres
+	@docker compose up -d --build postgres
 
 start-wallet:
-	@docker-compose up -d --build wallet
+	@docker compose up -d --build wallet
 
 start-hapi:
-	@docker-compose up -d --build hapi
+	@docker compose up -d --build hapi
 
 start-hapi-evm:
-	@docker-compose up -d --build hapi-evm
+	@docker compose up -d --build hapi-evm
 
 start-hasura:
 	$(eval -include .env)
 	@until \
-		docker-compose exec -T postgres pg_isready; \
+		docker compose exec -T postgres pg_isready; \
 		do echo "$(BLUE)$(STAGE)-$(APP_NAME)-hasura |$(RESET) waiting for postgres service"; \
 		sleep 5; done;
 	@until \
@@ -123,8 +123,8 @@ start-hasura:
 		do echo "$(BLUE)$(STAGE)-$(APP_NAME)-hasura |$(RESET) waiting for hapi-evm service"; \
 		sleep 5; done;
 	@echo "..."
-	@docker-compose stop hasura
-	@docker-compose up -d --build hasura
+	@docker compose stop hasura
+	@docker compose up -d --build hasura
 
 start-hasura-cli:
 	$(eval -include .env)
@@ -166,7 +166,7 @@ add-language-webapp: ##copy en files in a new folder based on lang=
 	@echo "Now it can be important where it is needed"
 
 start-logs:
-	@docker-compose logs -f hapi hapi-evm webapp
+	@docker compose logs -f hapi hapi-evm webapp
 
 build-kubernetes: ##@devops Generate proper k8s files based on the templates
 build-kubernetes: ./kubernetes
