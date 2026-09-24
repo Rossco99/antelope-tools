@@ -1,17 +1,17 @@
-FROM ubuntu:18.04 as install-stage
+FROM ubuntu:22.04 as install-stage
 
 ENV WORK_DIR /opt/application
-ENV EOSIO_PACKAGE_URL https://github.com/eosio/eos/releases/download/v2.0.5/eosio_2.0.5-1-ubuntu-18.04_amd64.deb
+ENV SPRING_PACKAGE_URL https://github.com/AntelopeIO/spring/releases/download/v1.2.2/antelope-spring_1.2.2_amd64.deb
 
 # Install wget
 RUN apt-get update && apt-get install -y wget
 
-# Install EOSIO
-RUN wget -O eosio.deb $EOSIO_PACKAGE_URL
-RUN apt-get install -y /eosio.deb
+# Install Spring (includes nodeos, cleos, keosd)
+RUN wget -O spring.deb $SPRING_PACKAGE_URL
+RUN apt-get install -y /spring.deb
 
-# Remove all of the unnecesary files and apt cache
-RUN rm ./eosio.deb \
+# Remove all of the unnecessary files and apt cache
+RUN rm ./spring.deb \
   && apt-get remove -y wget \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
