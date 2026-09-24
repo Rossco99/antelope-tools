@@ -1,5 +1,5 @@
 # ---------- Base ----------
-FROM node:16.20.0 as base
+FROM node:20-bullseye as base
 WORKDIR /app
 
 # ---------- Builder ----------
