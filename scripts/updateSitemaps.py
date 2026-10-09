@@ -13,7 +13,6 @@ NETWORKS = [
     'wax-testnet',
     'eos',
     'jungle',
-    'lacchain',
     'ultra-testnet',
 ]
 DEFAULT_LANGUAGE = 'en'

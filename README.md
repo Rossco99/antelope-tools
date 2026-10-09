@@ -95,7 +95,6 @@ antelope-tools/
 │ ├── yarn-lock.json
 │ └── package.json
 ├── .env.jungle
-├── .env.lacchain
 ├── .env.local
 ├── .env.libre
 ├── .env.libretestnet

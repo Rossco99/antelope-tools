@@ -145,7 +145,6 @@ release:
 	@echo "Create release for version $(version)"
 	@git tag -a $(version) -m "Create release tag $(version)"
 	@git tag -a mainnet-$(version) -m "Create release tag mainnet-$(version)"
-	@git tag -a lacchain-$(version) -m "Create release tag lacchain-$(version)"
 	@git tag -a xpr-$(version) -m "Create release tag xpr-$(version)"
 	@git tag -a wax-$(version) -m "Create release tag wax-$(version)"
 	@git tag -a telos-$(version) -m "Create release tag telos-$(version)"
