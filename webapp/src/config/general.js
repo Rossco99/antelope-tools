@@ -3,6 +3,9 @@ import resources from '../language'
 export const useRewards = process.env.REACT_APP_USE_REWARDS === 'true'
 export const useVotes = process.env.REACT_APP_USE_VOTES === 'true'
 export const title = process.env.REACT_APP_TITLE
+export const landingUrl =
+  process.env.REACT_APP_LANDING_URL || 'https://antelope-tools.eosphere.io'
+export const useCpuBenchmark = process.env.REACT_APP_USE_CPU_BENCHMARK === 'true'
 export const eosRateLink = process.env.REACT_APP_EOS_RATE_LINK
 export const defaultProducerLogo =
   process.env.REACT_APP_DEFAULT_PRODUCER_LOGO ||
@@ -21,8 +24,6 @@ export const networkLinks = process.env.REACT_APP_NETWORK_URL
   : []
 export const historyEnabled =
   process.env.REACT_APP_STATE_HISTORY_ENABLED === 'true'
-export const googleAnaliticPageId =
-  process.env.REACT_APP_GOOGLE_ANALITIC_PAGE_ID
 export const highchartsMapURL = 'https://code.highcharts.com/mapdata/countries/'
 export const healthLights = Object.freeze({
   greenLight: 'greenLight',

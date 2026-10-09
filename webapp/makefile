@@ -47,7 +47,6 @@ build-docker: ./Dockerfile
 		--build-arg react_app_network_url='$(REACT_APP_NETWORK_URL)' \
 		--build-arg react_app_block_explorer_url='$(REACT_APP_BLOCK_EXPLORER_URL)' \
 		--build-arg react_app_state_history_enabled='$(REACT_APP_STATE_HISTORY_ENABLED)' \
-		--build-arg react_app_google_analitic_page_id='$(REACT_APP_GOOGLE_ANALITIC_PAGE_ID)' \
 		--build-arg react_app_public_re_captcha_key='$(REACT_APP_PUBLIC_RE_CAPTCHA_KEY)' \
 		--build-arg react_app_sync_tolerance_interval='$(REACT_APP_SYNC_TOLERANCE_INTERVAL)' \
 		--build-arg react_app_evm_endpoint='$(REACT_APP_EVM_ENDPOINT)' \

@@ -1,3 +1,5 @@
+import { alpha } from '@mui/material/styles'
+
 export default (theme) => ({
   container: {
     margin: theme.spacing(4, 0),
@@ -18,10 +20,7 @@ export default (theme) => ({
     display: 'flex',
     justifyContent: 'space-between',
     padding: theme.spacing(6),
-    backgroundImage: 'url(https://antelope.tools/images/profile-bg-image.webp)',
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: 'cover',
-    backgroundBlendMode: theme.palette.mode === 'light' ? 'normal' : 'soft-light',
+    backgroundImage: `linear-gradient(120deg, ${alpha(theme.palette.primary.main, 0.18)} 0%, transparent 65%)`,
     backgroundColor: theme.palette.background.default,
     [theme.breakpoints.down('sm')]: {
       flexDirection: 'column'

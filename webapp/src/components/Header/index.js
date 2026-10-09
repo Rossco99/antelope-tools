@@ -35,7 +35,7 @@ const HeaderLogo = () => {
   const classes = useStyles()
   return (
     <a
-      href="https://antelope.tools/"
+      href={generalConfig.landingUrl}
       rel="external"
       aria-label="Antelope Tools Homepage"
       className={classes.imgHeaderLogo}

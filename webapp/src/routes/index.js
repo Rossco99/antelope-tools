@@ -224,8 +224,17 @@ switch (eosConfig.networkName) {
     routes = [...defaultRoutes, ...helpRoutes]
     break
 }
+// pages whose data comes from optional backend features
+const featurePages = {
+  '/cpu-benchmark': generalConfig.useCpuBenchmark,
+  '/block-distribution': generalConfig.historyEnabled,
+  '/missed-blocks': generalConfig.historyEnabled,
+}
+
 routes = routes.filter(
-  (route) => !generalConfig.disabledMenuItems.includes(route.path),
+  (route) =>
+    featurePages[route.path] !== false &&
+    !generalConfig.disabledMenuItems.includes(route.path),
 )
 
 export default routes
