@@ -3,7 +3,6 @@ module.exports = {
   ...require('./sleep-for'),
   axiosUtil: require('./axios.util'),
   eosUtil: require('./eos.util'),
-  eosmechanicsUtil: require('./eosmechanics.util'),
   hasuraUtil: require('./hasura.util'),
   producerUtil: require('./producer.util'),
   sequelizeUtil: require('./sequelize.util'),
