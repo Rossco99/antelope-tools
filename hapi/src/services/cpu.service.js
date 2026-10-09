@@ -1,27 +1,10 @@
 const {
   axiosUtil,
-  eosmechanicsUtil,
   hasuraUtil,
   sequelizeUtil,
   getGranularityFromRange
 } = require('../utils')
 const { eosConfig } = require('../config')
-
-const saveBenchmark = async (payload) => {
-  const mutation = `
-    mutation ($account: String!, $usage: Int!, $transaction_id: String) {
-      insert_cpu_one (object: {account: $account, usage: $usage, transaction_id: $transaction_id}) {
-        id
-        account
-        usage
-      }
-    }
-  `
-
-  const data = await hasuraUtil.request(mutation, payload)
-
-  return data.insert_cpu_one
-}
 
 const cleanOldBenchmarks = async () => {
   const date = new Date()
@@ -37,30 +20,6 @@ const cleanOldBenchmarks = async () => {
   `
 
   await hasuraUtil.request(mutation, { date })
-}
-
-const worker = async () => {
-  if (
-    eosConfig.eosmechanics.account === ' ' ||
-    !eosConfig.eosmechanics.account ||
-    !eosConfig.eosmechanics.password
-  ) {
-    return
-  }
-
-  try {
-    const { block, transaction } = await eosmechanicsUtil.cpu()
-
-    await saveBenchmark({
-      account: block.producer,
-      usage: block?.transactions.find(
-        (trx) => trx?.trx?.id === transaction.processed.id
-      ).cpu_usage_us,
-      transaction_id: transaction.processed.id
-    })
-  } catch (error) {
-    console.error('cpuService.sync', error)
-  }
 }
 
 const HYPERION_PAGE_SIZE = 1000
@@ -183,7 +142,6 @@ const getBenchmark = async (range = '3 Hours') => {
 }
 
 module.exports = {
-  worker,
   syncFromHyperion,
   getBenchmark,
   cleanOldBenchmarks
