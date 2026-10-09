@@ -37,8 +37,6 @@ start: ##@local Start backend services, then the webapp dev server in the foregr
 
 start-backend: ##@local Start postgres, hapi and hasura and wait until they are healthy
 	@docker compose up -d --build --renew-anon-volumes --wait postgres hapi hasura
-	@until curl -fs -o /dev/null http://localhost:$${HASURA_PORT:-8080}/healthz; \
-		do echo "$(BLUE)hasura |$(RESET) waiting for hasura"; sleep 3; done
 
 start-postgres:
 	@docker compose up -d --build --wait postgres
@@ -60,6 +58,17 @@ start-webapp: ##@local Run the webapp dev server against the running backend
 
 console: ##@local Open the Hasura console (requires the hasura CLI)
 	@cd hasura && hasura console --endpoint http://localhost:$${HASURA_PORT:-8080} --skip-update-check --no-browser --admin-secret $(HASURA_GRAPHQL_ADMIN_SECRET)
+
+PLAYWRIGHT_VERSION := 1.55.0
+
+smoke: ##@local Headless browser check of every webapp page (needs `make start` running)
+	@mkdir -p smoke-results
+	@docker run --rm --network host --user $$(id -u):$$(id -g) -e HOME=/tmp \
+		-e SMOKE_EVM -e SMOKE_VERBOSE -e SMOKE_BASE_URL -e SMOKE_WAIT_MS \
+		-v $(CURDIR)/scripts:/work/scripts:ro -v $(CURDIR)/smoke-results:/work/smoke-results \
+		-w /work mcr.microsoft.com/playwright:v$(PLAYWRIGHT_VERSION)-noble \
+		sh -c 'cd /tmp && npm install --silent --no-save playwright@$(PLAYWRIGHT_VERSION) >/dev/null && \
+			cp /work/scripts/smoke-test.mjs /tmp/ && cd /work && node /tmp/smoke-test.mjs'
 
 update-sitemaps:
 	python3 ./scripts/updateSitemaps.py --path ./webapp/public/
