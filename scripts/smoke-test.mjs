@@ -18,6 +18,22 @@ if (process.env.SMOKE_EVM === 'true') routes.push('/evm', '/evm-rpc-endpoints')
 const browser = await chromium.launch()
 let failures = 0
 
+// add a producer profile page, found from the producer links on the dashboard
+{
+  const page = await browser.newPage()
+
+  await page.goto(base + '/', { waitUntil: 'domcontentloaded' })
+  await page.waitForTimeout(waitMs)
+
+  const profile = await page
+    .$eval('a[href^="/block-producers/"]', a => a.getAttribute('href'))
+    .catch(() => null)
+
+  await page.close()
+  if (profile) routes.push(profile)
+  else console.log('note: no producer link found on the dashboard')
+}
+
 for (const route of routes) {
   const page = await browser.newPage({ viewport: { width: 1400, height: 1000 } })
   const pageErrors = new Set()
@@ -59,7 +75,12 @@ for (const route of routes) {
   const name = route === '/' ? 'home' : route.slice(1).replace(/\//g, '_')
 
   await page.screenshot({ path: `${outDir}/${name}.png` })
-  await page.close()
+
+  const finalPath = new URL(page.url()).pathname
+
+  if (finalPath === '/404' && route !== '/404') {
+    pageErrors.add(`redirected to /404`)
+  }
 
   const failed = pageErrors.size + gqlErrors.size > 0
 
@@ -71,6 +92,8 @@ for (const route of routes) {
     for (const error of consoleErrors) console.log(`     console: ${error}`)
     for (const request of failedRequests) console.log(`     request: ${request}`)
   }
+
+  await page.close()
 }
 
 await browser.close()
