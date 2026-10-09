@@ -1,6 +1,6 @@
 
 <div align="center">
-	<a href="https://antelope.tools">
+	<a href="https://antelope-tools.eosphere.io">
 		<img src="webapp/public/antelope-tools.png" width="400">
 	</a>
 
