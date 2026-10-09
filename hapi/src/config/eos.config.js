@@ -6,6 +6,11 @@ module.exports = {
   apiEndpoint: process.env.HAPI_EOS_API_ENDPOINTS
     ? JSON.parse(process.env.HAPI_EOS_API_ENDPOINTS)[0]
     : '',
+  hyperionEndpoints: process.env.HAPI_EOS_HYPERION_ENDPOINTS
+    ? JSON.parse(process.env.HAPI_EOS_HYPERION_ENDPOINTS)
+    : [],
+  hyperionCpuBackfillDays:
+    parseInt(process.env.HAPI_EOS_HYPERION_CPU_BACKFILL_DAYS) || 30,
   stateHistoryPluginEndpoint:
     process.env.HAPI_EOS_STATE_HISTORY_PLUGIN_ENDPOINT,
   missedBlocksServiceEnabled:

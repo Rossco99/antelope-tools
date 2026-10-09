@@ -70,6 +70,13 @@ const start = async () => {
   if (eosConfig.eosmechanics.account && eosConfig.eosmechanics.password) {
     run('CPU WORKER', cpuService.worker, workersConfig.cpuWorkerInterval)
     run('CPU WORKER CLEANUP', cpuService.cleanOldBenchmarks, 86400)
+  } else if (eosConfig.hyperionEndpoints.length) {
+    run(
+      'CPU HYPERION SYNC',
+      cpuService.syncFromHyperion,
+      workersConfig.cpuHyperionSyncInterval
+    )
+    run('CPU WORKER CLEANUP', cpuService.cleanOldBenchmarks, 86400)
   }
   
   if (eosConfig.stateHistoryPluginEndpoint) {
