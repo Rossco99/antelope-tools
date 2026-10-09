@@ -60,7 +60,8 @@ const useAccountState = () => {
       try {
         const actionError = JSON.parse(error?.message).error.details[0].message
 
-        return actionError?.substring(0, 11) === 'unknown key'
+        // Spring: "unable to retrieve account info (unknown key ...)"
+        return actionError?.includes('unknown key')
           ? `${resultRequested} ${t('notFound')}`
           : actionError
       } catch (error) {

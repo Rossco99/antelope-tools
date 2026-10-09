@@ -1,5 +1,3 @@
-import EosApi from 'eosjs-api'
-
 import { eosConfig } from '../config'
 
 export const ENDPOINTS_ERROR =
@@ -7,26 +5,53 @@ export const ENDPOINTS_ERROR =
 
 const waitRequestInterval = 120000
 const timeout = 60000
-const eosApis = eosConfig.endpoints.map(endpoint => {
-  return {
-    api: EosApi({
-      httpEndpoint: endpoint,
-      verbose: false,
-      fetchConfiguration: {},
-    }),
-    endpoint,
-    lastFailureTime: 0,
-  }
-})
+const endpoints = eosConfig.endpoints.map(endpoint => ({
+  endpoint,
+  lastFailureTime: 0,
+}))
 
-const callEosApi = async method => {
-  for (const eosApi of eosApis) {
-    const diffTime = new Date() - eosApi.lastFailureTime
+// The node answered with an error (e.g. unknown account). The message is the
+// node's JSON error body, which callers parse for details.
+class ChainError extends Error {}
+
+const post = async (endpoint, path, body = {}) => {
+  let response
+
+  try {
+    response = await fetch(`${endpoint}${path}`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(timeout),
+    })
+  } catch (error) {
+    if (error.name === 'TimeoutError') {
+      throw new Error(
+        `timeout error: the endpoint took more than ${timeout} ms to respond`,
+      )
+    }
+
+    throw error
+  }
+
+  const data = await response.json().catch(() => null)
+
+  if (!response.ok) {
+    if (data?.error) throw new ChainError(JSON.stringify(data))
+
+    throw new Error(`${response.status} ${response.statusText}`)
+  }
+
+  return data
+}
+
+const callEosApi = async (path, body) => {
+  for (const api of endpoints) {
+    const diffTime = new Date() - api.lastFailureTime
 
     if (diffTime < waitRequestInterval) continue
 
     try {
-      const response = await callWithTimeout(method(eosApi.api), timeout)
+      const response = await post(api.endpoint, path, body)
       const headBlockTime = response.head_block_time
 
       if (headBlockTime) {
@@ -37,71 +62,43 @@ const callEosApi = async method => {
         const diffBlockTimems = nowUTC - new Date(headBlockTime)
 
         if (diffBlockTimems > eosConfig.syncToleranceInterval) {
-          throw new Error(`The endpoint ${eosApi.endpoint} is outdated`)
+          throw new Error(`The endpoint ${api.endpoint} is outdated`)
         }
       }
 
       return response
     } catch (error) {
-      let apiError
+      if (error instanceof ChainError) throw error
 
-      try {
-        apiError = JSON.parse(error?.message)
-      } catch (error) {}
-
-      if (apiError?.error) throw error
-
-      eosApi.lastFailureTime = new Date()
+      api.lastFailureTime = new Date()
     }
   }
 
   throw new Error(ENDPOINTS_ERROR)
 }
 
-const callWithTimeout = async (promise, ms) => {
-  let timeoutID
-  const timeoutMessage = `timeout error: the endpoint took more than ${ms} ms to respond`
-  const timeoutPromise = new Promise((_resolve, reject) => {
-    timeoutID = setTimeout(() => reject(new Error(timeoutMessage)), ms)
-  })
+const getAbi = account =>
+  callEosApi('/v1/chain/get_abi', { account_name: account })
 
-  return Promise.race([promise, timeoutPromise])
-    .then(response => response)
-    .catch(error => {
-      throw error
-    })
-    .finally(() => {
-      clearTimeout(timeoutID)
-    })
-}
+const getAccount = account =>
+  callEosApi('/v1/chain/get_account', { account_name: account })
 
-const getAbi = async account => {
-  return await callEosApi(async eosApi => eosApi.getAbi(account))
-}
+const getBlock = block =>
+  callEosApi('/v1/chain/get_block', { block_num_or_id: block })
 
-const getAccount = async account => {
-  return await callEosApi(async eosApi => eosApi.getAccount(account))
-}
+const getCodeHash = account =>
+  callEosApi('/v1/chain/get_code_hash', { account_name: account })
 
-const getBlock = async block => {
-  return await callEosApi(async eosApi => eosApi.getBlock(block))
-}
+const getInfo = () => callEosApi('/v1/chain/get_info')
 
-const getCodeHash = async account => {
-  return await callEosApi(async eosApi => eosApi.getCodeHash(account))
-}
+const getProducers = payload =>
+  callEosApi('/v1/chain/get_producers', payload)
 
-const getInfo = async payload => {
-  return await callEosApi(async eosApi => eosApi.getInfo(payload))
-}
+const getProducerSchedule = () =>
+  callEosApi('/v1/chain/get_producer_schedule')
 
-const getProducerSchedule = async payload => {
-  return await callEosApi(async eosApi => eosApi.getProducerSchedule(payload))
-}
-
-const getTableRows = async payload => {
-  return await callEosApi(async eosApi => eosApi.getTableRows(payload))
-}
+const getTableRows = payload =>
+  callEosApi('/v1/chain/get_table_rows', { json: true, ...payload })
 
 export default {
   getAbi,
@@ -109,6 +106,7 @@ export default {
   getBlock,
   getCodeHash,
   getInfo,
+  getProducers,
   getProducerSchedule,
   getTableRows,
 }

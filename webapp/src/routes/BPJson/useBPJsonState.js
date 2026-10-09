@@ -1,16 +1,10 @@
 import { useEffect, useState } from 'react'
-import EosApi from 'eosjs-api'
 import axios from 'axios'
 import { useTranslation } from 'react-i18next'
 
 import { eosConfig, ualConfig } from '../../config'
+import eosApi from '../../utils/eosapi'
 import { useSharedState } from '../../context/state.context'
-
-const eosApi = EosApi({
-  httpEndpoint: eosConfig.endpoint,
-  verbose: false,
-  fetchConfiguration: {},
-})
 
 const getBPJsonUrl = async (producer = {}) => {
   let producerUrl = producer.url || ''
