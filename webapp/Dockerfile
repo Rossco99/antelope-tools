@@ -11,7 +11,6 @@ ARG react_app_hasura_url
 ARG react_app_eos_api_network_name
 ARG react_app_eos_api_network_label
 ARG react_app_eos_api_network_logo
-ARG react_app_eos_include_transaction
 ARG react_app_eos_api_hosts
 ARG react_app_eos_api_port
 ARG react_app_eos_api_protocol
@@ -47,7 +46,6 @@ ENV REACT_APP_HASURA_URL $react_app_hasura_url
 ENV REACT_APP_EOS_API_NETWORK_NAME $react_app_eos_api_network_name
 ENV REACT_APP_EOS_API_NETWORK_LABEL $react_app_eos_api_network_label
 ENV REACT_APP_EOS_API_NETWORK_LOGO $react_app_eos_api_network_logo
-ENV REACT_APP_EOS_INCLUDE_TRANSACTION $react_app_eos_include_transaction
 ENV REACT_APP_EOS_API_HOSTS $react_app_eos_api_hosts
 ENV REACT_APP_EOS_API_PORT $react_app_eos_api_port
 ENV REACT_APP_EOS_API_PROTOCOL $react_app_eos_api_protocol

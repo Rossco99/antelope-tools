@@ -1,5 +1,4 @@
 import zh from './zh.json'
-import zhLacchain from './zh.lacchain.json'
 import zhTelosTestnet from './zh.telos-testnet.json'
 import zhLibreTestnet from './zh.libre-testnet.json'
 import zhLibre from './zh.libre.json'
@@ -14,7 +13,6 @@ import zhUltraTestnet from './zh.ultra-testnet.json'
 
 export default {
   zh,
-  'zh.lacchain': zhLacchain,
   'zh.telos': zhTelos,
   'zh.xpr': zhXPR,
   'zh.wax': zhWax,

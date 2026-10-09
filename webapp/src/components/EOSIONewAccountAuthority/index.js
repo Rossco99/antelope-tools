@@ -4,7 +4,7 @@ import TextField from '@mui/material/TextField'
 
 import getAuthoritTemplate from '../../utils/get-authority-template'
 
-const LacchainNewAccount = ({
+const EOSIONewAccountAuthority = ({
   value,
   onChange,
   label,
@@ -44,7 +44,7 @@ const LacchainNewAccount = ({
   )
 }
 
-LacchainNewAccount.propTypes = {
+EOSIONewAccountAuthority.propTypes = {
   value: PropTypes.any,
   onChange: PropTypes.func,
   label: PropTypes.string,
@@ -52,4 +52,4 @@ LacchainNewAccount.propTypes = {
   className: PropTypes.string
 }
 
-export default LacchainNewAccount
+export default EOSIONewAccountAuthority

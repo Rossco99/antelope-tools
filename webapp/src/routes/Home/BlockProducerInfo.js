@@ -6,7 +6,6 @@ import PropTypes from 'prop-types'
 import { formatWithThousandSeparator } from '../../utils'
 import { PRODUCERS_QUERY, PRODUCERS_SUMMARY_QUERY } from '../../gql'
 import { useSharedState } from '../../context/state.context'
-import { eosConfig } from '../../config'
 
 const Card = lazy(() => import('@mui/material/Card'))
 const Typography = lazy(() => import('@mui/material/Typography'))
@@ -73,10 +72,6 @@ const BlockProducerInfo = ({ t, classes }) => {
     ) {
       const producer = producersSummary?.producers_summary[index]
       total += producer.entities_count
-
-      if (eosConfig.networkName !== 'lacchain') {
-        continue
-      }
     }
 
     setTotal(total)
@@ -130,7 +125,6 @@ const BlockProducerInfo = ({ t, classes }) => {
             <>
               <ProducersSummary
                 t={t}
-                data={producersSummary}
                 loading={producersLoading}
                 total={total}
               />

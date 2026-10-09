@@ -3,7 +3,6 @@ import {
   Activity as ActivityIcon,
   Grid as GridIcon,
   Users as UsersIcon,
-  Sliders as SlidersIcon,
   User as UserIcon,
   UserX as UserXIcon,
   Info as InfoIcon,
@@ -18,12 +17,9 @@ import GavelIcon from '@mui/icons-material/Gavel';
 import { eosConfig, generalConfig } from '../config'
 import {
   BlockDistributionSvg,
-  ConfigSvg,
   RewardsDistributionSvg,
   BPJsonSvg,
   EndpointSvg,
-  MissingBlocksSvg,
-  TopologySvg,
   RewardsSvg,
   EVMDashboardSvg,
   EVMEndpointsSvg,
@@ -51,9 +47,6 @@ const NonCompliantBPs = lazy(() => import('./NonCompliantBPs'))
 const StressTestDashboard = lazy(() => import('./StressTestDashboard'))
 const EVMDashboard = lazy(() => import('./EVMDashboard'))
 const EVMEndpointsList = lazy(() => import('./EVMEndpointsList'))
-const LacchainNetwork = lazy(() => import('./Lacchain/LacchainNetwork'))
-const LacchainManagement = lazy(() => import('./Lacchain/LacchainManagement'))
-const LacchainNodeConfig = lazy(() => import('./Lacchain/LacchainNodeConfig'))
 const ProducerProfile = lazy(() => import('./ProducerProfile'))
 
 const defaultRoutes = [
@@ -189,117 +182,6 @@ const defaultRoutes = [
   },
 ]
 
-const lacchainRoutes = [
-  {
-    header: 'networkInformation',
-    name: 'home',
-    icon: <GridIcon />,
-    component: Home,
-    path: '/',
-    exact: true,
-  },
-  {
-    name: 'entities',
-    icon: <UsersIcon />,
-    component: BlockProducers,
-    path: '/entities',
-    exact: true,
-  },
-  {
-    component: ProducerProfile,
-    path: '/entities/:bpName',
-    useParams: true,
-    exact: true,
-  },
-  {
-    name: 'nodes',
-    icon: <NodesSvg />,
-    component: Nodes,
-    path: '/nodes',
-    exact: true,
-  },
-  {
-    name: 'endpointsList',
-    icon: <EndpointSvg />,
-    component: EndpointsList,
-    path: '/endpoints',
-    exact: true,
-  },
-  {
-    name: 'endpointsStats',
-    icon: <QueryStatsIcon />,
-    component: EndpointsStats,
-    path: '/endpoints-stats',
-    exact: true,
-  },
-  {
-    name: 'lacchainNetwork',
-    icon: <TopologySvg />,
-    component: LacchainNetwork,
-    path: '/lacchain/network',
-    exact: true,
-  },
-  {
-    name: 'nodesDistribution',
-    icon: <RewardsDistributionSvg />,
-    component: NodesDistribution,
-    path: '/nodes-distribution',
-    exact: true,
-  },
-  {
-    name: 'blockDistribution',
-    icon: <BlockDistributionSvg />,
-    component: BlockDistribution,
-    path: '/block-distribution',
-    exact: true,
-  },
-  {
-    name: 'missedBlocks',
-    icon: <MissingBlocksSvg />,
-    component: MissedBlocks,
-    path: '/missed-blocks',
-    exact: true,
-  },
-  {
-    name: 'cpuBenchmark',
-    icon: <ActivityIcon />,
-    component: CPUBenchmark,
-    path: '/cpu-benchmark',
-    exact: true,
-  },
-  {
-    name: 'ricardianContract',
-    icon: <GavelIcon />,
-    component: RicardianContract,
-    path: '/ricardian-contract',
-    exact: true,
-  },
-  {
-    header: 'tools',
-    name: 'accounts',
-    icon: <UserIcon />,
-    component: Accounts,
-    path: '/accounts',
-    useConnectWallet: true,
-    exact: true,
-  },
-  {
-    name: 'lacchainManagement',
-    icon: <SlidersIcon />,
-    component: LacchainManagement,
-    path: '/management',
-    useConnectWallet: true,
-    exact: true,
-  },
-  {
-    name: 'lacchainNodeConfig',
-    icon: <ConfigSvg />,
-    component: LacchainNodeConfig,
-    path: '/node-config',
-    useConnectWallet: true,
-    exact: true,
-  },
-]
 const advanceRoutes = [
   {
     name: 'faucet',
@@ -334,9 +216,6 @@ const helpRoutes = [
 let routes = []
 
 switch (eosConfig.networkName) {
-  case 'lacchain':
-    routes = [...lacchainRoutes, ...helpRoutes]
-    break
   case 'ultra-testnet':
   case 'libre-testnet':
     routes = [...defaultRoutes, ...advanceRoutes, ...helpRoutes]

@@ -414,7 +414,8 @@
   },
   "contractActionFormComponent": {
     "executeTransaction": "执行交易",
-    "owner": "所有者"
+    "owner": "所有者",
+    "public_key": "公钥"
   },
   "undiscoverableBPsRoute": {
     "noResultsFound": "太好了！所有区块生产者都在透明运营。"

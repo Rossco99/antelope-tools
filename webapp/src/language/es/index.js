@@ -1,5 +1,4 @@
 import es from './es.json'
-import esLacchain from './es.lacchain.json'
 import esTelosTestnet from './es.telos-testnet.json'
 import esLibreTestnet from './es.libre-testnet.json'
 import esLibre from './es.libre.json'
@@ -14,7 +13,6 @@ import esUltraTestnet from './es.ultra-testnet.json'
 
 export default {
   es,
-  'es.lacchain': esLacchain,
   'es.telos': esTelos,
   'es.xpr': esXPR,
   'es.wax': esWax,

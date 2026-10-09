@@ -121,12 +121,6 @@ const sharedStateReducer = (state, action) => {
 const initialValue = {
   openMenuWallets: false,
   elemRef: null,
-  lacchain: {
-    nodes: [],
-    entities: [],
-    currentEntity: null,
-    dynamicTitle: '',
-  },
   schedule: {
     version: '',
     producers: [],

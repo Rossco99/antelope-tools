@@ -415,7 +415,8 @@
   },
   "contractActionFormComponent": {
     "executeTransaction": "Execute Transaction",
-    "owner": "Owner"
+    "owner": "Owner",
+    "public_key": "Public key"
   },
   "undiscoverableBPsRoute": {
     "noResultsFound": "Well Done! All Block Producers are Operating Transparently."

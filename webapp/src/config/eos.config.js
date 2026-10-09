@@ -18,18 +18,6 @@ let _nodeChips = null
 let _producerTypes = null
 
 switch (networkName) {
-  case 'lacchain':
-    _nodeTypes = [
-      {
-        name: 'validator',
-        description: 'Node with signing key',
-      },
-      { name: 'boot', description: 'Boot node' },
-      { name: 'writer', description: 'Writer node' },
-      { name: 'observer', description: 'Observer node' },
-    ]
-    _producerTypes = ['partners', 'nonPartners']
-    break
   default:
     _nodeTypes = [
       {
@@ -105,10 +93,6 @@ export const nodeTypes = _nodeTypes
 export const nodeChips = _nodeChips || _nodeTypes
 export const additionalNodesTypes = _additionalNodesTypes || []
 export const producerTypes = _producerTypes
-export const includeDefaultTransaction = process.env
-  .REACT_APP_EOS_INCLUDE_TRANSACTION
-  ? JSON.parse(process.env.REACT_APP_EOS_INCLUDE_TRANSACTION)
-  : null
 export const blockExplorerUrl = blockExplorerLinks?.url
 export const blockExplorerTxUrl = blockExplorerLinks?.url + blockExplorerLinks?.tx
 export const blockExplorerAccount = {
@@ -118,15 +102,13 @@ export const blockExplorerAccount = {
 export const syncToleranceInterval =
   process.env.REACT_APP_SYNC_TOLERANCE_INTERVAL || 180000
 export const producerColumns = [
-  { name: 'rank', disabled: { lacchain: true } },
-  { name: 'producerName' },
-  { name: 'country' },
-  { name: 'website' },
-  { name: 'votes', disabled: { lacchain: true } },
-  { name: 'rewards', disabled: { lacchain: true } },
-  { name: 'health' },
-  { name: 'social' },
-].flatMap((col) =>
-  !col?.disabled || !col?.disabled[networkName] ? col?.name : [],
-)
-export const producersRoute = networkName !== 'lacchain' ? 'block-producers' : 'entities'
+  'rank',
+  'producerName',
+  'country',
+  'website',
+  'votes',
+  'rewards',
+  'health',
+  'social',
+]
+export const producersRoute = 'block-producers'

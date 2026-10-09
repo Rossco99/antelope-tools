@@ -10,7 +10,6 @@ import { useTranslation } from 'react-i18next'
 import fioImg from '../../assets/fio.png'
 import jungleImg from '../../assets/jungle.webp'
 import waxImg from '../../assets/wax.webp'
-import lacchainImg from '../../assets/lacchain.webp'
 import telosImg from '../../assets/telos.webp'
 import xprNetworkImg from '../../assets/xpr.webp'
 import eosImg from '../../assets/eos.webp'
@@ -34,11 +33,6 @@ const LogoSvg = ({ name }) => {
 
     case 'wax':
       return <img src={waxImg} alt="wax logo" className={classes.waxImg} />
-
-    case 'lacchain':
-      return (
-        <img src={lacchainImg} alt="lacchain logo" className={classes.lacchainImg} />
-      )
 
     case 'xpr':
       return <img src={xprNetworkImg} alt="xpr network logo" className={classes.xprNetworkImg} />

@@ -17,7 +17,6 @@ import Footer from '../components/Footer'
 import PageTitle from '../components/PageTitle'
 import SnackbarMessage from '../components/SnackbarMessage'
 import { eosConfig, generalConfig } from '../config'
-import { useSharedState } from '../context/state.context'
 import routes from '../routes'
 import {
   getLocalePath,
@@ -54,7 +53,6 @@ const Dashboard = ({ children }) => {
   const classes = useStyles()
   const { t, i18n } = useTranslation('routes')
   const location = useLocation()
-  const [lacchain] = useSharedState()
   const [routeName, setRouteName] = useState(INIT_VALUES)
   const [,{ showAlertMessage }] = useAlertTranslationState()
 
@@ -105,15 +103,10 @@ const Dashboard = ({ children }) => {
 
     if (route) {
       const pathName = route.path.replace(':', '')
-      const managementCardTitle = lacchain.dynamicTitle || ''
-
       setRouteName({
-        dynamicTitle:
-          pathName === '/management'
-            ? managementCardTitle
-            : t(`${pathName}>heading`, {
-                networkName: eosConfig.networkLabel,
-              }),
+        dynamicTitle: t(`${pathName}>heading`, {
+          networkName: eosConfig.networkLabel,
+        }),
         pathname: pathName,
         pageTitle: i18n.exists(`routes:${pathName}>title`)
           ? t(`${pathName}>title`, {
@@ -126,7 +119,7 @@ const Dashboard = ({ children }) => {
       setRouteName(INIT_VALUES)
     }
     // eslint-disable-next-line
-  }, [location.pathname, lacchain.dynamicTitle, t])
+  }, [location.pathname, t])
 
   return (
     <div className={classes.root}>

@@ -30,10 +30,7 @@ const ProducerRow = ({ producer, index }) => {
   const BlockProducerInfo = () => {
     if (producerOrg?.hasEmptyBPJson)
       return (
-        <TableCell
-          align="center"
-          colSpan={eosConfig.networkName !== 'lacchain' ? 6 : 4}
-        >
+        <TableCell align="center" colSpan={6}>
           <EmptyStateRow classes={classes} t={t} />
         </TableCell>
       )

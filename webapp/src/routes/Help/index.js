@@ -8,7 +8,6 @@ import HttpIcon from '@mui/icons-material/Http'
 import TelegramIcon from '@mui/icons-material/Telegram'
 import GitHubIcon from '@mui/icons-material/GitHub'
 
-import { eosConfig } from '../../config'
 import LocaleLink from '../../components/LocaleLink'
 
 import styles from './styles'
@@ -30,44 +29,24 @@ const Help = () => {
       <Typography component="h2" variant="h4">
         {t('subtitle3')}
       </Typography>
-      {eosConfig.networkName !== 'lacchain' ? (
-        <>
-          <Typography variant="body2" paragraph>
-            {t('body3.paragraph1Text1')}{' '}
-            <Link
-              component={LocaleLink}
-              to="/accounts?account=eosio&table=producers"
-            >
-              eosio
-            </Link>{' '}
-            {t('body3.eosioAccount')} {t('body3.paragraph1Text2')}{' '}
-            <Link
-              href="https://github.com/eosrio/bp-info-standard"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {t('standard')}
-            </Link>
-            {'.'}
-          </Typography>
-        </>
-      ) : (
-        <Typography variant="body2" paragraph>
-          {t('body3.paragraph1Text1')}{' '}
-          <LocaleLink to="/accounts?account=eosio&table=entity">
-            eosio
-          </LocaleLink>{' '}
-          {t('body3.eosioAccount')} {t('body3.paragraph1Text2')}{' '}
-          <Link
-            href="https://github.com/eosrio/bp-info-standard"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {t('standard')}
-          </Link>
-          {'.'}
-        </Typography>
-      )}
+      <Typography variant="body2" paragraph>
+        {t('body3.paragraph1Text1')}{' '}
+        <Link
+          component={LocaleLink}
+          to="/accounts?account=eosio&table=producers"
+        >
+          eosio
+        </Link>{' '}
+        {t('body3.eosioAccount')} {t('body3.paragraph1Text2')}{' '}
+        <Link
+          href="https://github.com/eosrio/bp-info-standard"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {t('standard')}
+        </Link>
+        {'.'}
+      </Typography>
       <Typography component="h2" variant="h4" className={classes.title}>
         {t('title2')}
       </Typography>

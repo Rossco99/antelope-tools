@@ -169,11 +169,6 @@ export default (theme) => ({
     height: '21px !important',
     marginRight: theme.spacing(2),
   },
-  lacchainImg: {
-    width: '24px !important',
-    height: '24px !important',
-    marginRight: theme.spacing(2),
-  },
   xprNetworkImg: {
     width: '21px !important',
     height: '21px !important',

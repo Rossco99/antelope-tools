@@ -7,17 +7,7 @@ import { useTranslation } from 'react-i18next'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import InputAdornment from '@mui/material/InputAdornment'
-import { ArrayTextField } from '@eoscostarica/eoscr-components'
 
-import LacchainEntitySelectField from '../LacchainEntitySelectField'
-import LacchainSetEntInfoField from '../LacchainSetEntInfoField'
-import LacchainSetNodeInfoActionNodeField from '../LacchainSetNodeInfoActionNodeField'
-import LacchainSetNodeInfoActionInfoField from '../LacchainSetNodeInfoActionInfoField'
-import LacchainAddEntityActionEntityTypeField from '../LacchainAddEntityActionEntityTypeField'
-import LacchainEntityField from '../LacchainEntityField'
-import Authority from '../Authority'
-import BlockSigningAuthority from '../BlockSigningAuthority'
-import LacchainSetScheduleActionValidatorsField from '../LacchainSetScheduleActionValidatorsField'
 import EOSIONewAccountAuthority from '../EOSIONewAccountAuthority'
 
 import styles from './styles'
@@ -25,7 +15,7 @@ import styles from './styles'
 const useStyles = makeStyles(styles)
 
 const ContractActionForm = ({ accountName, action, abi, onSubmitAction }) => {
-  const { t } = useTranslation('lacchainManagement')
+  const { t } = useTranslation('contractActionFormComponent')
   const classes = useStyles()
   const [fields, setFields] = useState([])
   const [payload, setPayload] = useState({})
@@ -60,143 +50,7 @@ const ContractActionForm = ({ accountName, action, abi, onSubmitAction }) => {
 
   const renderField = (field, label) => {
     switch (`${accountName}.${action}.${field.name}`) {
-      case 'eosio.addentity.entity_type':
-        return (
-          <LacchainAddEntityActionEntityTypeField
-            key={`action-field-${field.name}`}
-            label={label}
-            variant="outlined"
-            className={classes.formControl}
-            value={payload[field.name]}
-            onChange={handleFieldChange(field.name)}
-          />
-        )
-      case 'eosio.setentinfo.entity':
-        return (
-          <LacchainEntitySelectField
-            key={`action-field-${field.name}`}
-            label={label}
-            variant="outlined"
-            className={classes.formControl}
-            value={payload[field.name] || ''}
-            onChange={handleFieldChange(field.name)}
-          />
-        )
-      case 'eosio.setentinfo.info':
-        return (
-          <LacchainSetEntInfoField
-            key={`action-field-${field.name}`}
-            label={label}
-            variant="outlined"
-            className={classes.formControl}
-            value={payload[field.name] || ''}
-            onChange={handleFieldChange(field.name)}
-            t={t}
-          />
-        )
-      case 'eosio.setnodeinfo.node':
-        return (
-          <LacchainSetNodeInfoActionNodeField
-            key={`action-field-${field.name}`}
-            label={label}
-            variant="outlined"
-            className={classes.formControl}
-            value={payload[field.name] || ''}
-            onChange={handleFieldChange(field.name)}
-          />
-        )
-      case 'eosio.setnodeinfo.info':
-        return (
-          <LacchainSetNodeInfoActionInfoField
-            key={`action-field-${field.name}`}
-            label={label}
-            variant="outlined"
-            className={classes.formControl}
-            value={payload[field.name] || ''}
-            onChange={handleFieldChange(field.name)}
-            t={t}
-          />
-        )
-      case 'eosio.newaccount.creator':
-      case 'eosio.setram.entity':
-      case 'eosio.addboot.entity':
-      case 'eosio.addobserver.entity':
-      case 'eosio.addwriter.entity':
-      case 'eosio.addvalidator.entity':
-        return (
-          <LacchainEntityField
-            key={`action-field-${field.name}`}
-            label={label}
-            variant="outlined"
-            className={classes.formControl}
-            value={payload[field.name] || ''}
-            onChange={handleFieldChange(field.name)}
-          />
-        )
-      case 'eosio.addwriter.writer_authority':
-        return (
-          <Authority
-            key={`action-field-${field.name}`}
-            label={label}
-            variant="outlined"
-            className={classes.formControl}
-            value={payload[field.name] || {}}
-            onChange={handleFieldChange(field.name)}
-            t={t}
-          />
-        )
-      case 'eosio.addvalidator.validator_authority':
-        return (
-          <BlockSigningAuthority
-            key={`action-field-${field.name}`}
-            label={label}
-            variant="outlined"
-            className={classes.formControl}
-            value={payload[field.name] || []}
-            onChange={handleFieldChange(field.name)}
-            t={t}
-          />
-        )
-      case 'eosio.netsetgroup.group':
-        return (
-          <ArrayTextField
-            key={`action-field-${field.name}`}
-            label={label}
-            variant="outlined"
-            className={classes.formControl}
-            value={payload[field.name] || []}
-            onChange={handleFieldChange(field.name)}
-          />
-        )
-      case 'eosio.setschedule.validators':
-        return (
-          <LacchainSetScheduleActionValidatorsField
-            key={`action-field-${field.name}`}
-            label={label}
-            variant="outlined"
-            className={classes.formControl}
-            value={payload[field.name] || []}
-            onChange={handleFieldChange(field.name)}
-          />
-        )
       case 'eosio.newaccount.owner':
-        return (
-          <EOSIONewAccountAuthority
-            key={`action-field-${field.name}`}
-            label={label}
-            variant="outlined"
-            className={classes.formControl}
-            value={payload[field.name] || ''}
-            onChange={handleFieldChange(field.name)}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Chip label={t('public_key')} />
-                </InputAdornment>
-              ),
-            }}
-          />
-        )
       case 'eosio.newaccount.active':
         return (
           <EOSIONewAccountAuthority

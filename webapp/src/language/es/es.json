@@ -131,7 +131,7 @@
     "readMore": "Ver más",
     "readLess": "Ver menos",
     "moreDescription": "Este es un componente de lectura de texto para los usuarios que necesitan un poco de ayuda o son nuevos en el sistema. Un conjunto claro pero no demasiado extenso de términos e instrucciones puede ayudar a los usuarios a comenzar sin tener que escribir demasiado sobre títulos o etiquetas como la que se encuentra en la tarjeta de búsqueda a continuación. ¡Echar un vistazo! Una tercera línea también es posible y probablemente más que suficiente.",
-    "/rewards-distribution>moreDescription": "Distribución diaria de recompensas de BP por ubicación geográfica de los productores de bloques pagados.", 
+    "/rewards-distribution>moreDescription": "Distribución diaria de recompensas de BP por ubicación geográfica de los productores de bloques pagados.",
     "/undiscoverable-bps>moreDescription": "Una lista de los productores de bloques en la red que son pagados y no proveen información en sus archivos bp.json.",
     "/bpjson>moreDescription": "Una representación visual de los nodos actuales de la red.",
     "/node-config>moreDescription": "Utilice esta herramienta para obtener archivos de configuración de ejemplo para ayudar a configurar un nuevo nodo en la red.",
@@ -183,7 +183,7 @@
     "cpuUsage": "Uso del CPU",
     "netUsage": "Uso de NET",
     "average": "Promedio",
-    "nodeType":"$t(nodes) Tipo {{nodeType}}",
+    "nodeType": "$t(nodes) Tipo {{nodeType}}",
     "tooltip": {
       "lastBlock": "El último bloque confirmado producido",
       "bpSchedule": "Top 21 Productores de bloques actuales",
@@ -555,5 +555,8 @@
     "lastBlock": "Último bloque",
     "rerun": "Reejecutar las pruebas",
     "filterEndpoints": "Filtrar puntos finales"
+  },
+  "contractActionFormComponent": {
+    "public_key": "Clave pública"
   }
 }

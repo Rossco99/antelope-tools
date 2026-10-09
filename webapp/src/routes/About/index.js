@@ -18,9 +18,7 @@ const About = () => {
   const classes = useStyles()
   const theme = useTheme()
   const { t } = useTranslation('aboutRoute')
-  const networkNameLabel = (
-    eosConfig.networkName !== 'lacchain' ? eosConfig.networkLabel : 'EOS'
-  )
+  const networkNameLabel = eosConfig.networkLabel
     .replace(' Mainnet', '')
     .replace(' Testnet', '')
  

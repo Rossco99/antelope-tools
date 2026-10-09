@@ -414,7 +414,8 @@
   },
   "contractActionFormComponent": {
     "executeTransaction": "트랜잭션 실행",
-    "owner": "소유자"
+    "owner": "소유자",
+    "public_key": "공개 키"
   },
   "undiscoverableBPsRoute": {
     "noResultsFound": "잘했습니다! 모든 블록 생산자가 투명하게 운영되고 있습니다."

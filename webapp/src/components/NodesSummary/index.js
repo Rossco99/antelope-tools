@@ -7,22 +7,14 @@ import { NODES_SUMMARY_QUERY } from '../../gql'
 import { eosConfig } from '../../config'
 import SimpleDataCard from '../SimpleDataCard'
 
-const NODES_ORDER = [
-  {
-    boot: 2,
-    observer: 4,
-    validator: 1,
-    writer: 3,
-  },
-  {
-    producer: 1,
-    full: 2,
-    query: 3,
-    seed: 4,
-    'query,seed': 5,
-    unknown: 10,
-  },
-]
+const NODES_ORDER = {
+  producer: 1,
+  full: 2,
+  query: 3,
+  seed: 4,
+  'query,seed': 5,
+  unknown: 10,
+}
 
 const NodesSummary = ({ t }) => {
   const { data, loading } = useQuery(NODES_SUMMARY_QUERY)
@@ -38,9 +30,7 @@ const NodesSummary = ({ t }) => {
 
     setTotal(total)
 
-    const nodesOrderByNet = eosConfig.networkName === 'lacchain'
-      ? NODES_ORDER[0]
-      : NODES_ORDER[1]
+    const nodesOrderByNet = NODES_ORDER
     const sortedNodes = Object.keys(nodes)
       .map((node) => {
         let type = node
@@ -75,7 +65,6 @@ const NodesSummary = ({ t }) => {
           <SimpleDataCard
             key={node.type}
             helperText={
-              eosConfig.networkName !== 'lacchain' &&
               eosConfig.nodeTypes
                 .map((nodeType) => nodeType.name)
                 .includes(node.type)
