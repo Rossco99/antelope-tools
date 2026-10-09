@@ -1,47 +1,33 @@
 # Dashboard wallet creation and configuration
 
-The EOSIO dashboard collects information from different networks but also
-allows users to execute specific administrative actions on certain networks,
-by EOSIO accounts and their respective keys. All this requires to use a 
-wallet that acts as an intermediary to sign transactions and interact with
-permissioned actions in the networks.
+The wallet service (keosd) holds the key of the account hapi signs with. It is
+only needed on testnets that offer the faucet (account creation and test token
+transfers); the CPU benchmark reads data from Hyperion and needs no keys.
 
-Here we explain how to create and configure such a wallet for the EOSIO
-dashboard. Inside the wallet pod, please execute the following commands:
+Inside the wallet container, create a wallet named after the faucet's base
+account:
 
 ```bash
-# Create a default wallet
-cleos --wallet-url http://localhost:8888 wallet create --to-console
-# Create a wallet called eosmechanics
-cleos --wallet-url http://localhost:8888 wallet create -n eosmechanics --to-console
+cleos --wallet-url http://localhost:8888 wallet create -n <base account> --to-console
 ```
 
-The previews commands will create a default wallet and another wallet called
-eosmechanics. The returned passwords (a string starting with PW...) should be
-used to fulfill the following environment variables:
+The returned password (a string starting with PW...) goes in the environment
+variables:
 
 ```bash
-HAPI_EOS_BASE_ACCOUNT=eosmechanics
+HAPI_EOS_BASE_ACCOUNT=<base account>
 HAPI_EOS_BASE_ACCOUNT_PASSWORD=PW...
-HAPI_EOS_MECHANICS_ACCOUNT=eosmechanics
-HAPI_EOS_MECHANICS_PASSWORD=PW...
 ```
 
-Let's make sure that the wallet was created correctly:
+Import the base account's private key and check the wallet:
 
 ```bash
-cleos -u https://jungle.eosusa.io --wallet-url http://localhost:8888 wallet list
+cleos --wallet-url http://localhost:8888 wallet import -n <base account>
+cleos --wallet-url http://localhost:8888 wallet list
 ```
 
-If the wallet is present but locked, then execute the following command:
+If the wallet is listed but locked, unlock it:
 
 ```bash
-cleos -u https://jungle.eosusa.io --wallet-url http://localhost:8888 wallet unlock -n eosmechanics
-```
-
-Finally, we will import an EOSIO key for reading information about statistics of the block
-producers called eosmechanics (Ask the admins about the key):
-
-```bash
-cleos -u https://jungle.eosusa.io --wallet-url http://localhost:8888 wallet import -n eosmechanics
+cleos --wallet-url http://localhost:8888 wallet unlock -n <base account>
 ```

@@ -29,15 +29,6 @@ module.exports = {
     password: process.env.HAPI_EOS_FAUCET_ACCOUNT_PASSWORD,
     createAccountActionName: process.env.HAPI_CREATE_ACCOUNT_ACTION_NAME
   },
-  eosmechanics: {
-    account: process.env.HAPI_EOS_MECHANICS_ACCOUNT,
-    password: process.env.HAPI_EOS_MECHANICS_PASSWORD,
-    customPermission:
-      process.env.HAPI_EOS_MECHANICS_CUSTOM_PERMISSION || 'active',
-    includeTransaction: process.env.HAPI_EOS_MECHANICS_INCLUDE_TRANSACTION
-      ? JSON.parse(process.env.HAPI_EOS_MECHANICS_INCLUDE_TRANSACTION)
-      : ''
-  },
   walletUrl: process.env.HAPI_EOS_WALLET_URL,
   exchangeRateApi: process.env.HAPI_EOS_EXCHANGE_RATE_API,
   coingeckoApiTokenId: process.env.HAPI_COINGECKO_API_TOKEN_ID,
