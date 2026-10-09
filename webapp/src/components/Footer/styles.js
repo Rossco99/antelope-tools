@@ -129,6 +129,12 @@ export default (theme) => ({
     display: 'flex',
     justifyContent: 'center',
   },
+  originalAuthors: {
+    display: 'block',
+    textAlign: 'center',
+    fontSize: '0.8rem',
+    opacity: 0.75,
+  },
   imgHeaderLogo: {
     width: '18px',
     height: '18px',

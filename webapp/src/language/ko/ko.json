@@ -37,8 +37,8 @@
     "timeFrame": "시간 범위",
     "net": "NET",
     "cpu": "CPU",
-    "footer1": "이 앱은 커뮤니티 공공재입니다",
-    "footer2": "Edenia가 자랑스럽게 개발함",
+    "footer1": "Antelope 생태계를 위한 개방형 인프라 데이터",
+    "footer2": "EOSphere에서 개발 및 운영",
     "executeTransaction": "트랜잭션 실행",
     "bugRequest": "버그 신고 / 기능 요청",
     "moreInfo": "더 많은 정보",
@@ -51,7 +51,8 @@
     "metaTitle": "안텔로프 툴스 네트워크 모니터는 다양한 안텔로프 및 EOSIO 체인의 실시간 인프라 데이터를 모니터링합니다.",
     "metaDescription": "안텔로프 툴스 대시보드는 다양한 안텔로프 및 EOSIO 체인의 블록 생산자 노드 및 블록체인 인프라에 대한 실시간 데이터를 제공하는 네트워크 모니터입니다.",
     "goBack": "돌아가기",
-    "translationInProgress": "이 번역은 진행 중입니다. 오류를 발견하시면 알려주십시오."
+    "translationInProgress": "이 번역은 진행 중입니다. 오류를 발견하시면 알려주십시오.",
+    "footer3": "최초 개발: Edenia"
   },
   "routes": {
     "/>sidebar": "대시보드",
@@ -113,7 +114,7 @@
     "/about>sidebar": "소개",
     "/about>title": "소개 - {{networkName}} 네트워크 모니터 및 인프라 대시보드",
     "/about>heading": "안텔로프 도구 소개",
-    "/about>moreDescription": "Edenia와 안텔로프 도구 프로젝트에 대해 자세히 알아보고, 그 중요성과 참여 방법",
+    "/about>moreDescription": "EOSphere와 안텔로프 도구 프로젝트에 대해 자세히 알아보고, 그 중요성과 참여 방법",
     "/help>sidebar": "도움말",
     "/help>title": "도움말 - {{networkName}} 네트워크 대시보드",
     "/help>heading": "안텔로프 도구 도움말 센터에 오신 것을 환영합니다",
@@ -256,10 +257,13 @@
     "body": {
       "paragraph1": "안텔로프 도구에 오신 것을 환영합니다. 안텔로프 및 EOSIO 블록체인의 실시간 시각화 및 모니터링을 위한 원스톱 솔루션입니다. 최고의 블록체인 네트워크 모니터링 도구로 설계되었으며, 실시간 데이터 분석, 블록 생산자 인사이트 등을 제공합니다."
     },
-    "subtitle1": "Edenia 소개",
+    "subtitle1": "EOSphere 소개",
     "body1": {
+      "eosphere": "EOSphere",
       "edenia": "Edenia",
-      "paragraph1": "는 안텔로프 도구 뒤에 있는 블록체인 전문가 팀입니다. 블록체인 기술에 대한 수년간의 경험과 투명성 및 신뢰성에 대한 열정을 바탕으로, Web3 생태계를 더 접근하기 쉽고 사용자 친화적으로 만드는 것을 목표로 합니다. 저희 팀은 지속적인 혁신에 전념하여 안텔로프 도구가 안텔로프 블록체인 네트워크 모니터링 도구로서 선도적인 위치를 유지하도록 하고 있습니다."
+      "paragraph1": "는 Antelope 네트워크의 블록 프로듀서이자 인프라 제공업체로, Antelope Tools를 개발하고 운영합니다. 토큰 보유자, 노드 운영자, 개발자가 네트워크 운영 상황을 확인할 수 있도록 이 대시보드를 공공 리소스로 운영합니다.",
+      "paragraph2": "Antelope Tools는 원래",
+      "paragraph3": "(이전 EOS Costa Rica)에서 개발했습니다. 그들의 작업에 감사드리며, 이 프로젝트는 오픈 소스 소프트웨어로 계속 이어집니다."
     },
     "subtitle2": "안텔로프 도구를 선택해야 하는 이유",
     "body2": {
@@ -267,17 +271,11 @@
     },
     "subtitle3": "네트워크 모니터링의 중요성",
     "body3": {
-      "paragraph1": "{{networkName}}이나 다른 EOSIO 기반 DPoS 네트워크에 있든, 토큰 홀더들은 블록 생산자에 대한 투표를 위해 사용할 수 있는 데이터에 의존합니다. LACChain과 같은 허가된 네트워크에서는 노드 운영자들이 원활한 네트워크 기능을 보장해야 합니다. 안텔로프 도구는 객관적인 데이터와 노드 성능 지표를 위한 신뢰할 수 있는 출처입니다."
+      "paragraph1": "{{networkName}}이든 다른 Antelope 기반 DPoS 네트워크이든, 토큰 보유자는 블록 프로듀서에게 투표할 때 공개된 데이터에 의존하며, 노드 운영자는 인프라를 원활하게 운영해야 합니다. Antelope Tools는 객관적인 데이터와 노드 성능 지표를 제공하는 신뢰할 수 있는 출처입니다."
     },
     "subtitle4": "데이터 출처",
     "body4": {
       "paragraph1": "저희는 노드 운영 엔티티와 블록체인 인프라에 대한 풍부하고 그래픽적인 통찰력을 제공합니다. 저희 데이터는 시스템 계약의 공개 프로듀서 테이블에서 직접 수집되며 실시간으로 업데이트되어 활성 엔티티에만 집중합니다. 그런 다음 bp.json 표준을 사용하여 블록 생산자의 URL에서 추가 데이터를 검색합니다."
-    },
-    "subtitle5": "자금 조달 및 지원",
-    "body5": {
-      "paragraph1": "안텔로프 도구는",
-      "pomelo": "포멜로 그랜트",
-      "paragraph2": "를 통해 관대하게 자금 지원을 받습니다. 이러한 재정 지원을 통해 서비스를 유지, 개선 및 확장할 수 있습니다. 저희가 하는 일에 가치를 느끼신다면 다음 포멜로 그랜트 라운드에서 저희를 지원하여 블록체인 네트워크를 더 투명하고 효율적으로 만드는 데 도움을 주세요."
     },
     "subtitle6": "참여하기",
     "body6": {
@@ -315,9 +313,9 @@
     "bpjsonGenerator": "BP.JSON 생성기 확인하기",
     "title4": "연락하기",
     "paragraph4": "저희 플랫폼을 지속적으로 개선하기 위해 여러분의 피드백이 중요합니다. 개선 사항을 제안하거나 문제를 보고하거나 저희 코드베이스에 기여해 주세요.",
-    "githubEOSCR": "Edenia GitHub 저장소 방문하기",
+    "githubEOSCR": "Antelope Tools GitHub 저장소 방문",
     "telegramChannel": "텔레그램 채널에서 대화 참여하기",
-    "websiteEOSCR": "Edenia의 Web3 개발 서비스 알아보기"
+    "websiteEOSCR": "EOSphere 웹사이트 방문"
   },
   "producerCardComponent": {
     "bpProfile>title": "{{bpName}} 블록 생산자 - {{networkName}} 대시보드",
@@ -414,7 +412,8 @@
   },
   "contractActionFormComponent": {
     "executeTransaction": "트랜잭션 실행",
-    "owner": "소유자"
+    "owner": "소유자",
+    "public_key": "공개 키"
   },
   "undiscoverableBPsRoute": {
     "noResultsFound": "잘했습니다! 모든 블록 생산자가 투명하게 운영되고 있습니다."

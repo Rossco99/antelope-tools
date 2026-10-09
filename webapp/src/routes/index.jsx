@@ -1,0 +1,240 @@
+import React, { lazy } from 'react'
+import {
+  Activity as ActivityIcon,
+  Grid as GridIcon,
+  Users as UsersIcon,
+  User as UserIcon,
+  UserX as UserXIcon,
+  Info as InfoIcon,
+  HelpCircle as HelpIcon,
+  Inbox as InboxIcon,
+  Cpu as CpuIcon,
+  BarChart as BarChartIcon,
+} from 'react-feather'
+import QueryStatsIcon from '@mui/icons-material/QueryStats'
+import GavelIcon from '@mui/icons-material/Gavel';
+
+import { eosConfig, generalConfig } from '../config'
+import {
+  BlockDistributionSvg,
+  RewardsDistributionSvg,
+  BPJsonSvg,
+  EndpointSvg,
+  RewardsSvg,
+  EVMDashboardSvg,
+  EVMEndpointsSvg,
+  NodesSvg
+} from '../components/Icons'
+
+const Home = lazy(() => import('./Home'))
+const CPUBenchmark = lazy(() => import('./CPUBenchmark'))
+const EndpointsStats = lazy(() => import('./EndpointsStats'))
+const BlockProducers = lazy(() => import('./BlockProducers'))
+const RewardsDistribution = lazy(() => import('./RewardsDistribution'))
+const Nodes = lazy(() => import('./Nodes'))
+const NodesDistribution = lazy(() => import('./NodesDistribution'))
+const Accounts = lazy(() => import('./Accounts'))
+const BPJson = lazy(() => import('./BPJson'))
+const Faucet = lazy(() => import('./Faucet'))
+const RicardianContract = lazy(() => import('./RicardianContract'))
+const About = lazy(() => import('./About'))
+const Help = lazy(() => import('./Help'))
+const Page404 = lazy(() => import('./Page404'))
+const BlockDistribution = lazy(() => import('./BlockDistribution'))
+const MissedBlocks = lazy(() => import('./MissedBlocks'))
+const EndpointsList = lazy(() => import('./EndpointsList'))
+const NonCompliantBPs = lazy(() => import('./NonCompliantBPs'))
+const StressTestDashboard = lazy(() => import('./StressTestDashboard'))
+const EVMDashboard = lazy(() => import('./EVMDashboard'))
+const EVMEndpointsList = lazy(() => import('./EVMEndpointsList'))
+const ProducerProfile = lazy(() => import('./ProducerProfile'))
+
+const defaultRoutes = [
+  {
+    header: 'networkInformation',
+    name: 'home',
+    icon: <GridIcon />,
+    component: Home,
+    path: '/',
+    exact: true,
+  },
+  {
+    name: 'blockProducers',
+    icon: <UsersIcon />,
+    component: BlockProducers,
+    path: '/block-producers',
+    exact: true,
+  },
+  {
+    component: ProducerProfile,
+    path: '/block-producers/:bpName',
+    useParams: true,
+    exact: true,
+  },
+  {
+    name: 'nonCompliantBPs',
+    icon: <UserXIcon />,
+    component: NonCompliantBPs,
+    path: '/undiscoverable-bps',
+    exact: true,
+  },
+  {
+    name: 'nodes',
+    icon: <NodesSvg />,
+    component: Nodes,
+    path: '/nodes',
+    exact: true,
+  },
+  {
+    name: 'endpointsList',
+    icon: <EndpointSvg />,
+    component: EndpointsList,
+    path: '/endpoints',
+    exact: true,
+  },
+  {
+    name: 'nodesDistribution',
+    icon: <RewardsDistributionSvg />,
+    component: NodesDistribution,
+    path: '/nodes-distribution',
+    exact: true,
+  },
+  {
+    name: 'rewardsDistribution',
+    icon: <RewardsSvg />,
+    component: RewardsDistribution,
+    path: '/rewards-distribution',
+    exact: true,
+  },
+  {
+    name: 'blockDistribution',
+    icon: <BlockDistributionSvg />,
+    component: BlockDistribution,
+    path: '/block-distribution',
+    exact: true,
+  },
+  {
+    name: 'missedBlocks',
+    icon: <InboxIcon />,
+    component: MissedBlocks,
+    path: '/missed-blocks',
+    exact: true,
+  },
+  {
+    name: 'stressTest',
+    icon: <BarChartIcon />,
+    component: StressTestDashboard,
+    path: '/stress-test',
+    exact: true,
+  },
+  {
+    name: 'cpuBenchmark',
+    icon: <ActivityIcon />,
+    component: CPUBenchmark,
+    path: '/cpu-benchmark',
+    exact: true,
+  },
+  {
+    name: 'endpointsStats',
+    icon: <QueryStatsIcon />,
+    component: EndpointsStats,
+    path: '/endpoints-stats',
+    exact: true,
+  },
+  {
+    name: 'ricardianContract',
+    icon: <GavelIcon />,
+    component: RicardianContract,
+    path: '/ricardian-contract',
+    exact: true,
+  },
+  {
+    header: 'EVM',
+    name: 'evm',
+    icon: <EVMDashboardSvg />,
+    component: EVMDashboard,
+    path: '/evm',
+    exact: true,
+  },
+  {
+    name: 'evm-rpc-endpoints',
+    icon: <EVMEndpointsSvg />,
+    component: EVMEndpointsList,
+    path: '/evm-rpc-endpoints',
+    exact: true,
+  },
+  {
+    header: 'tools',
+    name: 'accounts',
+    icon: <UserIcon />,
+    component: Accounts,
+    path: '/accounts',
+    useConnectWallet: true,
+    exact: true,
+  },
+  {
+    name: 'bpJson',
+    icon: <BPJsonSvg />,
+    component: BPJson,
+    path: '/bpjson',
+    useConnectWallet: true,
+    exact: true,
+  },
+]
+
+const advanceRoutes = [
+  {
+    name: 'faucet',
+    icon: <CpuIcon />,
+    component: Faucet,
+    path: '/faucet',
+    exact: true,
+  },
+]
+const helpRoutes = [
+  {
+    header: 'docs',
+    name: 'About',
+    icon: <InfoIcon />,
+    component: About,
+    path: '/about',
+    exact: true,
+  },
+  {
+    name: 'Help',
+    icon: <HelpIcon />,
+    component: Help,
+    path: '/help',
+    exact: true,
+  },
+  {
+    component: Page404,
+    path: '*',
+  },
+]
+
+let routes = []
+
+switch (eosConfig.networkName) {
+  case 'ultra-testnet':
+  case 'libre-testnet':
+    routes = [...defaultRoutes, ...advanceRoutes, ...helpRoutes]
+    break
+  default:
+    routes = [...defaultRoutes, ...helpRoutes]
+    break
+}
+// pages whose data comes from optional backend features
+const featurePages = {
+  '/cpu-benchmark': generalConfig.useCpuBenchmark,
+  '/block-distribution': generalConfig.historyEnabled,
+  '/missed-blocks': generalConfig.historyEnabled,
+}
+
+routes = routes.filter(
+  (route) =>
+    featurePages[route.path] !== false &&
+    !generalConfig.disabledMenuItems.includes(route.path),
+)
+
+export default routes

@@ -57,8 +57,6 @@ const useBlockProducerState = () => {
   })
 
   useEffect(() => {
-    if (eosConfig.networkName === 'lacchain') return
-
     const { where, ...filter } = CHIPS_FILTERS[CHIPS_NAMES.indexOf(filters)]
 
     setVariables(prev => ({
@@ -77,15 +75,7 @@ const useBlockProducerState = () => {
   }, [filters, setPagination])
 
   useEffect(() => {
-    let newItems = producers ?? []
-
-    if (eosConfig.networkName === 'lacchain' && filters !== 'all') {
-      newItems = newItems.filter(
-        producer => producer.bp_json?.type === filters,
-      )
-    }
-
-    setItems(newItems)
+    setItems(producers ?? [])
   }, [filters, producers])
 
   return [

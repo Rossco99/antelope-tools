@@ -1,8 +1,5 @@
 /* eslint complexity: 0 */
 /* eslint camelcase: 0 */
-import { eosConfig } from '../config'
-import { ENTITY_TYPE } from './lacchain'
-
 export const formatData = ({
   data,
   rank,
@@ -13,8 +10,6 @@ export const formatData = ({
   url
 }) => {
   const getSubTitle = () => {
-    if (eosConfig.networkName === 'lacchain') return `${ENTITY_TYPE[dataType]}`
-
     if (rank <= 21) return 'Top 21'
 
     if (rank > 21 && totalRewards >= 100) return 'Paid Standby'
@@ -59,7 +54,7 @@ export const formatData = ({
   const getOrder = name => order[name] ?? Infinity
 
   if (!data?.social?.github && typeof data?.github_user === 'string') {
-    data.social.github = data.github_user
+    data = { ...data, social: { ...data.social, github: data.github_user } }
   }
 
   const socialArray = data?.social

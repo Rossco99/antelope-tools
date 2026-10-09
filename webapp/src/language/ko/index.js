@@ -1,5 +1,4 @@
 import ko from './ko.json'
-import koLacchain from './ko.lacchain.json'
 import koTelosTestnet from './ko.telos-testnet.json'
 import koLibreTestnet from './ko.libre-testnet.json'
 import koLibre from './ko.libre.json'
@@ -14,7 +13,6 @@ import koUltraTestnet from './ko.ultra-testnet.json'
 
 export default {
   ko,
-  'ko.lacchain': koLacchain,
   'ko.telos': koTelos,
   'ko.xpr': koXPR,
   'ko.wax': koWax,

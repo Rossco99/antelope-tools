@@ -75,12 +75,6 @@ const useProducerProfileState = (name, previousData) => {
   }, [])
 
   useEffect(() => {
-    if (!eosRate) return
-
-    setProducer(prev => ({ ...prev, eosRate }))
-  }, [eosRate])
-
-  useEffect(() => {
     if (!nodesSubscription?.nodes || !producerKey) return
 
     setProducer(prev => ({
@@ -111,7 +105,13 @@ const useProducerProfileState = (name, previousData) => {
     setLdJson(prev => prev || JSON.stringify(getBPStructuredData(producer)))
   }, [producer])
 
-  return [{ loading, producer, ldJson }, {}]
+  // EOS Rate stats are kept apart from the producer: they can arrive before the
+  // producer data (and have only null fields when EOS Rate has no data), and a
+  // producer object without an owner makes the page redirect to 404
+  const producerWithRate =
+    producer?.owner && eosRate?.bp ? { ...producer, eosRate } : producer
+
+  return [{ loading, producer: producerWithRate, ldJson }, {}]
 }
 
 export default useProducerProfileState

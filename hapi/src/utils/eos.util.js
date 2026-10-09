@@ -1,49 +1,81 @@
-const { Api, JsonRpc } = require('eosjs')
-const { JsSignatureProvider } = require('eosjs/dist/eosjs-jssig')
-const fetch = require('node-fetch')
-const { TextEncoder, TextDecoder } = require('util')
-const EosApi = require('eosjs-api')
+const {
+  ABI,
+  Action,
+  API,
+  PackedTransaction,
+  PrivateKey,
+  PublicKey,
+  Serializer,
+  SignedTransaction,
+  Transaction
+} = require('@wharfkit/antelope')
 
 const { eosConfig } = require('../config')
 
 const walletUtil = require('./wallet.util')
 
-const textEncoder = new TextEncoder()
-const textDecoder = new TextDecoder()
-const rpc = new JsonRpc(eosConfig.apiEndpoint, { fetch })
-const eosApi = EosApi({
-  httpEndpoint: eosConfig.apiEndpoint,
-  verbose: false,
-  fetchConfiguration: {}
-})
-const eosApis = eosConfig.apiEndpoints.map(endpoint => {
-  return {
-    api: EosApi({
-      httpEndpoint: endpoint,
-      verbose: false,
-      fetchConfiguration: {}
-    }),
-    lastFailureTime: 0,
-    url: endpoint
-  }
-})
+const REQUEST_TIMEOUT = 30000
 const waitRequestInterval = 300000
+const endpoints = eosConfig.apiEndpoints.map(url => ({
+  url,
+  lastFailureTime: 0
+}))
 
-const callEosApi = async (funcName, method) => {
-  for (const eosApi of eosApis) {
-    const diffTime = new Date() - eosApi.lastFailureTime
+// The node answered with an error (unknown account, failed assertion, ...).
+// Unlike network errors and timeouts, this doesn't mean the endpoint is down.
+class ChainError extends Error {}
+
+const post = async (url, path, body = {}) => {
+  let response
+
+  try {
+    response = await fetch(`${url}${path}`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT)
+    })
+  } catch (error) {
+    if (error.name === 'TimeoutError') {
+      throw new Error(
+        `timeout error: the endpoint took more than ${REQUEST_TIMEOUT} ms to respond`
+      )
+    }
+
+    throw error
+  }
+
+  const data = await response.json().catch(() => null)
+
+  if (!response.ok) {
+    if (data?.error) {
+      const details = data.error.details?.[0]?.message
+
+      throw new ChainError(
+        `${data.error.what || data.message}${details ? `: ${details}` : ''}`
+      )
+    }
+
+    throw new Error(`${response.status} ${response.statusText}`)
+  }
+
+  return data
+}
+
+const callEosApi = async (funcName, path, body) => {
+  for (const endpoint of endpoints) {
+    const diffTime = new Date() - endpoint.lastFailureTime
 
     if (diffTime < waitRequestInterval) continue
 
     try {
-      const response = await callWithTimeout(method(eosApi.api), 30000)
-
-      return response
+      return await post(endpoint.url, path, body)
     } catch (error) {
-      eosApi.lastFailureTime = new Date()
+      if (error instanceof ChainError) throw error
+
+      endpoint.lastFailureTime = new Date()
 
       console.error(
-        `WARNING ${funcName} => ${eosApi.url} has failed: \n`,
+        `WARNING ${funcName} => ${endpoint.url} has failed: \n`,
         error.message
       )
     }
@@ -61,109 +93,168 @@ const callWithTimeout = async (promise, ms) => {
     timeoutID = setTimeout(() => reject(new Error(timeoutMessage)), ms)
   })
 
-  return Promise.race([promise, timeoutPromise])
-    .then(response => response)
-    .catch(error => {
-      throw error
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    clearTimeout(timeoutID)
+  })
+}
+
+const getAbi = account =>
+  callEosApi('getAbi', '/v1/chain/get_abi', { account_name: account })
+
+const getAccount = async account => {
+  try {
+    return await callEosApi('getAccount', '/v1/chain/get_account', {
+      account_name: account
     })
-    .finally(() => {
-      clearTimeout(timeoutID)
-    })
+  } catch (error) {
+    return null
+  }
+}
+
+const getBlock = blockNumber =>
+  callEosApi('getBlock', '/v1/chain/get_block', {
+    block_num_or_id: blockNumber
+  })
+
+const getCodeHash = account =>
+  callEosApi('getCodeHash', '/v1/chain/get_code_hash', {
+    account_name: account
+  })
+
+const getCurrencyBalance = (code, account, symbol) =>
+  callEosApi('getCurrencyBalance', '/v1/chain/get_currency_balance', {
+    code,
+    account,
+    symbol
+  })
+
+const getTableRows = options =>
+  callEosApi('getTableRows', '/v1/chain/get_table_rows', {
+    json: true,
+    ...options
+  })
+
+const getProducerSchedule = () =>
+  callEosApi('getProducerSchedule', '/v1/chain/get_producer_schedule')
+
+const getCurrencyStats = options =>
+  callEosApi('getCurrencyStats', '/v1/chain/get_currency_stats', options)
+
+const getProducers = options =>
+  callEosApi('getProducers', '/v1/chain/get_producers', options)
+
+const getInfo = () => callEosApi('getInfo', '/v1/chain/get_info')
+
+// Build, sign and push a transaction with the given private keys, signing only
+// with the keys the chain says are required (extra signatures are rejected)
+const signAndPush = async (actions, privateKeys) => {
+  const info = API.v1.GetInfoResponse.from(await getInfo())
+  const abis = {}
+
+  for (const account of new Set(actions.map(action => action.account))) {
+    abis[account] = ABI.from((await getAbi(account)).abi)
+  }
+
+  const transaction = Transaction.from({
+    ...info.getTransactionHeader(30),
+    actions: actions.map(action => Action.from(action, abis[action.account]))
+  })
+  const keys = privateKeys.map(key => PrivateKey.from(key))
+  const { required_keys: requiredKeys } = await callEosApi(
+    'getRequiredKeys',
+    '/v1/chain/get_required_keys',
+    {
+      transaction: Serializer.objectify(transaction),
+      available_keys: keys.map(key => String(key.toPublic()))
+    }
+  )
+  const digest = transaction.signingDigest(info.chain_id)
+  const signatures = requiredKeys.map(required => {
+    const publicKey = PublicKey.from(required)
+
+    return keys
+      .find(key => key.toPublic().equals(publicKey))
+      .signDigest(digest)
+  })
+  const packed = PackedTransaction.fromSigned(
+    SignedTransaction.from({ ...transaction, signatures })
+  )
+
+  return callEosApi(
+    'pushTransaction',
+    '/v1/chain/push_transaction',
+    Serializer.objectify(packed)
+  )
+}
+
+const transact = async (actions, account, password) => {
+  try {
+    await walletUtil.unlock(account, password)
+  } catch (error) {}
+
+  try {
+    const keys = await walletUtil.listKeys(account, password)
+
+    return await signAndPush(actions, keys)
+  } finally {
+    await walletUtil.lock(account)
+  }
 }
 
 const newAccount = async accountName => {
   const password = await walletUtil.create(accountName)
   const key = await walletUtil.createKey(accountName)
-
-  try {
-    await walletUtil.unlock(
-      eosConfig.baseAccount,
-      eosConfig.baseAccountPassword
-    )
-  } catch (error) {}
-
-  const keys = await walletUtil.listKeys(
-    eosConfig.baseAccount,
-    eosConfig.baseAccountPassword
-  )
-  const api = new Api({
-    rpc,
-    textDecoder,
-    textEncoder,
-    chainId: eosConfig.chainId,
-    signatureProvider: new JsSignatureProvider(keys)
-  })
   const authorization = [
     {
       actor: eosConfig.baseAccount,
       permission: 'active'
     }
   ]
-
-  const transaction = await api.transact(
-    {
-      actions: [
-        {
-          authorization,
-          account: 'eosio',
-          name: 'newaccount',
-          data: {
-            creator: eosConfig.baseAccount,
-            name: accountName,
-            owner: {
-              threshold: 1,
-              keys: [
-                {
-                  key,
-                  weight: 1
-                }
-              ],
-              accounts: [],
-              waits: []
-            },
-            active: {
-              threshold: 1,
-              keys: [
-                {
-                  key,
-                  weight: 1
-                }
-              ],
-              accounts: [],
-              waits: []
-            }
-          }
-        },
-        {
-          authorization,
-          account: 'eosio',
-          name: 'buyrambytes',
-          data: {
-            payer: eosConfig.baseAccount,
-            receiver: accountName,
-            bytes: 4096
-          }
-        },
-        {
-          authorization,
-          account: 'eosio',
-          name: 'delegatebw',
-          data: {
-            from: eosConfig.baseAccount,
-            receiver: accountName,
-            stake_net_quantity: '1.0000 EOS',
-            stake_cpu_quantity: '1.0000 EOS',
-            transfer: false
-          }
+  const authority = {
+    threshold: 1,
+    keys: [{ key, weight: 1 }],
+    accounts: [],
+    waits: []
+  }
+  const transaction = await transact(
+    [
+      {
+        authorization,
+        account: 'eosio',
+        name: 'newaccount',
+        data: {
+          creator: eosConfig.baseAccount,
+          name: accountName,
+          owner: authority,
+          active: authority
         }
-      ]
-    },
-    {
-      blocksBehind: 3,
-      expireSeconds: 30
-    }
+      },
+      {
+        authorization,
+        account: 'eosio',
+        name: 'buyrambytes',
+        data: {
+          payer: eosConfig.baseAccount,
+          receiver: accountName,
+          bytes: 4096
+        }
+      },
+      {
+        authorization,
+        account: 'eosio',
+        name: 'delegatebw',
+        data: {
+          from: eosConfig.baseAccount,
+          receiver: accountName,
+          stake_net_quantity: '1.0000 EOS',
+          stake_cpu_quantity: '1.0000 EOS',
+          transfer: false
+        }
+      }
+    ],
+    eosConfig.baseAccount,
+    eosConfig.baseAccountPassword
   )
-  await walletUtil.lock(eosConfig.baseAccount)
 
   return {
     password,
@@ -185,81 +276,10 @@ const generateRandomAccountName = async (prefix = '') => {
     )}`
   }
 
-  try {
-    const account = await getAccount(accountName)
+  const account = await getAccount(accountName)
 
-    return account ? generateRandomAccountName(prefix) : accountName
-  } catch (error) {
-    return accountName
-  }
+  return account ? generateRandomAccountName(prefix) : accountName
 }
-
-const getAbi = account => eosApi.getAbi(account)
-
-const getAccount = async account => {
-  try {
-    const accountInfo = await eosApi.getAccount(account)
-
-    return accountInfo
-  } catch (error) {
-    return null
-  }
-}
-
-const getBlock = async blockNumber => {
-  const block = await eosApi.getBlock(blockNumber)
-
-  return block
-}
-
-const getCodeHash = account => eosApi.getCodeHash(account)
-
-const getCurrencyBalance = (code, account, symbol) =>
-  eosApi.getCurrencyBalance(code, account, symbol)
-
-const getTableRows = options =>
-  callEosApi('getTableRows', async eosApi => eosApi.getTableRows({ json: true, ...options }))
-
-const getProducerSchedule = () => eosApi.getProducerSchedule({})
-
-const transact = async (actions, account, password) => {
-  try {
-    await walletUtil.unlock(account, password)
-  } catch (error) {}
-
-  const keys = await walletUtil.listKeys(account, password)
-  const api = new Api({
-    rpc,
-    textDecoder,
-    textEncoder,
-    chainId: eosConfig.chainId,
-    signatureProvider: new JsSignatureProvider(keys)
-  })
-
-  const transaction = await api.transact(
-    {
-      actions
-    },
-    {
-      blocksBehind: 3,
-      expireSeconds: 30
-    }
-  )
-
-  await walletUtil.lock(account)
-
-  return transaction
-}
-
-const getCurrencyStats = async options =>
-  callEosApi('getCurrencyStats', async eosApi =>
-    eosApi.getCurrencyStats(options)
-  )
-
-const getProducers = async options =>
-  callEosApi('getProducers', async eosApi => eosApi.getProducers(options))
-
-const getInfo = options => eosApi.getInfo(options || {})
 
 module.exports = {
   callWithTimeout,

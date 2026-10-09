@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLazyQuery } from '@apollo/client'
 import { useLocation } from 'react-router-dom'
-import queryString from 'query-string'
 
 import { ALL_NODES_QUERY } from '../../gql'
 import { eosConfig } from '../../config'
@@ -32,7 +31,7 @@ const useNodeDistributionState = () => {
   }, [])
 
   useEffect(() => {
-    const params = queryString.parse(location.search)
+    const params = Object.fromEntries(new URLSearchParams(location.search))
 
     if (!params.owner) return
 

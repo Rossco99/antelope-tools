@@ -1,13 +1,14 @@
 const WebSocket = require('ws')
-const { TextDecoder, TextEncoder } = require('text-encoding')
-const { Serialize } = require('eosjs')
+const { ABI, Serializer } = require('@wharfkit/antelope')
 
 const statsService = require('./stats.service')
 const { eosConfig } = require('../config')
 const { hasuraUtil, sleepFor, eosUtil } = require('../utils')
 
-let types
+let abi
 let ws
+// chain limits used to express block usage as a percentage; read on connect
+let blockLimits = { maxCpuUs: 200000, maxNetBytes: 1048576 }
 
 const getLastBlockNumInDatabase = async () => {
   const query = `
@@ -34,34 +35,11 @@ const saveBlocks = async (blocks) => {
   await hasuraUtil.request(upsertMutation, { blocks })
 }
 
-const deserialize = (type, array) => {
-  const buffer = new Serialize.SerialBuffer({
-    textEncoder: new TextEncoder(),
-    textDecoder: new TextDecoder(),
-    array
-  })
+const deserialize = (type, data) =>
+  Serializer.decode({ abi, type, data: new Uint8Array(data) })
 
-  const result = Serialize.getType(types, type).deserialize(
-    buffer,
-    new Serialize.SerializerState({ bytesAsUint8Array: true })
-  )
-
-  if (buffer.readPos !== array.length) {
-    throw new Error(type)
-  }
-
-  return result
-}
-
-const serialize = (type, value) => {
-  const buffer = new Serialize.SerialBuffer({
-    textEncoder: new TextEncoder(),
-    textDecoder: new TextDecoder()
-  })
-  Serialize.getType(types, type).serialize(buffer, value)
-
-  return buffer.asUint8Array()
-}
+const serialize = (type, value) =>
+  Serializer.encode({ abi, type, object: value }).array
 
 const send = async (message) => {
   if (ws.readyState === 1) {
@@ -95,7 +73,7 @@ let blocksData = []
 
 const handleBlocksResult = async (data) => {
   try {
-    if (!data.block || !data.block.length) {
+    if (!data.block?.array.length) {
       send(
         serialize('request', ['get_blocks_ack_request_v0', { num_messages: 1 }])
       )
@@ -103,20 +81,21 @@ const handleBlocksResult = async (data) => {
       return
     }
 
-    const block = {
-      ...deserialize('signed_block', data.block),
+    const block = Serializer.objectify({
+      ...deserialize('signed_block', data.block.array),
       head: data.head,
       last_irreversible: data.last_irreversible,
       this_block: data.this_block,
       prev_block: data.prev_block
-    }
+    })
 
     const usage = block?.transactions?.reduce(
       (total, current) => {
         total.cpu_usage +=
-          (current.cpu_usage_us / eosConfig.maxBlockCpuUsage) * 100 || 0
+          (current.cpu_usage_us / blockLimits.maxCpuUs) * 100 || 0
+        // net_usage_words is in 8 byte words, the block limit in bytes
         total.net_usage +=
-          (current.net_usage_words / eosConfig.maxBlockNetUsage) * 100 || 0
+          ((current.net_usage_words * 8) / blockLimits.maxNetBytes) * 100 || 0
         return total
       },
       { net_usage: 0, cpu_usage: 0 }
@@ -165,6 +144,28 @@ const cleanOldBlocks = async () => {
   await hasuraUtil.request(mutation, { date })
 }
 
+const loadBlockLimits = async () => {
+  try {
+    const {
+      rows: [global]
+    } = await eosUtil.getTableRows({
+      code: 'eosio',
+      scope: 'eosio',
+      table: 'global',
+      limit: 1
+    })
+
+    if (global?.max_block_cpu_usage && global?.max_block_net_usage) {
+      blockLimits = {
+        maxCpuUs: global.max_block_cpu_usage,
+        maxNetBytes: global.max_block_net_usage
+      }
+    }
+  } catch (error) {
+    console.warn('STATE HISTORY PLUGIN could not read block limits, using defaults', error.message)
+  }
+}
+
 const getStartBlockNum = async () => {
   const startBlockNum = await getLastBlockNumInDatabase()
 
@@ -191,6 +192,10 @@ const init = async () => {
 
   const startBlockNum = await getStartBlockNum()
 
+  await loadBlockLimits()
+
+  // the first message of every connection is the protocol ABI
+  abi = null
   ws = new WebSocket(eosConfig.stateHistoryPluginEndpoint, {
     perMessageDeflate: false,
     maxPayload: 2048 * 1024 * 1024
@@ -201,9 +206,8 @@ const init = async () => {
   })
 
   ws.on('message', (data) => {
-    if (!types) {
-      const abi = JSON.parse(data)
-      types = Serialize.getTypesFromAbi(Serialize.createInitialTypes(), abi)
+    if (!abi) {
+      abi = ABI.from(JSON.parse(data))
       requestBlocks({ start_block_num: startBlockNum })
 
       return

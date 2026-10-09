@@ -1,7 +1,10 @@
-FROM node:16.16.0  as build-stage
+FROM node:24-bookworm-slim AS build-stage
 
 ARG port
 ARG react_app_title
+ARG react_app_landing_url
+ARG react_app_repository_url
+ARG react_app_use_cpu_benchmark
 ARG react_app_default_producer_logo
 ARG react_app_footer_links
 ARG react_app_eos_rate_link
@@ -11,7 +14,6 @@ ARG react_app_hasura_url
 ARG react_app_eos_api_network_name
 ARG react_app_eos_api_network_label
 ARG react_app_eos_api_network_logo
-ARG react_app_eos_include_transaction
 ARG react_app_eos_api_hosts
 ARG react_app_eos_api_port
 ARG react_app_eos_api_protocol
@@ -26,7 +28,6 @@ ARG react_app_network_url
 ARG react_app_block_explorer_url
 ARG react_app_tag
 ARG react_app_state_history_enabled
-ARG react_app_google_analitic_page_id
 ARG react_app_public_re_captcha_key
 ARG react_app_sync_tolerance_interval
 ARG react_app_evm_endpoint
@@ -38,6 +39,9 @@ ENV PATH $WORK_DIR/node_modules/.bin:$PATH
 ENV NODE_ENV production
 ENV PORT $port
 ENV REACT_APP_TITLE $react_app_title
+ENV REACT_APP_LANDING_URL $react_app_landing_url
+ENV REACT_APP_REPOSITORY_URL $react_app_repository_url
+ENV REACT_APP_USE_CPU_BENCHMARK $react_app_use_cpu_benchmark
 ENV REACT_APP_DEFAULT_PRODUCER_LOGO $react_app_default_producer_logo
 ENV REACT_APP_FOOTER_LINKS $react_app_footer_links
 ENV REACT_APP_EOS_RATE_LINK $react_app_eos_rate_link
@@ -47,7 +51,6 @@ ENV REACT_APP_HASURA_URL $react_app_hasura_url
 ENV REACT_APP_EOS_API_NETWORK_NAME $react_app_eos_api_network_name
 ENV REACT_APP_EOS_API_NETWORK_LABEL $react_app_eos_api_network_label
 ENV REACT_APP_EOS_API_NETWORK_LOGO $react_app_eos_api_network_logo
-ENV REACT_APP_EOS_INCLUDE_TRANSACTION $react_app_eos_include_transaction
 ENV REACT_APP_EOS_API_HOSTS $react_app_eos_api_hosts
 ENV REACT_APP_EOS_API_PORT $react_app_eos_api_port
 ENV REACT_APP_EOS_API_PROTOCOL $react_app_eos_api_protocol
@@ -62,7 +65,6 @@ ENV REACT_APP_NETWORK_URL $react_app_network_url
 ENV REACT_APP_BLOCK_EXPLORER_URL $react_app_block_explorer_url
 ENV REACT_APP_VERSION $react_app_tag
 ENV REACT_APP_STATE_HISTORY_ENABLED $react_app_state_history_enabled
-ENV REACT_APP_GOOGLE_ANALITIC_PAGE_ID $react_app_google_analitic_page_id
 ENV REACT_APP_PUBLIC_RE_CAPTCHA_KEY $react_app_public_re_captcha_key
 ENV REACT_APP_SYNC_TOLERANCE_INTERVAL $react_app_sync_tolerance_interval
 ENV REACT_APP_EVM_ENDPOINT $react_app_evm_endpoint
@@ -81,7 +83,7 @@ COPY ./ $WORK_DIR
 
 RUN yarn build
 
-FROM nginx:1.17.10-alpine as run-stage
+FROM nginx:1.30.5-alpine AS run-stage
 
 COPY --from=build-stage /usr/src/app/build /usr/share/nginx/html
 COPY --from=build-stage /usr/src/app/compression.conf /etc/nginx/conf.d/compression.conf

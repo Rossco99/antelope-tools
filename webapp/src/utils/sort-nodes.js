@@ -11,7 +11,7 @@ export const sortNodes = (unsortedNodes, key) => {
   let nodes = []
   let producerNode
 
-  unsortedNodes.sort((a, b) => {
+  unsortedNodes = [...unsortedNodes].sort((a, b) => {
     return getOrderNode(a) - getOrderNode(b)
   })
 

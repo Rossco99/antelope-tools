@@ -1,6 +1,6 @@
 
 <div align="center">
-	<a href="https://antelope.tools">
+	<a href="https://antelope-tools.eosphere.io">
 		<img src="webapp/public/antelope-tools.png" width="400">
 	</a>
 
@@ -95,7 +95,6 @@ antelope-tools/
 │ ├── yarn-lock.json
 │ └── package.json
 ├── .env.jungle
-├── .env.lacchain
 ├── .env.local
 ├── .env.libre
 ├── .env.libretestnet
@@ -126,23 +125,21 @@ Basic knowledge about Docker, Docker Compose and NodeJS is required.
 
 Some things you need before getting started:
 
-- [docker](https://www.docker.com/)
+- [docker](https://docs.docker.com/engine/install/) with the Compose plugin (`docker compose`)
 - [git](https://git-scm.com/)
-- [node.js](https://nodejs.org/es/)
-- [yarn](https://yarnpkg.com/)
-- [Hasura CLI](https://hasura.io/docs/1.0/graphql/manual/hasura-cli/install-hasura-cli.html#install-hasura-cli)
+- [node.js](https://nodejs.org/) 24 LTS
+- [yarn](https://yarnpkg.com/) 1.x (`corepack enable`)
+- [Hasura CLI](https://hasura.io/docs/latest/hasura-cli/install-hasura-cli/) (optional, only for `make console`)
 
 #### Considerations for Windows
 
-If you are using Windows you need to install [WSL](https://docs.microsoft.com/en-us/windows/wsl/install) in version 2 and install a Linux distribution on Windows to run the project. In the Linux distribution is where you need to install git, node, yarn and Hasura CLI.
-
-Additionally, you need WSL to use Docker Desktop as an intermediate between Windows and the Linux distribution. Otherwise, if you have a computer with low hardware specifications, it's recommended to use Linux instead of Windows with WSL.
+On Windows, use [WSL 2](https://learn.microsoft.com/windows/wsl/install) with a Linux distribution and install Docker Engine, node and yarn inside the distribution. Enable systemd in `/etc/wsl.conf` and add your user to the `docker` group.
 
 ### First time
 
 1. Clone this repo using `git clone --depth=1 https://github.com/edenia/antelope-tools <YOUR_PROJECT_NAME>`.
 1. Move to the appropriate directory: `cd <YOUR_PROJECT_NAME>`.
-1. As Antelope Tools can have different configurations copy the environment variables according to your needs in the `.env` file or use `make run <NETWORK>` to use a configuration for a specific network.
+1. As Antelope Tools can have different configurations copy the environment variables according to your needs in the `.env` file or run `make <NETWORK>` (for example `make jungle`) to copy `.env.<NETWORK>` to `.env` and start everything.
 
 
 ```
@@ -205,11 +202,15 @@ REACT_APP_STATE_HISTORY_ENABLED=false
 
 ### Quick start
 
-At this point you can run `make start` or `make run <NETWORK>`, you can check the services runing on:
+At this point you can run `make start` (uses the existing `.env`) or `make <NETWORK>`. The backend services start in docker and the webapp dev server runs in the foreground:
 
 - hapi at http://localhost:9090/healthz
-- hasura at http://localhost:9695
+- hasura at http://localhost:8080 (`make console` opens the Hasura CLI console at http://localhost:9695)
 - webapp at http://localhost:3000
+
+Other useful targets: `make start-backend`, `make start-webapp`, `make logs`, `make smoke` (headless browser check of every page, screenshots in `smoke-results/`), `make stop` and `make clean` (removes this instance's containers and database volume).
+
+Host ports can be changed with `POSTGRES_PORT`, `HAPI_PORT`, `HAPI_EVM_PORT`, `HASURA_PORT`, `WEBAPP_PORT` and `WALLET_PORT` in `.env`, and `COMPOSE_PROJECT_NAME` keeps several network instances apart on the same host.
 
 ## Release Management Process
 

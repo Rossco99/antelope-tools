@@ -38,6 +38,20 @@ export default (theme) => ({
       marginBottom: theme.spacing(8),
     },
   },
+  // cards grow to fill the row (used on the producer profile)
+  nodesWrapperFull: {
+    width: '100% !important',
+    '& > div': {
+      flex: '1 1 260px',
+    },
+    // a single node doesn't stretch across the whole page
+    '& > div:only-child': {
+      maxWidth: '50%',
+      [theme.breakpoints.down('md')]: {
+        maxWidth: '100%',
+      },
+    },
+  },
   endpointsTitle: {
     display: 'flex',
   },

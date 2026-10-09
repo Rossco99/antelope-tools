@@ -1,56 +1,36 @@
-import { split } from 'apollo-link'
-import { ApolloClient } from 'apollo-client'
-import { createHttpLink } from 'apollo-link-http'
-import { setContext } from 'apollo-link-context'
-import { InMemoryCache } from 'apollo-cache-inmemory'
-import { WebSocketLink } from 'apollo-link-ws'
-import { getMainDefinition } from 'apollo-utilities'
+import { ApolloClient, InMemoryCache, createHttpLink, split } from '@apollo/client'
+import { setContext } from '@apollo/client/link/context'
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
+import { getMainDefinition } from '@apollo/client/utilities'
+import { createClient } from 'graphql-ws'
 
 import { graphqlConfig } from './config'
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token')
+
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
 
 const httpLink = createHttpLink({
   uri: graphqlConfig.url
 })
 
-const authLink = setContext((_, { headers }) => {
-  const token = localStorage.getItem('token')
-
-  if (!token) {
-    return {
-      headers
-    }
+const authLink = setContext((_, { headers }) => ({
+  headers: {
+    ...headers,
+    ...getAuthHeaders()
   }
+}))
 
-  return {
-    headers: {
-      ...headers,
-      Authorization: `Bearer ${token}`
-    }
-  }
-})
-
-const wsLink = new WebSocketLink({
-  uri: graphqlConfig.url.replace(/^http?/, 'ws').replace(/^https?/, 'wss'),
-  options: {
+const wsLink = new GraphQLWsLink(
+  createClient({
+    url: graphqlConfig.url.replace(/^http/, 'ws'),
     lazy: true,
-    reconnect: true,
-    connectionParams: async () => {
-      const token = localStorage.getItem('token')
-
-      if (!token) {
-        return {
-          headers: {}
-        }
-      }
-
-      return {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    }
-  }
-})
+    retryAttempts: Infinity,
+    connectionParams: () => ({ headers: getAuthHeaders() })
+  })
+)
 
 const link = split(
   ({ query }) => {

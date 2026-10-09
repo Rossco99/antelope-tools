@@ -1,0 +1,109 @@
+import React from 'react'
+import { useTheme } from '@mui/material/styles'
+import { makeStyles } from '@mui/styles'
+import { useTranslation } from 'react-i18next'
+import Card from '@mui/material/Card'
+import Link from '@mui/material/Link'
+import Typography from '@mui/material/Typography'
+
+import { eosConfig, generalConfig } from '../../config'
+import aboutDarkImg from '../../assets/about-dark.webp'
+import aboutLightImg from '../../assets/about-light.webp'
+
+import styles from './styles'
+
+const useStyles = makeStyles(styles)
+
+const About = () => {
+  const classes = useStyles()
+  const theme = useTheme()
+  const { t } = useTranslation('aboutRoute')
+  const networkNameLabel = eosConfig.networkLabel
+    .replace(' Mainnet', '')
+    .replace(' Testnet', '')
+ 
+  return (
+    <Card className={classes.mainText}>
+      <div className={classes.imageContainer}>
+        <img
+          src={theme.palette.mode === 'light' ? aboutLightImg : aboutDarkImg}
+          alt={
+            'All the networks on Antelope Tools with the EOSphere logo in the middle'
+          }
+        />
+      </div>
+      <div className={classes.boxInfo}>
+        <Typography variant="body2" paragraph>
+          {t('body.paragraph1', { networkName: networkNameLabel })}
+        </Typography>
+        <Typography component="h2" variant="h4">
+          {t('subtitle1')}
+        </Typography>
+        <Typography variant="body2" paragraph>
+          <Link
+            href="https://eosphere.io"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t('body1.eosphere')}
+          </Link>{' '}
+          {t('body1.paragraph1')}
+        </Typography>
+        <Typography variant="body2" paragraph>
+          {t('body1.paragraph2')}{' '}
+          <Link
+            href="https://edenia.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t('body1.edenia')}
+          </Link>{' '}
+          {t('body1.paragraph3')}
+        </Typography>
+        <Typography component="h2" variant="h4">
+          {t('subtitle2')}
+        </Typography>
+        <Typography variant="body2" paragraph>
+          {t('body2.paragraph1')}
+        </Typography>
+        <Typography component="h2" variant="h4">
+          {t('subtitle3')}
+        </Typography>
+        <Typography variant="body2" paragraph>
+          {t('body3.paragraph1', { networkName: networkNameLabel })}
+        </Typography>
+        <Typography component="h2" variant="h4">
+          {t('subtitle4')}
+        </Typography>
+        <Typography variant="body2" paragraph>
+          {t('body4.paragraph1')}
+        </Typography>
+        <Typography component="h2" variant="h4">
+          {t('subtitle6')}
+        </Typography>
+        <Typography variant="body2" paragraph>
+          {t('body6.paragraph1')}
+          <Link
+            href={generalConfig.repositoryUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t('body6.github')}
+          </Link>{' '}
+          {t('body6.paragraph2')}
+          <Link
+            href="https://t.me/eosphere_io"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t('body6.telegram')}
+          </Link>
+          {'. '}
+          {t('body6.paragraph3')}
+        </Typography>
+      </div>
+    </Card>
+  )
+}
+
+export default About

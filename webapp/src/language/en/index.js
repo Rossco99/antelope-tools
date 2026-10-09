@@ -1,5 +1,4 @@
 import en from './en.json'
-import enLacchain from './en.lacchain.json'
 import enTelosTestnet from './en.telos-testnet.json'
 import enLibreTestnet from './en.libre-testnet.json'
 import enLibre from './en.libre.json'
@@ -14,7 +13,6 @@ import enUltraTestnet from './en.ultra-testnet.json'
 
 export default {
   en,
-  'en.lacchain': enLacchain,
   'en.telos': enTelos,
   'en.xpr': enXPR,
   'en.wax': enWax,

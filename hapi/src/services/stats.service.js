@@ -306,7 +306,17 @@ const syncTPSAllTimeHigh = async () => {
   let end
 
   if (!lastValue) {
-    const firstBlockInDB = new Date(await getTimestampBlock('first'))
+    const firstBlockTimestamp = await getTimestampBlock('first')
+
+    // the state history sync hasn't stored any block yet
+    if (!firstBlockTimestamp) {
+      await sleepFor(60)
+      syncTPSAllTimeHigh()
+
+      return
+    }
+
+    const firstBlockInDB = new Date(firstBlockTimestamp)
 
     start = moment(firstBlockInDB)
     end = moment(start).add(

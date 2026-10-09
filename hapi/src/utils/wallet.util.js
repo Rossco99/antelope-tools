@@ -1,5 +1,3 @@
-const fetch = require('node-fetch')
-
 const { eosConfig } = require('../config')
 
 const post = async (endpoint, body) => {
