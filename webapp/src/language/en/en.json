@@ -38,7 +38,7 @@
     "net": "NET",
     "cpu": "CPU",
     "footer1": "Open Infrastructure Data for the Antelope Ecosystem",
-    "footer2": "Maintained by EOSphere",
+    "footer2": "Developed and operated by EOSphere",
     "executeTransaction": "Execute Transaction",
     "bugRequest": "Report a bug / Request a feature",
     "moreInfo": "More Info",
@@ -262,7 +262,7 @@
     "body1": {
       "eosphere": "EOSphere",
       "edenia": "Edenia",
-      "paragraph1": "is a block producer and infrastructure provider for Antelope networks, and maintains Antelope Tools. We run this dashboard as a public resource so token holders, node operators and developers can see how their networks are operating.",
+      "paragraph1": "is a block producer and infrastructure provider for Antelope networks, and develops and operates Antelope Tools. We run this dashboard as a public resource so token holders, node operators and developers can see how their networks are operating.",
       "paragraph2": "Antelope Tools was originally created by",
       "paragraph3": "(formerly EOS Costa Rica). We are grateful for their work, which this project continues as open-source software."
     },

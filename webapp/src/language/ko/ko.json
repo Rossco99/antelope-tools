@@ -38,7 +38,7 @@
     "net": "NET",
     "cpu": "CPU",
     "footer1": "Antelope 생태계를 위한 개방형 인프라 데이터",
-    "footer2": "EOSphere에서 관리",
+    "footer2": "EOSphere에서 개발 및 운영",
     "executeTransaction": "트랜잭션 실행",
     "bugRequest": "버그 신고 / 기능 요청",
     "moreInfo": "더 많은 정보",
@@ -261,7 +261,7 @@
     "body1": {
       "eosphere": "EOSphere",
       "edenia": "Edenia",
-      "paragraph1": "는 Antelope 네트워크의 블록 프로듀서이자 인프라 제공업체로, Antelope Tools를 관리하고 있습니다. 토큰 보유자, 노드 운영자, 개발자가 네트워크 운영 상황을 확인할 수 있도록 이 대시보드를 공공 리소스로 운영합니다.",
+      "paragraph1": "는 Antelope 네트워크의 블록 프로듀서이자 인프라 제공업체로, Antelope Tools를 개발하고 운영합니다. 토큰 보유자, 노드 운영자, 개발자가 네트워크 운영 상황을 확인할 수 있도록 이 대시보드를 공공 리소스로 운영합니다.",
       "paragraph2": "Antelope Tools는 원래",
       "paragraph3": "(이전 EOS Costa Rica)에서 개발했습니다. 그들의 작업에 감사드리며, 이 프로젝트는 오픈 소스 소프트웨어로 계속 이어집니다."
     },

@@ -50,7 +50,7 @@
     "6 Months": "6 Meses",
     "1 Year": "1 Año",
     "footer1": "Datos abiertos de infraestructura para el ecosistema Antelope",
-    "footer2": "Mantenido por EOSphere",
+    "footer2": "Desarrollado y operado por EOSphere",
     "bugRequest": "Reportar un problema / Solicitar una característica ",
     "moreInfo": "Más Información",
     "openLink": "Visitar Sitio",
@@ -266,7 +266,7 @@
     "body1": {
       "eosphere": "EOSphere",
       "edenia": "Edenia",
-      "paragraph1": "es un productor de bloques y proveedor de infraestructura para redes Antelope, y mantiene Antelope Tools. Ofrecemos este panel como un recurso público para que los poseedores de tokens, los operadores de nodos y los desarrolladores puedan ver cómo funcionan sus redes.",
+      "paragraph1": "es un productor de bloques y proveedor de infraestructura para redes Antelope, y desarrolla y opera Antelope Tools. Ofrecemos este panel como un recurso público para que los poseedores de tokens, los operadores de nodos y los desarrolladores puedan ver cómo funcionan sus redes.",
       "paragraph2": "Antelope Tools fue creado originalmente por",
       "paragraph3": "(anteriormente EOS Costa Rica). Agradecemos su trabajo, que este proyecto continúa como software de código abierto."
     },

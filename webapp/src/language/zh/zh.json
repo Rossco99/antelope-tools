@@ -38,7 +38,7 @@
     "net": "NET",
     "cpu": "CPU",
     "footer1": "面向 Antelope 生态系统的开放基础设施数据",
-    "footer2": "由 EOSphere 维护",
+    "footer2": "由 EOSphere 开发和运营",
     "executeTransaction": "执行交易",
     "bugRequest": "报告错误 / 请求功能",
     "moreInfo": "更多信息",
@@ -261,7 +261,7 @@
     "body1": {
       "eosphere": "EOSphere",
       "edenia": "Edenia",
-      "paragraph1": "是 Antelope 网络的区块生产者和基础设施提供商，负责维护 Antelope Tools。我们将此仪表板作为公共资源运营，让代币持有者、节点运营者和开发者都能了解其网络的运行情况。",
+      "paragraph1": "是 Antelope 网络的区块生产者和基础设施提供商，负责开发和运营 Antelope Tools。我们将此仪表板作为公共资源运营，让代币持有者、节点运营者和开发者都能了解其网络的运行情况。",
       "paragraph2": "Antelope Tools 最初由",
       "paragraph3": "（前身为 EOS Costa Rica）开发。我们感谢他们的工作，本项目将继续作为开源软件发展。"
     },
