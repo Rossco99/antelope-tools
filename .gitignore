@@ -1,8 +1,5 @@
-.env*
-!.env.example
-!.env.local
-!.env.telostestnet
-!.env.ultratestnet
+# the active network config written by `make <network>`; .env.<network> files are tracked
+.env
 .vscode/
 db_data
 wallet_data
