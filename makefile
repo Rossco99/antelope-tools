@@ -17,132 +17,49 @@ run:
 %:
 @:
 
-clean:
-	@docker compose stop
-	@rm -rf tmp/postgres
-	@rm -rf tmp/hapi
-	@rm -rf tmp/hapi-evm
-	@rm -rf tmp/webapp
-	@docker system prune
+NETWORKS := $(patsubst .env.%,%,$(wildcard .env.*))
+RELEASE_TAG := $(shell git describe --tags `git rev-list --tags --max-count=1` 2>/dev/null)
 
-jungle:
-	@cat ".env.jungle" | sed -e 's/REACT_APP_VERSION=dev/REACT_APP_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1`)/g' > ".env"
-	make stop
-	make start
+clean: ##@local Stop this instance and delete its containers and volumes (database included)
+	@docker compose down --volumes --remove-orphans
 
-telos:
-	@cat ".env.telos" | sed -e 's/REACT_APP_VERSION=dev/REACT_APP_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1`)/g' > ".env"
-	make stop
-	make start
+$(NETWORKS): ##@local Switch .env to the named network (e.g. make jungle) and start
+	@sed -e 's/REACT_APP_VERSION=dev/REACT_APP_VERSION=$(RELEASE_TAG)/g' ".env.$@" > ".env"
+	@$(MAKE) --no-print-directory stop
+	@$(MAKE) --no-print-directory start
 
-telostestnet:
-	@cat ".env.telostestnet" | sed -e 's/REACT_APP_VERSION=dev/REACT_APP_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1`)/g' > ".env"
-	make stop
-	make start
-
-lacchain:
-	@cat ".env.lacchain" | sed -e 's/REACT_APP_VERSION=dev/REACT_APP_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1`)/g' > ".env"
-	make stop
-	make start
-
-xprtestnet:
-	@cat ".env.xprtestnet" | sed -e 's/REACT_APP_VERSION=dev/REACT_APP_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1`)/g' > ".env"
-	make stop
-	make start
-
-xpr:
-	@cat ".env.xpr" | sed -e 's/REACT_APP_VERSION=dev/REACT_APP_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1`)/g' > ".env"
-	make stop
-	make start
-
-waxtestnet:
-	@cat ".env.waxtestnet" | sed -e 's/REACT_APP_VERSION=dev/REACT_APP_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1`)/g' > ".env"
-	make stop
-	make start
-
-libre:
-	@cat ".env.libre" | sed -e 's/REACT_APP_VERSION=dev/REACT_APP_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1`)/g' > ".env"
-	make stop
-	make start
-
-ultratestnet:
-	@cat ".env.ultratestnet" | sed -e 's/REACT_APP_VERSION=dev/REACT_APP_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1`)/g' > ".env"
-	make stop
-	make start
-
-libretestnet:
-	@cat ".env.libretestnet" | sed -e 's/REACT_APP_VERSION=dev/REACT_APP_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1`)/g' > ".env"
-	make stop
-	make start
-
-local:
-	@cat ".env.local" | sed -e 's/REACT_APP_VERSION=dev/REACT_APP_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1`)/g' > ".env"
-	make stop
-	make start
-
-mainnet:
-	@cat ".env.mainnet" | sed -e 's/REACT_APP_VERSION=dev/REACT_APP_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1`)/g' > ".env"
-	make stop
-	make start
-
-stop:
+stop: ##@local Stop all services
 	@docker compose stop
 
-start:
-	make start-postgres
-#	make start-wallet
-	make start-hapi
-#	make start-hapi-evm
-	make start-hasura
-	make -j 3 start-hasura-cli start-logs start-webapp
+start: ##@local Start backend services, then the webapp dev server in the foreground
+	@$(MAKE) --no-print-directory start-backend
+	@$(MAKE) --no-print-directory start-webapp
+
+start-backend: ##@local Start postgres, hapi and hasura and wait until they are healthy
+	@docker compose up -d --build --renew-anon-volumes --wait postgres hapi hasura
+	@until curl -fs -o /dev/null http://localhost:$${HASURA_PORT:-8080}/healthz; \
+		do echo "$(BLUE)hasura |$(RESET) waiting for hasura"; sleep 3; done
 
 start-postgres:
-	@docker compose up -d --build postgres
+	@docker compose up -d --build --wait postgres
 
 start-wallet:
-	@docker compose up -d --build wallet
+	@docker compose up -d --build --wait wallet
 
 start-hapi:
-	@docker compose up -d --build hapi
+	@docker compose up -d --build --renew-anon-volumes --wait hapi
 
 start-hapi-evm:
-	@docker compose up -d --build hapi-evm
+	@docker compose up -d --build --renew-anon-volumes --wait hapi-evm
 
 start-hasura:
-	$(eval -include .env)
-	@until \
-		docker compose exec -T postgres pg_isready; \
-		do echo "$(BLUE)$(STAGE)-$(APP_NAME)-hasura |$(RESET) waiting for postgres service"; \
-		sleep 5; done;
-	@until \
-		curl http://localhost:9090/healthz; \
-		do echo "$(BLUE)$(STAGE)-$(APP_NAME)-hasura |$(RESET) waiting for hapi service"; \
-		sleep 5; done;
-#	@until \
-		curl http://localhost:9091/healthz; \
-		do echo "$(BLUE)$(STAGE)-$(APP_NAME)-hasura |$(RESET) waiting for hapi-evm service"; \
-		sleep 5; done;
-	@echo "..."
-	@docker compose stop hasura
-	@docker compose up -d --build hasura
+	@docker compose up -d --build --wait hasura
 
-start-hasura-cli:
-	$(eval -include .env)
-	@until \
-		curl http://localhost:8080/healthz; \
-		do echo "$(BLUE)$(STAGE)-$(APP_NAME)-hasura |$(RESET) ..."; \
-		sleep 5; done;
-	@echo "..."
-	@cd hasura && hasura console --endpoint http://localhost:8080 --skip-update-check --no-browser --admin-secret $(HASURA_GRAPHQL_ADMIN_SECRET);
+start-webapp: ##@local Run the webapp dev server against the running backend
+	@cd webapp && yarn && CI=true BROWSER=none yarn start:local | cat
 
-start-webapp:
-	$(eval -include .env)
-	@until \
-		curl -s -o /dev/null -w 'hasura status %{http_code}\n' http://localhost:8080/healthz; \
-		do echo "$(BLUE)$(STAGE)-$(APP_NAME)-webapp |$(RESET) waiting for hasura service"; \
-		sleep 5; done;
-	@cd webapp && yarn && yarn start:local | cat
-	@echo "done webapp"
+console: ##@local Open the Hasura console (requires the hasura CLI)
+	@cd hasura && hasura console --endpoint http://localhost:$${HASURA_PORT:-8080} --skip-update-check --no-browser --admin-secret $(HASURA_GRAPHQL_ADMIN_SECRET)
 
 update-sitemaps:
 	python3 ./scripts/updateSitemaps.py --path ./webapp/public/
@@ -165,8 +82,8 @@ add-language-webapp: ##copy en files in a new folder based on lang=
 	@echo "$${lang} added successfully"
 	@echo "Now it can be important where it is needed"
 
-start-logs:
-	@docker compose logs -f hapi hapi-evm webapp
+logs: ##@local Follow backend logs
+	@docker compose logs -f hapi hasura
 
 build-kubernetes: ##@devops Generate proper k8s files based on the templates
 build-kubernetes: ./kubernetes

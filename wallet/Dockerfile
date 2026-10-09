@@ -1,33 +1,33 @@
-FROM ubuntu:22.04 as install-stage
+FROM ubuntu:24.04 AS install-stage
 
-ENV WORK_DIR /opt/application
-ENV SPRING_PACKAGE_URL https://github.com/AntelopeIO/spring/releases/download/v1.2.2/antelope-spring_1.2.2_amd64.deb
+# Spring release to install. SPRING_REPO can point at a fork (e.g. eosphere/spring)
+# once that fork publishes release .deb packages.
+ARG SPRING_REPO=AntelopeIO/spring
+ARG SPRING_VERSION=1.2.2
+ARG SPRING_SHA256=531ed1c965f94dd7732f5e900401f132170769c45b7589819a0ba1336627687a
 
-# Install wget
-RUN apt-get update && apt-get install -y wget
+ENV WORK_DIR=/opt/application
 
 # Install Spring (includes nodeos, cleos, keosd)
-RUN wget -O spring.deb $SPRING_PACKAGE_URL
-RUN apt-get install -y /spring.deb
-
-# Remove all of the unnecessary files and apt cache
-RUN rm ./spring.deb \
-  && apt-get remove -y wget \
-  && apt-get clean \
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates curl \
+  && curl -fsSL -o /tmp/spring.deb \
+    "https://github.com/${SPRING_REPO}/releases/download/v${SPRING_VERSION}/antelope-spring_${SPRING_VERSION}_amd64.deb" \
+  && echo "${SPRING_SHA256}  /tmp/spring.deb" | sha256sum -c - \
+  && apt-get install -y --no-install-recommends /tmp/spring.deb \
+  && rm /tmp/spring.deb \
+  && apt-get purge -y curl \
+  && apt-get autoremove -y \
   && rm -rf /var/lib/apt/lists/*
 
-# Define working directory
 WORKDIR $WORK_DIR
 
-# Copy application code
-COPY ./ $WORK_DIR
+COPY ./config $WORK_DIR/config
 
 # ------------------------------
 
-FROM install-stage as run-stage
-
-ENV WORK_DIR /opt/application
+FROM install-stage AS run-stage
 
 EXPOSE 8888
 
-ENTRYPOINT keosd --data-dir $WORK_DIR/data --config-dir $WORK_DIR/config
+ENTRYPOINT ["sh", "-c", "exec keosd --data-dir \"$WORK_DIR/data\" --config-dir \"$WORK_DIR/config\""]
