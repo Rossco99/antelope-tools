@@ -7,6 +7,8 @@ const { hasuraUtil, sleepFor, eosUtil } = require('../utils')
 
 let abi
 let ws
+// chain limits used to express block usage as a percentage; read on connect
+let blockLimits = { maxCpuUs: 200000, maxNetBytes: 1048576 }
 
 const getLastBlockNumInDatabase = async () => {
   const query = `
@@ -90,9 +92,10 @@ const handleBlocksResult = async (data) => {
     const usage = block?.transactions?.reduce(
       (total, current) => {
         total.cpu_usage +=
-          (current.cpu_usage_us / eosConfig.maxBlockCpuUsage) * 100 || 0
+          (current.cpu_usage_us / blockLimits.maxCpuUs) * 100 || 0
+        // net_usage_words is in 8 byte words, the block limit in bytes
         total.net_usage +=
-          (current.net_usage_words / eosConfig.maxBlockNetUsage) * 100 || 0
+          ((current.net_usage_words * 8) / blockLimits.maxNetBytes) * 100 || 0
         return total
       },
       { net_usage: 0, cpu_usage: 0 }
@@ -141,6 +144,28 @@ const cleanOldBlocks = async () => {
   await hasuraUtil.request(mutation, { date })
 }
 
+const loadBlockLimits = async () => {
+  try {
+    const {
+      rows: [global]
+    } = await eosUtil.getTableRows({
+      code: 'eosio',
+      scope: 'eosio',
+      table: 'global',
+      limit: 1
+    })
+
+    if (global?.max_block_cpu_usage && global?.max_block_net_usage) {
+      blockLimits = {
+        maxCpuUs: global.max_block_cpu_usage,
+        maxNetBytes: global.max_block_net_usage
+      }
+    }
+  } catch (error) {
+    console.warn('STATE HISTORY PLUGIN could not read block limits, using defaults', error.message)
+  }
+}
+
 const getStartBlockNum = async () => {
   const startBlockNum = await getLastBlockNumInDatabase()
 
@@ -166,6 +191,8 @@ const init = async () => {
   }
 
   const startBlockNum = await getStartBlockNum()
+
+  await loadBlockLimits()
 
   // the first message of every connection is the protocol ABI
   abi = null
