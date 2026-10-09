@@ -3,6 +3,7 @@ FROM node:24-bookworm-slim AS build-stage
 ARG port
 ARG react_app_title
 ARG react_app_landing_url
+ARG react_app_repository_url
 ARG react_app_use_cpu_benchmark
 ARG react_app_default_producer_logo
 ARG react_app_footer_links
@@ -39,6 +40,7 @@ ENV NODE_ENV production
 ENV PORT $port
 ENV REACT_APP_TITLE $react_app_title
 ENV REACT_APP_LANDING_URL $react_app_landing_url
+ENV REACT_APP_REPOSITORY_URL $react_app_repository_url
 ENV REACT_APP_USE_CPU_BENCHMARK $react_app_use_cpu_benchmark
 ENV REACT_APP_DEFAULT_PRODUCER_LOGO $react_app_default_producer_logo
 ENV REACT_APP_FOOTER_LINKS $react_app_footer_links

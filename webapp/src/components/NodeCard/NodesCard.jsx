@@ -19,7 +19,7 @@ import styles from './styles'
 
 const useStyles = makeStyles(styles)
 
-const NodesCard = ({ nodes, hideFeatures = false }) => {
+const NodesCard = ({ nodes, hideFeatures = false, fullWidth = false }) => {
   const classes = useStyles()
   const { t } = useTranslation('nodeCardComponent')
 
@@ -113,7 +113,11 @@ const NodesCard = ({ nodes, hideFeatures = false }) => {
   }
 
   return (
-    <div className={classes.nodesWrapper}>
+    <div
+      className={`${classes.nodesWrapper} ${
+        fullWidth ? classes.nodesWrapperFull : ''
+      }`}
+    >
       {(nodes || []).map((node, index) => (
         <div key={`node-${index}`} className={classes.nodes}>
           <CardHeader
@@ -132,6 +136,7 @@ const NodesCard = ({ nodes, hideFeatures = false }) => {
 
 NodesCard.propTypes = {
   nodes: PropTypes.array,
-  hideFeatures: PropTypes.bool
+  hideFeatures: PropTypes.bool,
+  fullWidth: PropTypes.bool,
 }
 export default NodesCard

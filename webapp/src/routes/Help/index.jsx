@@ -9,6 +9,7 @@ import TelegramIcon from '@mui/icons-material/Telegram'
 import GitHubIcon from '@mui/icons-material/GitHub'
 
 import LocaleLink from '../../components/LocaleLink'
+import { generalConfig } from '../../config'
 
 import styles from './styles'
 
@@ -66,27 +67,27 @@ const Help = () => {
               <b>{t('subBullet2Title')} </b>
               {t('subBullet2')}
               <Link
-                href="https://edenia.com"
+                href="https://eosphere.io"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                https://edenia.com
+                https://eosphere.io
               </Link>
               {t('subBullet2b')}
               <Link
-                href="https://edenia.com/chains.json"
+                href="https://eosphere.io/chains.json"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                https://edenia.com/chains.json
+                https://eosphere.io/chains.json
               </Link>
               {t('subBullet2c')}
               <Link
-                href="https://edenia.com/bp.json"
+                href="https://eosphere.io/bp.json"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                https://edenia.com/bp.json
+                https://eosphere.io/bp.json
               </Link>
               {'.'}
             </li>
@@ -115,19 +116,19 @@ const Help = () => {
       </Typography>
       <div className={classes.boxLinks}>
         <GitHubIcon />
-        <Link href="https://github.com/edenia" target="_blank" rel="noreferrer">
+        <Link href={generalConfig.repositoryUrl} target="_blank" rel="noreferrer">
           <Typography variant="body1">{t('githubEOSCR')}</Typography>
         </Link>
       </div>
       <div className={classes.boxLinks}>
         <TelegramIcon />
-        <Link href="https://t.me/eoscr" target="_blank" rel="noreferrer">
+        <Link href="https://t.me/eosphere_io" target="_blank" rel="noreferrer">
           <Typography variant="body1">{t('telegramChannel')}</Typography>
         </Link>
       </div>
       <div className={classes.boxLinks}>
         <HttpIcon />
-        <Link href="https://edenia.com" target="_blank" rel="noreferrer">
+        <Link href="https://eosphere.io" target="_blank" rel="noreferrer">
           <Typography variant="body1">{t('websiteEOSCR')}</Typography>
         </Link>
       </div>

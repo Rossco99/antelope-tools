@@ -50,7 +50,7 @@
     "6 Months": "6 Meses",
     "1 Year": "1 Año",
     "footer1": "Esta aplicación es un bien Público Comunitario",
-    "footer2": "Desarrollado por Edenia",
+    "footer2": "Mantenido por EOSphere",
     "bugRequest": "Reportar un problema / Solicitar una característica ",
     "moreInfo": "Más Información",
     "openLink": "Visitar Sitio",
@@ -59,7 +59,8 @@
     "updatedAt": "Última actualización",
     "nextUpdateAt": "Próxima actualización",
     "secondsAgo": "Hace Segundos",
-    "goBack": "Regresar"
+    "goBack": "Regresar",
+    "footer3": "Creado originalmente por Edenia"
   },
   "routes": {
     "/>sidebar": "Monitor",
@@ -116,7 +117,7 @@
     "/about>sidebar": "Acerca de",
     "/about>title": "Acerca de - Monitor de Infraestructura Blockchain de {{networkName}}",
     "/about>heading": "Acerca de Antelope Tools",
-    "/about>moreDescription": "Conozca más sobre Edenia y Antelope Tools su importancia y como puede involucrarse",
+    "/about>moreDescription": "Conozca más sobre EOSphere y Antelope Tools su importancia y como puede involucrarse",
     "/help>sidebar": "Ayuda",
     "/help>title": "Ayuda - Monitor de red de {{networkName}}",
     "/help>heading": "Bienvenidos al Centro de Ayuda de Antelope Tools",
@@ -261,10 +262,13 @@
     "body": {
       "paragraph1": "Bienvenido a Antelope Tools, su solución integral para la visualización y monitoreo en tiempo real de las blockchains de Antelope y EOSIO. Diseñado para ser la herramienta definitiva de monitoreo de redes blockchain, proporcionamos análisis de datos en tiempo real, información sobre los Productores de Bloques y mucho más."
     },
-    "subtitle1": "Acerca de Edenia",
+    "subtitle1": "Acerca de EOSphere",
     "body1": {
+      "eosphere": "EOSphere",
       "edenia": "Edenia",
-      "paragraph1": "es el equipo dedicado de expertos en blockchain detrás de Antelope Tools. Con años de experiencia en tecnología blockchain y una pasión por la transparencia y la fiabilidad, aspiramos a hacer que el ecosistema Web3 sea más accesible y fácil de usar. Nuestro equipo está comprometido con la innovación continua, asegurando que Antelope Tools siga siendo la herramienta líder en monitoreo de redes blockchain de Antelope."
+      "paragraph1": "es un productor de bloques y proveedor de infraestructura para redes Antelope, y mantiene Antelope Tools. Ofrecemos este panel como un recurso público para que los poseedores de tokens, los operadores de nodos y los desarrolladores puedan ver cómo funcionan sus redes.",
+      "paragraph2": "Antelope Tools fue creado originalmente por",
+      "paragraph3": "(anteriormente EOS Costa Rica). Agradecemos su trabajo, que este proyecto continúa como software de código abierto."
     },
     "subtitle2": "¿Por qué elegir Antelope Tools?",
     "body2": {
@@ -272,17 +276,11 @@
     },
     "subtitle3": "La importancia del monitoreo de la red",
     "body3": {
-      "paragraph1": "Ya sea que se encuentre en la {{networkName}} o en cualquier otra red EOSIO basada en DPoS, los tenedores de tokens dependen de los datos disponibles para votar por los Productores de Bloques. En redes con permisos como LACChain, los operadores de nodos deben asegurar un funcionamiento fluido de la red. Antelope Tools es su fuente confiable para datos objetivos y métricas de rendimiento de nodos."
+      "paragraph1": "Ya sea que esté en la {{networkName}} o en cualquier otra red DPoS basada en Antelope, los poseedores de tokens dependen de los datos disponibles para votar por los Productores de Bloques, y los operadores de nodos necesitan mantener su infraestructura funcionando sin problemas. Antelope Tools es una fuente confiable de datos objetivos y métricas de rendimiento de los nodos."
     },
     "subtitle4": "Fuente de datos",
     "body4": {
       "paragraph1": "Ofrecemos una visión gráfica y detallada de las entidades que operan nodos e infraestructuras blockchain. Nuestros datos se obtienen directamente de la tabla pública de productores en los contratos del sistema y se actualizan en tiempo real para centrarse solo en entidades activas. Luego utilizamos el estándar bp.json para obtener datos adicionales de las URL de los Productores de Bloques."
-    },
-    "subtitle5": "Financiamiento y apoyo",
-    "body5": {
-      "paragraph1": "Antelope Tools está generosamente financiado a través de",
-      "pomelo": "Pomelo Grants",
-      "paragraph2": ", una plataforma de financiamiento impulsada por la comunidad. Este apoyo financiero nos permite mantener, mejorar y expandir nuestros servicios. Si encuentra valor en lo que hacemos, considere apoyarnos en la próxima ronda de Pomelo Grant para ayudarnos a seguir haciendo que las redes blockchain sean más transparentes y eficientes."
     },
     "subtitle6": "Participe",
     "body6": {
@@ -320,9 +318,9 @@
     "bpjsonGenerator": "Visite nuestro Generador de BP.JSON",
     "title4": "Contáctenos",
     "paragraph4": "Su retroalimentación es crucial ya que aspiramos a mejorar continuamente nuestra plataforma. No dude en sugerir mejoras, informar problemas o contribuir a nuestro código base.",
-    "githubEOSCR": "Visite nuestro Repositorio en GitHub",
+    "githubEOSCR": "Visite el repositorio de GitHub de Antelope Tools",
     "telegramChannel": "Únase a la Conversación en Nuestro Canal de Telegram",
-    "websiteEOSCR": "Descubra Servicios de Desarrollo Web3 por Edenia"
+    "websiteEOSCR": "Visite el sitio web de EOSphere"
   },
   "producerCardComponent": {
     "rank": "Rango",

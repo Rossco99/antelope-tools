@@ -74,7 +74,7 @@ const ProducerProfile = () => {
       {!producer?.hasEmptyBPJson && !!producer?.nodes?.length && (
         <Suspense fallback={<CircularProgress />}>
           <WrapperContainer title={t('nodes')}>
-            <NodesCard nodes={producer.nodes} />
+            <NodesCard nodes={producer.nodes} fullWidth />
           </WrapperContainer>
         </Suspense>
       )}

@@ -38,7 +38,7 @@
     "net": "NET",
     "cpu": "CPU",
     "footer1": "此应用是社区公共产品",
-    "footer2": "由 Edenia 自豪地开发",
+    "footer2": "由 EOSphere 维护",
     "executeTransaction": "执行交易",
     "bugRequest": "报告错误 / 请求功能",
     "moreInfo": "更多信息",
@@ -51,7 +51,8 @@
     "metaTitle": "Antelope Tools 网络监控多个 Antelope 和 EOSIO 链的实时基础设施数据。",
     "metaDescription": "Antelope Tools 仪表板是一个网络监控器，显示多个 Antelope 和 EOSIO 链的区块生产者节点和区块链基础设施的实时数据。",
     "goBack": "返回",
-    "translationInProgress": "翻译进行中，如发现错误请告知我们。"
+    "translationInProgress": "翻译进行中，如发现错误请告知我们。",
+    "footer3": "最初由 Edenia 开发"
   },
   "routes": {
     "/>sidebar": "仪表板",
@@ -113,7 +114,7 @@
     "/about>sidebar": "关于",
     "/about>title": "关于 - {{networkName}} 网络监控和基础设施仪表板",
     "/about>heading": "关于 Antelope 工具",
-    "/about>moreDescription": "了解更多关于 Edenia 和 Antelope 工具项目，其重要性以及如何参与",
+    "/about>moreDescription": "了解更多关于 EOSphere 和 Antelope 工具项目，其重要性以及如何参与",
     "/help>sidebar": "帮助",
     "/help>title": "帮助 - {{networkName}} 网络仪表板",
     "/help>heading": "欢迎来到 Antelope 工具帮助中心",
@@ -256,10 +257,13 @@
     "body": {
       "paragraph1": "欢迎使用 Antelope Tools，这是您实时可视化和监控 Antelope 和 EOSIO 区块链的一站式解决方案。作为最终的区块链网络监控工具，我们提供实时数据分析、出块生产者洞察力等等。"
     },
-    "subtitle1": "关于 Edenia",
+    "subtitle1": "关于 EOSphere",
     "body1": {
+      "eosphere": "EOSphere",
       "edenia": "Edenia",
-      "paragraph1": "是 Antelope Tools 背后的区块链专家团队。拥有多年的区块链技术经验和对透明性和可靠性的热情，我们旨在使 Web3 生态系统更加可访问和用户友好。我们的团队致力于不断创新，确保 Antelope Tools 保持领先地位，成为 Antelope 区块链网络监控工具的佼佼者。"
+      "paragraph1": "是 Antelope 网络的区块生产者和基础设施提供商，负责维护 Antelope Tools。我们将此仪表板作为公共资源运营，让代币持有者、节点运营者和开发者都能了解其网络的运行情况。",
+      "paragraph2": "Antelope Tools 最初由",
+      "paragraph3": "（前身为 EOS Costa Rica）开发。我们感谢他们的工作，本项目将继续作为开源软件发展。"
     },
     "subtitle2": "为什么选择 Antelope Tools？",
     "body2": {
@@ -267,17 +271,11 @@
     },
     "subtitle3": "网络监控的重要性",
     "body3": {
-      "paragraph1": "无论您是在 {{networkName}} 上，还是在任何其他基于 EOSIO 的 DPoS 网络上，令牌持有者都依赖可用数据来为出块生产者投票。在像 LACChain 这样的许可网络中，节点运营商必须确保网络功能的无缝性。Antelope Tools 是您可靠的数据和节点性能指标来源。"
+      "paragraph1": "无论您是在 {{networkName}} 上，还是在任何其他基于 Antelope 的 DPoS 网络上，代币持有者都依赖可用数据为区块生产者投票，节点运营者也需要确保其基础设施平稳运行。Antelope Tools 是客观数据和节点性能指标的可靠来源。"
     },
     "subtitle4": "数据来源",
     "body4": {
       "paragraph1": "我们提供有关运营节点和区块链基础设施的丰富图形见解。我们的数据直接来自系统合同的公共生产者表，并实时更新，以仅关注活跃实体。然后，我们使用 bp.json 标准从出块生产者的 URL 中检索其他数据。"
-    },
-    "subtitle5": "资金支持",
-    "body5": {
-      "paragraph1": "Antelope Tools 受到慷慨的资助，通过",
-      "pomelo": "Pomelo Grants",
-      "paragraph2": "，这是一个社区驱动的资金平台。这种财政支持使我们能够维护、改进和扩展我们的服务。如果您认为我们所做的有价值，请考虑在下一轮 Pomelo Grants 中支持我们，帮助我们继续使区块链网络更加透明和高效。"
     },
     "subtitle6": "参与其中",
     "body6": {
@@ -315,9 +313,9 @@
     "bpjsonGenerator": "查看我们的 BP.JSON 生成器",
     "title4": "联系我们",
     "paragraph4": "您的反馈对我们非常重要，因为我们的目标是不断提升我们的平台。请随时提出改进意见、报告问题或为我们的代码库做出贡献。",
-    "githubEOSCR": "访问我们的 Edenia GitHub 存储库",
+    "githubEOSCR": "访问 Antelope Tools 的 GitHub 仓库",
     "telegramChannel": "加入我们的 Telegram 频道进行讨论",
-    "websiteEOSCR": "了解 Edenia 的 Web3 开发服务"
+    "websiteEOSCR": "访问 EOSphere 网站"
   },
   "producerCardComponent": {
     "bpProfile>title": "{{bpName}} 出块生产者 - {{networkName}} 仪表板",

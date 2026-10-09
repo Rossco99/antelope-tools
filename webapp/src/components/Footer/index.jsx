@@ -36,19 +36,28 @@ const Footer = () => {
         <div className={classes.midText}>{t('footer1')}</div>
         <Link
           underline="none"
-          href="https://edenia.com/"
+          href="https://eosphere.io/"
           target="_blank"
           rel="noopener noreferrer"
         >
           <div className={classes.midFooter}>
             {t('footer2')}
             <img
-              alt="Edenia website"
-              src={'/edenia.webp'}
+              alt="EOSphere website"
+              src={'/eosphere.png'}
               className={classes.imgHeaderLogo}
               loading="lazy"
             />
           </div>
+        </Link>
+        <Link
+          underline="none"
+          href="https://edenia.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={classes.originalAuthors}
+        >
+          {t('footer3')}
         </Link>
       </div>
 
@@ -56,7 +65,7 @@ const Footer = () => {
         <div className={classes.sidebarFooter}>
           <a
             className={classes.noUnderline}
-            href="https://github.com/edenia/antelope-tools/releases"
+            href={`${generalConfig.repositoryUrl}/releases`}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -74,7 +83,7 @@ const Footer = () => {
               primary={
                 <Link
                   underline="none"
-                  href="https://github.com/edenia/antelope-tools/issues/new/choose"
+                  href={`${generalConfig.repositoryUrl}/issues`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

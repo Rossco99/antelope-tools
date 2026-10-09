@@ -13,13 +13,6 @@ const getBPJsonUrl = async (producer = {}) => {
     producerUrl = `http://${producerUrl}`
   }
 
-  if (producer.owner === 'eosauthority') {
-    producerUrl =
-      'https://ipfs.edenia.cloud/ipfs/QmVDRzUbnJLLM27nBw4FPWveaZ4ukHXAMZRzkbRiTZGdnH'
-
-    return producerUrl
-  }
-
   const chainsUrl = `${producerUrl}/chains.json`.replace(
     /(?<=:\/\/.*)((\/\/))/,
     '/',

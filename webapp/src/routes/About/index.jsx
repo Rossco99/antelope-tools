@@ -6,7 +6,7 @@ import Card from '@mui/material/Card'
 import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
 
-import { eosConfig } from '../../config'
+import { eosConfig, generalConfig } from '../../config'
 import aboutDarkImg from '../../assets/about-dark.webp'
 import aboutLightImg from '../../assets/about-light.webp'
 
@@ -28,7 +28,7 @@ const About = () => {
         <img
           src={theme.palette.mode === 'light' ? aboutLightImg : aboutDarkImg}
           alt={
-            'All the networks on Antelope Tools with the Edenia logo in the middle'
+            'All the networks on Antelope Tools with the EOSphere logo in the middle'
           }
         />
       </div>
@@ -41,13 +41,24 @@ const About = () => {
         </Typography>
         <Typography variant="body2" paragraph>
           <Link
+            href="https://eosphere.io"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t('body1.eosphere')}
+          </Link>{' '}
+          {t('body1.paragraph1')}
+        </Typography>
+        <Typography variant="body2" paragraph>
+          {t('body1.paragraph2')}{' '}
+          <Link
             href="https://edenia.com"
             target="_blank"
             rel="noopener noreferrer"
           >
             {t('body1.edenia')}
           </Link>{' '}
-          {t('body1.paragraph1')}
+          {t('body1.paragraph3')}
         </Typography>
         <Typography component="h2" variant="h4">
           {t('subtitle2')}
@@ -68,26 +79,12 @@ const About = () => {
           {t('body4.paragraph1')}
         </Typography>
         <Typography component="h2" variant="h4">
-          {t('subtitle5')}
-        </Typography>
-        <Typography variant="body2" paragraph>
-          {t('body5.paragraph1')}{' '}
-          <Link
-            href="https://pomelo.io/grants/eosiodashboa"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {t('body5.pomelo')}
-          </Link>
-          {t('body5.paragraph2')}
-        </Typography>
-        <Typography component="h2" variant="h4">
           {t('subtitle6')}
         </Typography>
         <Typography variant="body2" paragraph>
           {t('body6.paragraph1')}
           <Link
-            href="https://github.com/edenia/antelope-tools"
+            href={generalConfig.repositoryUrl}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -95,7 +92,7 @@ const About = () => {
           </Link>{' '}
           {t('body6.paragraph2')}
           <Link
-            href="https://t.me/eoscr"
+            href="https://t.me/eosphere_io"
             target="_blank"
             rel="noopener noreferrer"
           >
