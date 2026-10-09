@@ -20,15 +20,15 @@ const GeneralInformation = ({ producer }) => {
 
   return (
     <>
-      <SimpleDataCard title={t('rank')} value={`${producer?.rank}`} />
-      <SimpleDataCard
+      <SimpleDataCard centered title={t('rank')} value={`${producer?.rank}`} />
+      <SimpleDataCard centered
         title={t('votes')}
         value={`${formatWithThousandSeparator(
           producer?.total_votes_eos || 0,
           0,
         )}`}
       />
-      <SimpleDataCard
+      <SimpleDataCard centered
         title={t('rewards')}
         value={`${formatWithThousandSeparator(
           producer?.total_rewards || 0,
@@ -36,7 +36,7 @@ const GeneralInformation = ({ producer }) => {
         )} ${eosConfig.tokenSymbol}`}
       />
       {producer?.eosRate && (
-        <SimpleDataCard title={t('eosRate')}>
+        <SimpleDataCard centered title={t('eosRate')}>
           <div className={classes.eosRateContainer}>
             <Typography component="p" variant="h6">
               {producer?.eosRate.average.toFixed(2)}
@@ -55,7 +55,7 @@ const GeneralInformation = ({ producer }) => {
           </div>
         </SimpleDataCard>
       )}
-      <SimpleDataCard title={t('compliance')}>
+      <SimpleDataCard centered title={t('compliance')}>
         <div className={classes.healthContainer}>
           {producer?.health_status?.map((item, index) => (
             <span

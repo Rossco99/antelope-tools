@@ -15,6 +15,7 @@ const useStyles = makeStyles(styles)
 const SimpleDataCard = ({
   header,
   lowercase,
+  centered,
   title,
   helperText,
   value,
@@ -37,7 +38,11 @@ const SimpleDataCard = ({
       >
         <div className={classes.cards}>
           {title && (
-            <div className={classes.titleContainer}>
+            <div
+              className={`${classes.titleContainer} ${
+                centered ? classes.centered : ''
+              }`}
+            >
               <Typography component="h2" className={classes.title}>
                 {title}
               </Typography>
@@ -78,6 +83,7 @@ const SimpleDataCard = ({
 SimpleDataCard.propTypes = {
   header: PropTypes.bool,
   lowercase: PropTypes.bool,
+  centered: PropTypes.bool,
   loading: PropTypes.bool,
   title: PropTypes.string,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -89,6 +95,7 @@ SimpleDataCard.defaultProps = {
   header: false,
   loading: false,
   lowercase: false,
+  centered: false,
   title: '',
   value: '',
   helperText: '',

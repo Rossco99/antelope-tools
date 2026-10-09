@@ -31,13 +31,14 @@ export default (theme) => ({
   lowercase: {
     textTransform: 'lowercase !important',
   },
+  // the value sits right under the title: cards in a row stretch to the tallest
+  // one, and filling that height pushed the value away from its title
   textValue: {
     display: 'flex',
     justifyContent: 'center',
     textAlign: 'center',
-    height: '100%',
-    alignItems: 'center',
-    paddingBottom: theme.spacing(4),
+    paddingTop: theme.spacing(3),
+    paddingBottom: theme.spacing(3),
   },
   svgLink: {
     fontSize: 18,
@@ -53,6 +54,10 @@ export default (theme) => ({
         color: theme.palette.primary.main,
       }
     }
+  },
+  // after titleContainer so it overrides its justifyContent
+  centered: {
+    justifyContent: 'center',
   },
   title: {
     fontWeight: 'bold !important',
