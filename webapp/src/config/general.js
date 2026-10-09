@@ -5,7 +5,7 @@ export const useVotes = import.meta.env.REACT_APP_USE_VOTES === 'true'
 export const title = import.meta.env.REACT_APP_TITLE
 export const repositoryUrl =
   import.meta.env.REACT_APP_REPOSITORY_URL ||
-  'https://github.com/Rossco99/antelope-tools'
+  'https://github.com/eosphere/antelope-tools'
 export const landingUrl =
   import.meta.env.REACT_APP_LANDING_URL || 'https://antelope-tools.eosphere.io'
 export const useCpuBenchmark = import.meta.env.REACT_APP_USE_CPU_BENCHMARK === 'true'
