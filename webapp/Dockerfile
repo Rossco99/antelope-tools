@@ -1,4 +1,4 @@
-FROM node:16.16.0  as build-stage
+FROM node:24-bookworm-slim AS build-stage
 
 ARG port
 ARG react_app_title

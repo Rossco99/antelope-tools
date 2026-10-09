@@ -2,17 +2,16 @@
 <html lang="en">
   <head>
     <style>
-      @import url('style.css');
+      @import url('/style.css');
     </style>
     <meta charset="utf-8" />
     <meta
       name="viewport"
       content="minimum-scale=1, initial-scale=1, width=device-width"
     />
-    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
     <meta name="csrf_token" content="" />
     <meta property="type" content="website" />
-    <meta property="url" content="%PUBLIC_URL%/" />
+    <meta property="url" content="/" />
     <meta name="theme-color" content="#ffffff" />
     <meta name="_token" content="" />
     <meta name="robots" content="noodp" />
@@ -26,11 +25,11 @@
     />
     <meta
       property="image"
-      content="%PUBLIC_URL%/maskable_icon.png"
+      content="/maskable_icon.png"
     />
     <meta property="og:type" content="website" />
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="%PUBLIC_URL%/" />
+    <meta property="twitter:url" content="/" />
     <meta 
       property="twitter:title" 
       content="Antelope Tools network monitors real-time infrastructure data for multiple Antelope and EOSIO chains."
@@ -41,7 +40,7 @@
     />
     <meta
       property="twitter:image"
-      content="%PUBLIC_URL%/maskable_icon.png"
+      content="/maskable_icon.png"
     />
     <meta
       property="og:title"
@@ -53,24 +52,24 @@
     />
     <meta
       property="og:image"
-      content="%PUBLIC_URL%/maskable_icon.png"
+      content="/maskable_icon.png"
     />
     <meta content="image/*" property="og:image:type" />
-    <meta property="og:url" content="%PUBLIC_URL%/" />
+    <meta property="og:url" content="/" />
     <meta property="og:site_name" content="Dashboard" />
 
-    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" />
     <link
       rel="icon"
       type="image/png"
       sizes="16x16"
-      href="%PUBLIC_URL%/favicon-16x16.png"
+      href="/favicon-16x16.png"
     />
     <link
       rel="icon"
       type="image/png"
       sizes="32x32"
-      href="%PUBLIC_URL%/favicon-32x32.png"
+      href="/favicon-32x32.png"
     />
     <link
       rel="preload"
@@ -80,30 +79,21 @@
     <link
       rel="apple-touch-icon"
       sizes="180x180"
-      href="%PUBLIC_URL%/apple-touch-icon.png"
+      href="/apple-touch-icon.png"
     />
     <link
       rel="mask-icon"
-      href="%PUBLIC_URL%/safari-pinned-tab.svg"
+      href="/safari-pinned-tab.svg"
       color="#2196f3"
     />
 
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.webmanifest" />
+    <link rel="manifest" href="/manifest.webmanifest" />
 
     <meta name="msapplication-TileColor" content="#ffffff" />
   </head>
   <body>
     <noscript> You need to enable JavaScript to run this app. </noscript>
     <div id="root">Loading...</div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
+    <script type="module" src="/src/index.jsx"></script>
   </body>
 </html>

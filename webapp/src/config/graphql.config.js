@@ -1,3 +1,3 @@
 export const graphqlConfig = {
-  url: process.env.REACT_APP_HASURA_URL || ''
+  url: import.meta.env.REACT_APP_HASURA_URL || ''
 }

@@ -1,16 +1,16 @@
 export const useBpJsonOnChain =
-  process.env.REACT_APP_EOS_USE_BP_JSON_ON_CHAIN === 'true'
+  import.meta.env.REACT_APP_EOS_USE_BP_JSON_ON_CHAIN === 'true'
 export const bpJsonOnChainContract =
-  process.env.REACT_APP_EOS_BP_JSON_ON_CHAIN_CONTRACT
+  import.meta.env.REACT_APP_EOS_BP_JSON_ON_CHAIN_CONTRACT
 export const bpJsonOnChainTable =
-  process.env.REACT_APP_EOS_BP_JSON_ON_CHAIN_TABLE
+  import.meta.env.REACT_APP_EOS_BP_JSON_ON_CHAIN_TABLE
 export const bpJsonOnChainScope =
-  process.env.REACT_APP_EOS_BP_JSON_ON_CHAIN_SCOPE
+  import.meta.env.REACT_APP_EOS_BP_JSON_ON_CHAIN_SCOPE
 
-export const networkName = process.env.REACT_APP_EOS_API_NETWORK_NAME
-export const networkLabel = process.env.REACT_APP_EOS_API_NETWORK_LABEL
-export const networkLogo = process.env.REACT_APP_EOS_API_NETWORK_LOGO
-export const tokenSymbol = process.env.REACT_APP_TOKEN_SYMBOL
+export const networkName = import.meta.env.REACT_APP_EOS_API_NETWORK_NAME
+export const networkLabel = import.meta.env.REACT_APP_EOS_API_NETWORK_LABEL
+export const networkLogo = import.meta.env.REACT_APP_EOS_API_NETWORK_LOGO
+export const tokenSymbol = import.meta.env.REACT_APP_TOKEN_SYMBOL
 
 let _additionalNodesTypes = null
 let _nodeTypes = null
@@ -73,21 +73,21 @@ const getEndpoint = (protocol, host, port) => {
 }
 
 export const endpoint = getEndpoint(
-  process.env.REACT_APP_EOS_API_PROTOCOL,
-  JSON.parse(process.env.REACT_APP_EOS_API_HOSTS)[0] || '',
-  process.env.REACT_APP_EOS_API_PORT,
+  import.meta.env.REACT_APP_EOS_API_PROTOCOL,
+  JSON.parse(import.meta.env.REACT_APP_EOS_API_HOSTS)[0] || '',
+  import.meta.env.REACT_APP_EOS_API_PORT,
 )
 export const endpoints = (JSON.parse(
-  process.env.REACT_APP_EOS_API_HOSTS,
+  import.meta.env.REACT_APP_EOS_API_HOSTS,
 ) || []).map(endpoint =>
   getEndpoint(
-    process.env.REACT_APP_EOS_API_PROTOCOL,
+    import.meta.env.REACT_APP_EOS_API_PROTOCOL,
     endpoint || '',
-    process.env.REACT_APP_EOS_API_PORT,
+    import.meta.env.REACT_APP_EOS_API_PORT,
   ),
 )
 
-const blockExplorerLinks = JSON.parse(process.env.REACT_APP_BLOCK_EXPLORER_URL || '{}')
+const blockExplorerLinks = JSON.parse(import.meta.env.REACT_APP_BLOCK_EXPLORER_URL || '{}')
 
 export const nodeTypes = _nodeTypes
 export const nodeChips = _nodeChips || _nodeTypes
@@ -100,7 +100,7 @@ export const blockExplorerAccount = {
   url: blockExplorerLinks?.url + blockExplorerLinks?.account?.url,
 }
 export const syncToleranceInterval =
-  process.env.REACT_APP_SYNC_TOLERANCE_INTERVAL || 180000
+  import.meta.env.REACT_APP_SYNC_TOLERANCE_INTERVAL || 180000
 export const producerColumns = [
   'rank',
   'producerName',

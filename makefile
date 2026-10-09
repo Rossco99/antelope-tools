@@ -54,7 +54,7 @@ start-hasura:
 	@docker compose up -d --build --wait hasura
 
 start-webapp: ##@local Run the webapp dev server against the running backend
-	@cd webapp && yarn && CI=true BROWSER=none yarn start:local | cat
+	@cd webapp && yarn && yarn dev
 
 console: ##@local Open the Hasura console (requires the hasura CLI)
 	@cd hasura && hasura console --endpoint http://localhost:$${HASURA_PORT:-8080} --skip-update-check --no-browser --admin-secret $(HASURA_GRAPHQL_ADMIN_SECRET)

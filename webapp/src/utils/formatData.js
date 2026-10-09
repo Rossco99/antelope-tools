@@ -54,7 +54,7 @@ export const formatData = ({
   const getOrder = name => order[name] ?? Infinity
 
   if (!data?.social?.github && typeof data?.github_user === 'string') {
-    data.social.github = data.github_user
+    data = { ...data, social: { ...data.social, github: data.github_user } }
   }
 
   const socialArray = data?.social

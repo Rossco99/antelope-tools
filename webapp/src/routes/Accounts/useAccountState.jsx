@@ -1,7 +1,6 @@
 import React, { useReducer, useEffect, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import queryString from 'query-string'
 
 import { signTransaction } from '../../utils/eos'
 import eosApi, { ENDPOINTS_ERROR } from '../../utils/eosapi'
@@ -217,7 +216,7 @@ const useAccountState = () => {
   }
 
   useEffect(() => {
-    const params = queryString.parse(location.search)
+    const params = Object.fromEntries(new URLSearchParams(location.search))
 
     handleOnSearch({
       owner: params?.account || 'eosio',
@@ -227,7 +226,7 @@ const useAccountState = () => {
   }, [])
 
   useEffect(() => {
-    const params = queryString.parse(location.search)
+    const params = Object.fromEntries(new URLSearchParams(location.search))
 
     dispatch({
       type: 'SET_FILTERS',

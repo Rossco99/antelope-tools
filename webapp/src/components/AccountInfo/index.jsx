@@ -5,7 +5,7 @@ import { makeStyles } from '@mui/styles'
 import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
 import Typography from '@mui/material/Typography'
-import Identicon from 'react-identicons'
+import IdenticonModule from 'react-identicons'
 import Card from '@mui/material/Card'
 import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
@@ -20,6 +20,9 @@ import MoreInfoModal from '../MoreInfoModal'
 import ResourceUsage from '../ResourceUsage'
 
 import styles from './styles'
+
+// CommonJS-only package: the component is on .default when bundled by Vite
+const Identicon = IdenticonModule.default ?? IdenticonModule
 
 const useStyles = makeStyles(styles)
 

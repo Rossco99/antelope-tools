@@ -230,7 +230,7 @@ const ProducersChart = ({ producers, info }) => {
   const theme = useTheme()
 
   useEffect(() => {
-    setEntries(producers.reverse())
+    setEntries([...producers].reverse())
   }, [producers])
 
   return (

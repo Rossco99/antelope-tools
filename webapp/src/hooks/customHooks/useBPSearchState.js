@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
-import queryString from 'query-string'
 
 const useSearchState = ({ loadProducers, info, variables, setVariables }) => {
   const location = useLocation()
@@ -48,7 +47,7 @@ const useSearchState = ({ loadProducers, info, variables, setVariables }) => {
   }, [variables.where, loadProducers])
 
   useEffect(() => {
-    const params = queryString.parse(location.search)
+    const params = Object.fromEntries(new URLSearchParams(location.search))
 
     if (params.owner) {
       handleOnSearch({ owner: params.owner })

@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
-import queryString from 'query-string'
 
 import isTheSameObject from 'utils/is-same-object'
 
@@ -61,7 +60,7 @@ const useSearchState = ({ loadProducers, info, defaultVariables }) => {
   ])
 
   useEffect(() => {
-    const params = queryString.parse(location.search)
+    const params = Object.fromEntries(new URLSearchParams(location.search))
 
     if (!params.owner) {
       setPagination(prev => ({ ...prev, ...defaultVariables }))

@@ -2,9 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { makeStyles } from '@mui/styles'
 import { useTheme } from '@mui/material/styles'
 import Highcharts from 'highcharts'
-import HighchartsReact from 'highcharts-react-official'
+import HighchartsReactModule from 'highcharts-react-official'
 
 import styles from './styles'
+
+// CommonJS-only package: the component is on .default when bundled by Vite
+const HighchartsReact = HighchartsReactModule.default ?? HighchartsReactModule
 
 const useStyles = makeStyles(styles)
 
