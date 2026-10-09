@@ -3,7 +3,6 @@ const { StatusCodes } = require('http-status-codes')
 const { hasuraUtil, sequelizeUtil, producerUtil } = require('../utils')
 const { eosConfig, workersConfig } = require('../config')
 
-const lacchainService = require('./lacchain.service')
 const fioService = require('./fio.service')
 const eosioService = require('./eosio.service')
 const nodeService = require('./node.service')
@@ -84,9 +83,6 @@ const syncProducers = async () => {
   let producers = []
 
   switch (eosConfig.networkName) {
-    case eosConfig.knownNetworks.lacchain:
-      producers = await lacchainService.getProducers()
-      break
     case eosConfig.knownNetworks.fio:
       producers = await fioService.getProducers()
       break
@@ -118,21 +114,6 @@ const saveEstimateNextUpdate = async lastUpdateAt => {
 }
 
 const getProducersSummary = async () => {
-  if (eosConfig.networkName === eosConfig.knownNetworks.lacchain) {
-    const [rows] = await sequelizeUtil.query(`
-          SELECT 
-              bp_json->>'type' as type, 
-              count(*)::integer as entities_count,
-              STRING_AGG (owner, ',') as entities
-          FROM producer
-          GROUP BY 
-              bp_json->>'type'
-          ;
-      `)
-
-    return rows
-  } 
-  
   const query = `
     {
       producer_aggregate {

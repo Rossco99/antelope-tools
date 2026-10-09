@@ -30,12 +30,16 @@ services:
         target: /app
       - /app/node_modules
     working_dir: /app
-    command: bash -c "pm2-runtime app.json --watch"
+    command: node --watch-path=src src/index.js
     depends_on:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ['CMD-SHELL', 'curl -fsS "http://$${HAPI_SERVER_ADDRESS:-localhost}:$${HAPI_SERVER_PORT:-9090}/healthz"']
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch(`http://$${process.env.HAPI_SERVER_ADDRESS || 'localhost'}:$${process.env.HAPI_SERVER_PORT || 9090}/healthz`).then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
       interval: 5s
       timeout: 5s
       retries: 30
@@ -87,7 +91,9 @@ services:
       HAPI_EOS_MAX_NET_BLOCK: '${HAPI_EOS_MAX_NET_BLOCK:-}'
       HAPI_EOS_MISSED_BLOCKS_ENABLED: '${HAPI_EOS_MISSED_BLOCKS_ENABLED:-}'
   hapi-evm:
-    build: ./hapi-evm
+    build:
+      context: ./hapi-evm
+      target: builder
     ports:
       - '${HAPI_EVM_PORT:-9091}:9090'
     volumes:
@@ -96,7 +102,7 @@ services:
         target: /app
       - /app/node_modules
     working_dir: /app
-    command: bash -c "yarn && yarn start:dev"
+    command: yarn start:dev
     environment:
       HAPI_EVM_SERVER_PORT: '${HAPI_EVM_SERVER_PORT:-}'
       HAPI_EVM_SERVER_ADDRESS: '${HAPI_EVM_SERVER_ADDRESS:-}'

@@ -45,14 +45,8 @@ module.exports = {
   bpJsonOnChainContract: process.env.HAPI_EOS_BP_JSON_ON_CHAIN_CONTRACT,
   bpJsonOnChainTable: process.env.HAPI_EOS_BP_JSON_ON_CHAIN_TABLE,
   bpJsonOnChainScope: process.env.HAPI_EOS_BP_JSON_ON_CHAIN_SCOPE,
-  lacchain: {
-    account: process.env.HAPI_EOS_BP_JSON_ON_CHAIN_TABLE2 || 'eosio',
-    entityTable: process.env.HAPI_EOS_BP_JSON_ON_CHAIN_TABLE2 || 'entity',
-    nodeTable: process.env.HAPI_EOS_BP_JSON_ON_CHAIN_TABLE2 || 'node'
-  },
   knownNetworks: {
     fio: 'fio',
-    lacchain: 'lacchain',
     libre: 'libre',
     telos: 'telos',
     wax: 'wax'

@@ -31,30 +31,6 @@ const getCurrentVersion = async () => {
   return rows.length > 0 && rows[0].version ? rows[0].version : -1
 }
 
-const setScheduleByDemux = async (state, payload) => {
-  const currentVersion = await getCurrentVersion()
-  const [rows] = await sequelizeUtil.query(`
-    SELECT
-      schedule_version as version,
-      min(timestamp) as first_block_at,
-      min(block_num) as first_block,
-    FROM
-      block_history
-    WHERE schedule_version = ${currentVersion + 1}
-    GROUP BY schedule_version `)
-  const schedules = rows.map(row => {
-    return {
-      ...row,
-      producers: payload.data.validators,
-      version: parseInt(row.version),
-      current: false,
-      round_interval: payload.data.validators.length * 6
-    }
-  })
-
-  await setScheduleHistory(schedules)
-}
-
 const getScheduleFirstBlock = async version => {
   const [rows] = await sequelizeUtil.query(`
   SELECT 
@@ -296,6 +272,5 @@ const getMissedBlocks = async (range = '3 Hours') => {
 module.exports = {
   syncMissedBlocks,
   syncCurrentSchedule,
-  getMissedBlocks,
-  setScheduleByDemux
+  getMissedBlocks
 }
