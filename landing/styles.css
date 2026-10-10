@@ -1292,8 +1292,19 @@ p {
     width: min(1176px, calc(100vw - 96px));
   }
 
+  @media (min-width: 1920px) {
+    .box-network {
+      width: min(1800px, calc(100vw - 96px));
+    }
+  }
+
   .grid {
     flex-wrap: wrap;
     row-gap: 18px;
   }
+}
+
+/* keep network logos in proportion; the tile sizes above are not square */
+.grid img {
+  object-fit: contain;
 }
