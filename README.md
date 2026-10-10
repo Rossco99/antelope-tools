@@ -1,243 +1,159 @@
-
 <div align="center">
 	<a href="https://antelope-tools.eosphere.io">
 		<img src="webapp/public/antelope-tools.png" width="400">
 	</a>
-
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com) 
-![GitHub](https://img.shields.io/github/license/edenia/antelope-tools) 
-![GitHub repo size](https://img.shields.io/github/repo-size/edenia/antelope-tools) 
-[![Twitter Follow](https://img.shields.io/twitter/follow/edeniaWeb3.svg?style=social&logo=twitter)](https://twitter.com/edeniaWeb3)
-![GitHub forks](https://img.shields.io/github/forks/edenia/antelope-tools?style=social)
-
 </div>
 
 # Antelope Tools
-Network and Infrastructure Dashboard for EOSIO networks.
 
-## About the Antelope Tools:
+**Open Infrastructure Data for the Antelope Ecosystem.** Antelope Tools is a network monitor for Antelope blockchains: Vaulta (EOS), Telos, WAX, XPR Network, Libre, FIO and their testnets. It shows each network's block producers, nodes, endpoints, rewards and CPU benchmarks in one place.
 
-### What is the Antelope Tools?
+Live at **[antelope-tools.eosphere.io](https://antelope-tools.eosphere.io)**: pick a network to open its dashboard at `antelope-<network>.eosphere.io`.
 
-Antelope Tools is an open-source tool that helps you visualize relevant data about Block Producer nodes and rewards distribution in the EOS network. The EOS network, launched in 2018, is a widely adopted public blockchain network that deploys a delegated proof of stake consensus mechanism. It operates autonomously and leverages a voting system to elect the twenty-one Block Producers that run the network. As a reward, these Block Producers receive EOS tokens.
+Developed and operated by [EOSphere](https://eosphere.io).
 
-### What Is the Intention of Antelope Tools?
+## Contents
 
-Antelope Tools is a community-driven open-source tool built by a group of tech enthusiasts that believe in transparency to operate blockchain networks. We intend to provide a useful and straightforward app that will help visualize the Block Producers’ relevant information and rewards distribution in the EOS network to promote transparency and reliability.
+- [How it works](#how-it-works)
+- [Requirements](#requirements)
+- [Quick start](#quick-start)
+- [Running it](#running-it)
+- [Configuration](#configuration)
+- [Building](#building)
+- [Testing](#testing)
+- [Project layout](#project-layout)
+- [Credits](#credits)
+- [License](#license)
 
-### Why It’s Important?
+## How it works
 
-As mentioned previously, the EOS network run with twenty-one elected Block Producers that receive EOS tokens in return. Token holders vote for the Block Producers they believe are the best candidates for this public blockchain. So, we believe that monitoring what’s happening on the network is essential to improve and measure node transparency. Antelope Tools’s main objective is to help you visualize decentralized and reliable information about each node and its activity.
+Each network runs as its own copy of the stack: one network per instance, several instances per host.
 
-### Where Does the Data Come From?
+| Service | What it does |
+|---|---|
+| **postgres** | Stores producers, nodes, endpoints, statistics and benchmark data |
+| **hasura** | GraphQL API over the database, used by the webapp (queries and live subscriptions) |
+| **hapi** | Backend workers: syncs producers and their `bp.json` files from the chain, checks endpoints, reads CPU benchmarks from Hyperion and, optionally, block history from a State History (SHiP) node |
+| **webapp** | The dashboard (React, built with Vite) |
+| **wallet** | `keosd` wallet, only needed for the testnet faucet |
+| **hapi-evm** | EVM dashboard backend, currently parked (no working public EVM RPC endpoints) |
 
-Antelope Tools enables clear and graphic visualization of relevant information of Block Producers. We source data directly from the EOS public blockchain and information provided in their bp.json files. A bp.json file is essentially an info/configuration file that each Block Producer provides to verify their identity. Here is an example of a bp.json file: https://eoscostarica.io/bp.json.
+The landing page in [`landing/`](landing) lists every network and links to its dashboard.
 
-For more information about Antelope Tools, contact us on our Telegram group: https://t.me/eoscr.
+Data comes from each chain's public API, every block producer's [bp.json](https://github.com/eosrio/bp-info-standard), Hyperion history nodes (CPU benchmark) and, if configured, a SHiP node (block history).
 
-## Quick Guide:
+## Requirements
 
-### Features!
+- **Linux**, or **Windows with WSL 2** (Ubuntu 24.04 recommended, with systemd enabled in `/etc/wsl.conf`)
+- **Docker Engine 24+ with the Compose plugin** (`docker compose`); your user in the `docker` group
+- **Node.js 24 LTS** and **Yarn 1** (`sudo corepack enable`), for the webapp dev server
+- **git**, **make** and **Python 3** (used by `make landing`)
+- Outbound HTTPS access to the network's API and Hyperion endpoints
 
-This project use all the latest tools and practices in the industry
-
-- **[hasura](https://hasura.io)**
-  Hasura GraphQL Engine is an opensource service that connects to your databases & microservices and auto-generates a production-ready GraphQL backend
-
-- **[hapi](https://hapi.dev/)**
-  A back end service for custom busines logic integrated with hasura using [actions](https://hasura.io/docs/1.0/graphql/manual/actions/index.html#actions)
-
-- **[react](https://reactjs.org/)**
-  An open-source JavaScript library for building user interfaces.
-
-- **[docker-compose](https://docs.docker.com/compose/)**
-  Compose is a tool for defining and running multi-container Docker applications
-
-- **[demux](https://guide.eoscostarica.io/docs/eos-learn/demux-pattern)**
-  Demux is an architectural pattern for backend infrastructure for build applications on EOSIO blockchain to sourcing blockchain events to deterministically update queryable databases.
-
-### File Structure
-
-Within the download you'll find the following directories and files:
+## Quick start
 
 ```bash
+git clone https://github.com/eosphere/antelope-tools.git
+cd antelope-tools
+make jungle
+```
+
+`make jungle` selects the Jungle4 testnet configuration, starts the backend in Docker and runs the webapp dev server in the foreground. When it is ready:
+
+| | URL |
+|---|---|
+| Dashboard | http://localhost:3000 |
+| Hasura GraphQL API | http://localhost:8080/v1/graphql |
+| hapi health check | http://localhost:9090/healthz |
+
+The first start takes a few minutes while images are built and producers are synced.
+
+## Running it
+
+| Command | What it does |
+|---|---|
+| `make <network>` | Copy `.env.<network>` to `.env`, then start everything (e.g. `make mainnet`, `make wax`, `make fio`) |
+| `make start` | Start everything with the current `.env` |
+| `make start-backend` | Start postgres, hapi and hasura, and wait until they are healthy |
+| `make start-webapp` | Run the webapp dev server against the running backend |
+| `make landing` | Serve the landing page at http://localhost:8000 |
+| `make logs` | Follow the backend logs |
+| `make smoke` | Headless browser check of every dashboard page |
+| `make stop` | Stop the containers |
+| `make clean` | Remove this instance's containers **and its database** |
+
+Available networks (`.env.<network>` files): `mainnet` (Vaulta/EOS), `jungle`, `wax`, `waxtestnet`, `telos`, `telostestnet`, `xpr`, `xprtestnet`, `libre`, `libretestnet`, `fio`, `fiotestnet`, `ultratestnet`, and `local` (for a local test chain).
+
+To switch networks, run `make <other network>`. Each network keeps its own data only while its database volume exists, so run `make clean` first if you want a fresh start.
+
+To run several networks on one host, give each instance its own `COMPOSE_PROJECT_NAME` and host ports (`POSTGRES_PORT`, `HAPI_PORT`, `HASURA_PORT`, `WEBAPP_PORT`, `WALLET_PORT`, `HAPI_EVM_PORT`).
+
+## Configuration
+
+All settings live in `.env.<network>`. `make <network>` copies the chosen file to `.env`, which is the only file the stack reads (and is not committed).
+
+Each file is grouped into sections:
+
+- **Network:** chain ID, API endpoints (tried in order, with automatic failover) and display settings
+- **Hyperion - CPU benchmark:** `HAPI_EOS_HYPERION_ENDPOINTS` lists Hyperion history nodes. The CPU Benchmark page reads the `eosmechanics::cpu` actions run on the network from them, and `REACT_APP_USE_CPU_BENCHMARK` shows or hides the page. Leave the list empty on networks without benchmark data.
+- **State History (SHiP) - optional:** `HAPI_EOS_STATE_HISTORY_PLUGIN_ENDPOINT` streams blocks from a node's state history plugin. This enables the Dashboard's history charts and the Block Distribution and Missed Blocks pages; set `REACT_APP_STATE_HISTORY_ENABLED=true` with it.
+- **EVM dashboard (hapi-evm) - parked:** kept for later, hidden until working EVM RPC endpoints exist.
+- **Webapp:** title, logos, footer links, block explorer, the network switcher (`REACT_APP_NETWORK_URL`) and pages to hide (`REACT_APP_DISABLED_MENU_ITEMS`)
+
+The landing page's network list is [`landing/networks.json`](landing/networks.json): one line per network (name, URL and logo).
+
+> **Secrets:** the committed `.env.<network>` files hold development defaults only (e.g. `POSTGRES_PASSWORD`, `HASURA_GRAPHQL_ADMIN_SECRET`). Never use them on a public server.
+
+## Building
+
+Container images (hapi, hapi-evm, wallet; postgres and hasura use upstream images):
+
+```bash
+docker compose build
+```
+
+Webapp production build (static files in `webapp/build/`). Settings are read from the root `.env`, or from the environment when building in Docker:
+
+```bash
+cd webapp
+yarn install
+yarn build      # yarn preview serves the build locally
+```
+
+The webapp Docker image (`webapp/Dockerfile`) builds the same output and serves it with nginx.
+
+## Testing
+
+`make smoke` opens every dashboard page in a headless Chromium (the Playwright Docker image, so nothing extra to install) against the running webapp, saves screenshots to `smoke-results/` and fails on page errors, GraphQL errors and unexpected redirects to `/404`. Run it after any change, against both `make start-webapp` and a production build (`cd webapp && yarn build && yarn preview --port 3000`).
+
+## Project layout
+
+```
 antelope-tools/
-├── hapi
-│ ├── src
-│ | ├── config
-│ | ├── routes
-│ | ├── utils
-│ | └── services
-│ ├── .dockerignore
-│ ├── .eslintrc
-│ ├── .prettierrc
-│ ├── Dockerfile
-│ ├── yarn-lock.json
-│ └── package.json
-├── hasura
-│ ├── metadata
-│ ├── migrations
-│ └── config.ymal
-├── webapp
-│ ├── src
-│ | ├── api
-│ | ├── components
-│ | ├── config
-│ | ├── containers
-│ | ├── language
-│ | ├── models
-│ | ├── routes
-│ | ├── theme
-│ | └── utils
-│ ├── .eslintrc
-│ ├── .prettierrc
-│ ├── Dockerfile
-│ ├── yarn-lock.json
-│ └── package.json
-├── .env.jungle
-├── .env.local
-├── .env.libre
-├── .env.libretestnet
-├── .env.mainnet
-├── .env.xpr
-├── .env.xprtestnet
-├── .env.telos
-├── .env.telostestnet
-├── .env.ultratestnet
-├── .env.waxtestnet
-├── .gitignore
-├── docker-compose.yaml
-├── .LICENSE
-├── LICENSE
-└── README.md
+├── .env.<network>       network configurations
+├── docker-compose.yaml  the stack for one network
+├── makefile             the commands above
+├── hapi/                backend workers (Node.js)
+├── hapi-evm/            EVM dashboard backend (TypeScript, parked)
+├── hasura/              database migrations and GraphQL metadata
+├── webapp/              the dashboard (React + Vite)
+├── landing/             landing page and networks.json
+├── wallet/              keosd wallet image (Spring)
+├── scripts/             smoke test and helpers
+└── docs/                API and wallet documentation
 ```
 
-There are some important folders like
+More documentation:
 
-- `hapi/src/api` should have all reusable code for example a code to generate tax invoice
-- `hapi/src/routes` this folder should only have the endpoint mapping and params validations and use functions from api folder to handle the business logic
+- [Producers REST API](docs/producers-API-documentation.md)
+- [Wallet configuration](docs/wallet-config.md) (testnet faucet only)
 
-### Installation
+## Credits
 
-Basic knowledge about Docker, Docker Compose and NodeJS is required.
+Antelope Tools was originally created by [Edenia](https://edenia.com) (formerly EOS Costa Rica) and is now developed and operated by [EOSphere](https://eosphere.io).
 
-### Getting Started
+Questions and ideas: [Telegram](https://t.me/eosphere_io) · [X](https://x.com/eosphere_io)
 
-Some things you need before getting started:
+## License
 
-- [docker](https://docs.docker.com/engine/install/) with the Compose plugin (`docker compose`)
-- [git](https://git-scm.com/)
-- [node.js](https://nodejs.org/) 24 LTS
-- [yarn](https://yarnpkg.com/) 1.x (`corepack enable`)
-- [Hasura CLI](https://hasura.io/docs/latest/hasura-cli/install-hasura-cli/) (optional, only for `make console`)
-
-#### Considerations for Windows
-
-On Windows, use [WSL 2](https://learn.microsoft.com/windows/wsl/install) with a Linux distribution and install Docker Engine, node and yarn inside the distribution. Enable systemd in `/etc/wsl.conf` and add your user to the `docker` group.
-
-### First time
-
-1. Clone this repo using `git clone --depth=1 https://github.com/edenia/antelope-tools <YOUR_PROJECT_NAME>`.
-1. Move to the appropriate directory: `cd <YOUR_PROJECT_NAME>`.
-1. As Antelope Tools can have different configurations copy the environment variables according to your needs in the `.env` file or run `make <NETWORK>` (for example `make jungle`) to copy `.env.<NETWORK>` to `.env` and start everything.
-
-
-```
-# global
-STAGE=dev
-APP_NAME=antelope-tools
-
-# wallet
-WALLET_DATA=./wallet_data
-
-# postgres
-POSTGRES_USER=eoscr
-POSTGRES_PASSWORD=password
-POSTGRES_DB=localdb
-POSTGRES_DATA=./db_data
-
-# hasura
-HASURA_GRAPHQL_ENABLE_CONSOLE=true
-HASURA_GRAPHQL_DATABASE_URL=postgres://eoscr:password@postgres:5432/localdb
-HASURA_GRAPHQL_ADMIN_SECRET=myadminsecretkey
-HASURA_GRAPHQL_UNAUTHORIZED_ROLE=guest
-
-# hapi
-HAPI_EOS_API_ENDPOINTS=["https://jungle.eosusa.io"]
-HAPI_EOS_API_CHAIN_ID=73e4385a2708e6d7048834fbc1079f2fabb17b3c125b146af438971e90716c4d
-HAPI_EOS_BASE_ACCOUNT=baseaccount
-HAPI_EOS_BASE_ACCOUNT_PASSWORD=PW...
-HAPI_EOS_WALLET_URL=http://wallet:8888
-HAPI_EOS_BP_JSON_ON_CHAIN=false
-HAPI_EOS_BP_JSON_ON_CHAIN_CONTRACT=
-HAPI_EOS_BP_JSON_ON_CHAIN_TABLE=
-HAPI_EOS_BP_JSON_ON_CHAIN_SCOPE=
-HAPI_HASURA_URL=http://hasura:8080/v1/graphql
-HAPI_HASURA_ADMIN_SECRET=myadminsecretkey
-HAPI_SERVER_PORT=9090
-HAPI_SERVER_ADDRESS=hapi
-HAPI_SYNC_PRODUCERS_INTERVAL=86400
-HAPI_SYNC_PRODUCER_INFO_INTERVAL=1
-
-#webapp
-PORT=3000
-REACT_APP_TITLE="EOS Jungle4 Testnet Network Dashboard"
-REACT_APP_DEFAULT_PRODUCER_LOGO=https://bloks.io/img/eosio.png
-REACT_APP_FOOTER_LINKS=[]
-REACT_APP_EOS_RATE_LINK=https://jungle.eosrate.io:8080
-REACT_APP_USE_REWARDS=true
-REACT_APP_USE_VOTES=true
-REACT_APP_USE_CPU_BENCHMARK=true
-REACT_APP_HASURA_URL=http://localhost:8080/v1/graphql
-REACT_APP_EOS_API_HOSTS=["jungle.eosusa.io"]
-REACT_APP_EOS_API_PORT=443
-REACT_APP_EOS_API_PROTOCOL=https
-REACT_APP_EOS_CHAIN_ID=73e4385a2708e6d7048834fbc1079f2fabb17b3c125b146af438971e90716c4d
-REACT_APP_EOS_USE_BP_JSON_ON_CHAIN=false
-REACT_APP_EOS_BP_JSON_ON_CHAIN_CONTRACT=producerjson
-REACT_APP_EOS_BP_JSON_ON_CHAIN_TABLE=producerjson
-REACT_APP_EOS_BP_JSON_ON_CHAIN_SCOPE=producerjson
-REACT_APP_STATE_HISTORY_ENABLED=false
-```
-
-### Quick start
-
-At this point you can run `make start` (uses the existing `.env`) or `make <NETWORK>`. The backend services start in docker and the webapp dev server runs in the foreground:
-
-- hapi at http://localhost:9090/healthz
-- hasura at http://localhost:8080 (`make console` opens the Hasura CLI console at http://localhost:9695)
-- webapp at http://localhost:3000
-
-The landing page that lists every network dashboard lives in `landing/` (served from `antelope-tools.eosphere.io` in production). `make landing` serves it at http://localhost:8000; edit `landing/networks.json` to add, remove or rename networks.
-
-Other useful targets: `make start-backend`, `make start-webapp`, `make logs`, `make smoke` (headless browser check of every page, screenshots in `smoke-results/`), `make stop` and `make clean` (removes this instance's containers and database volume).
-
-Host ports can be changed with `POSTGRES_PORT`, `HAPI_PORT`, `HAPI_EVM_PORT`, `HASURA_PORT`, `WEBAPP_PORT` and `WALLET_PORT` in `.env`, and `COMPOSE_PROJECT_NAME` keeps several network instances apart on the same host.
-
-## Release Management Process
-
-- [Create a new release](docs/create-a-release.md)
-
-
-## Contributing
-
-Please Read EOS Costa Rica's [Open Source Contributing Guidelines](https://developers.eoscostarica.io/docs/open-source-guidelines).
-
-Please report bugs big and small by [opening an issue](https://github.com/edenia/antelope-tools/issues/new/choose)
-
-Contributions of any kind are welcome!
-
-## About Edenia
-
-<span align="center">
-
-<a href="https://edenia.com"><img width="400" alt="image" src="webapp/public/edenia-logo.png"></img></a>
-
-[![Twitter](https://img.shields.io/twitter/follow/EdeniaWeb3?style=for-the-badge)](https://twitter.com/EdeniaWeb3)
-[![Discord](https://img.shields.io/discord/946500573677625344?color=black&label=discord&logo=discord&logoColor=white&style=for-the-badge)](https://discord.gg/YeGcF6QwhP)
-
-</span>
-Edenia runs independent blockchain infrastructure and develops web3 solutions. Our team of technology-agnostic builders has been operating since 1987, leveraging the newest technologies to make the internet safer, more efficient, and more transparent.
-
-<!-- ![Metrics](/profile/metrics.svg) -->
-
+[MIT](LICENSE)

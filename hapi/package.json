@@ -2,7 +2,7 @@
   "name": "antelopetools",
   "version": "1.0.0",
   "description": "Antelope Tools BackEnd",
-  "repository": "https://github.com/edenia/antelope-tools.git",
+  "repository": "https://github.com/eosphere/antelope-tools.git",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/index.js",
