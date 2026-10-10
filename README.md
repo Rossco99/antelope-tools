@@ -76,6 +76,7 @@ The first start takes a few minutes while images are built and producers are syn
 | `make start` | Start everything with the current `.env` |
 | `make start-backend` | Start postgres, hapi and hasura, and wait until they are healthy |
 | `make start-webapp` | Run the webapp dev server against the running backend |
+| `make secrets` | Create `.env.secrets` with random database and Hasura passwords (never overwrites an existing one) |
 | `make landing` | Serve the landing page at http://localhost:8000 |
 | `make logs` | Follow the backend logs |
 | `make smoke` | Headless browser check of every dashboard page |
@@ -102,7 +103,13 @@ Each file is grouped into sections:
 
 The landing page's network list is [`landing/networks.json`](landing/networks.json): one line per network (name, URL and logo).
 
-> **Secrets:** the committed `.env.<network>` files hold development defaults only (e.g. `POSTGRES_PASSWORD`, `HASURA_GRAPHQL_ADMIN_SECRET`). Never use them on a public server.
+### Passwords and secrets
+
+The committed `.env.<network>` files contain **development values only** (`POSTGRES_PASSWORD=antelope-dev-password`, `HASURA_GRAPHQL_ADMIN_SECRET=antelope-dev-admin-secret`). Each secret is defined once; `docker-compose.yaml` builds the database URLs and hapi's Hasura secret from them.
+
+On a real server, run `make secrets` once. It creates `.env.secrets` (not committed, readable only by your user) with strong random values, and every `make <network>` then layers it over the network's settings. Keep a copy of `.env.secrets` somewhere safe: the database password is set when a network's database is first created.
+
+The database user and database name are both `antelope`.
 
 ## Building
 
