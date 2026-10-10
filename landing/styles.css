@@ -183,7 +183,7 @@ p {
   margin-bottom: 16px;
 }
 
-.box-social-media a:hover, .edeniaLogo:hover{
+.box-social-media a:hover, .eosphere-credit:hover{
   transform: scale(1.1);
 }
 
@@ -555,10 +555,6 @@ p {
     height: 38.5px;
   }
 
-  .edeniaLogo {
-    height: 26px;
-    width: 155px;
-  }
 
   .info-icon > img {
     width: 20px;
@@ -772,10 +768,6 @@ p {
     height: 50.7px;
   }
 
-  .edeniaLogo {
-    width: 154.6px;
-    height: 25.6px;
-  }
 
   .contact-us h3 {
     width: 550px;
@@ -995,10 +987,6 @@ p {
     height: 70px;
   }
 
-  .edeniaLogo {
-    height: 42px;
-    width: 250px;
-  }
 
   .contact-us h3 {
     width: 860px;
@@ -1236,10 +1224,6 @@ p {
     height: 91.1px;
   }
 
-  .edeniaLogo {
-    height: 42px;
-    width: 250px;
-  }
 
   .contact-us h3 {
     width: 1606px;
@@ -1263,5 +1247,53 @@ p {
 
   #back-to-top {
     width:auto;
+  }
+}
+
+/* EOSphere credit in the footer */
+.logo-text {
+  justify-content: center;
+}
+
+.eosphere-credit {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: inherit;
+  text-decoration: none;
+  font-size: 26px;
+  font-weight: bold;
+  transition: transform 0.2s;
+}
+
+.eosphereLogo {
+  width: 44px;
+  height: 44px;
+}
+
+.project-by + .project-by {
+  margin-top: 0;
+}
+
+.original-authors {
+  text-align: center;
+  font-size: 14px;
+  opacity: 0.75;
+  margin-top: 0;
+}
+
+.original-authors a {
+  color: inherit;
+}
+
+/* network grids wrap when a row has more tiles than fit (e.g. 7 testnets) */
+@media screen and (min-width: 1280px) {
+  .box-network {
+    width: min(1176px, calc(100vw - 96px));
+  }
+
+  .grid {
+    flex-wrap: wrap;
+    row-gap: 18px;
   }
 }

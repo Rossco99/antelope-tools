@@ -208,6 +208,8 @@ At this point you can run `make start` (uses the existing `.env`) or `make <NETW
 - hasura at http://localhost:8080 (`make console` opens the Hasura CLI console at http://localhost:9695)
 - webapp at http://localhost:3000
 
+The landing page that lists every network dashboard lives in `landing/` (served from `antelope-tools.eosphere.io` in production). `make landing` serves it at http://localhost:8000; edit `landing/networks.json` to add, remove or rename networks.
+
 Other useful targets: `make start-backend`, `make start-webapp`, `make logs`, `make smoke` (headless browser check of every page, screenshots in `smoke-results/`), `make stop` and `make clean` (removes this instance's containers and database volume).
 
 Host ports can be changed with `POSTGRES_PORT`, `HAPI_PORT`, `HAPI_EVM_PORT`, `HASURA_PORT`, `WEBAPP_PORT` and `WALLET_PORT` in `.env`, and `COMPOSE_PROJECT_NAME` keeps several network instances apart on the same host.

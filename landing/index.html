@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta content="" name="csrf_token">
+  <meta content="website" property="type">
+  <meta content="https://antelope-tools.eosphere.io/" property="url">
+  <meta content="#ffffff" name="theme-color">
+  <meta content="Antelope Tools – Antelope Blockchain Network Monitor" name="title">
+  <meta
+    content="Antelope Tools is a network monitor featuring real-time data on block producer nodes and blockchain infrastructure for Antelope blockchains, developed and operated by EOSphere."
+    name="description">
+  <meta name="keywords" content="Blockchain, Antelope, Vaulta, EOS, Telos, WAX, XPR, Libre, FIO, Network Monitor, Dashboard">
+  <meta content="https://antelope-tools.eosphere.io/images/maskable_icon.png" property="image">
+  <meta content="website" property="og:type">
+  <meta content="summary_large_image" property="twitter:card">
+  <meta content="https://antelope-tools.eosphere.io/" property="twitter:url">
+  <meta content="Antelope Tools – Antelope Blockchain Network Monitor" property="og:title">
+  <meta content="https://antelope-tools.eosphere.io/images/maskable_icon.png" property="og:image">
+  <meta content="image/*" property="og:image:type">
+  <meta content="https://antelope-tools.eosphere.io/" property="og:url">
+  <meta content="Antelope Tools Network Monitor" property="og:site_name">
+  <meta
+    content="Antelope Tools Network Monitor is a network monitor featuring real-time data on block producer nodes and blockchain infrastructure for Antelope blockchains, developed and operated by EOSphere."
+    property="og:description">
+  <link href="./images/favicon.ico" rel="shortcut icon">
+  <link href="./images/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
+  <link href="./images/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
+  <link href="./images/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
+  <link href="./images/safari-pinned-tab.svg" rel="mask-icon">
+  <link href="styles.css" rel="stylesheet">
+  <title>Antelope Tools – Antelope Blockchain Network Monitor</title>
+  <style>
+    /* Google Font loaded inline for faster performance */
+    @font-face {
+      font-family: 'Nunito';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/nunito/v16/XRXV3I6Li01BKofIOOaBTMnFcQIG.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF,
+        U+A640-A69F, U+FE2E-FE2F;
+    }
+    /* cyrillic */
+    @font-face {
+      font-family: 'Nunito';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/nunito/v16/XRXV3I6Li01BKofIMeaBTMnFcQIG.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+    /* vietnamese */
+    @font-face {
+      font-family: 'Nunito';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/nunito/v16/XRXV3I6Li01BKofIOuaBTMnFcQIG.woff2) format('woff2');
+      unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169,
+        U+01A0-01A1, U+01AF-01B0, U+1EA0-1EF9, U+20AB;
+    }
+    /* latin-ext */
+    @font-face {
+      font-family: 'Nunito';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/nunito/v16/XRXV3I6Li01BKofIO-aBTMnFcQIG.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB,
+        U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+    /* latin */
+    @font-face {
+      font-family: 'Nunito';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/nunito/v16/XRXV3I6Li01BKofINeaBTMnFcQ.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+        U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193,
+        U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+  </style>
+  <script>
+    const toggleColorMode = () => {
+      const element = document.body
+      const isLightMode = element.classList.toggle('light-mode')
+
+      localStorage.setItem('prefersDarkMode', !isLightMode)
+
+      document.getElementById('light-mode-icon').classList.toggle('no-display')
+      document.getElementById('dark-mode-icon').classList.toggle('no-display')
+      document
+        .getElementById('toggle-color-btn')
+        .setAttribute(
+          'aria-label',
+          `Switch to ${isLightMode ? 'dark' : 'light'} mode`,
+        )
+    }
+  </script>
+  <script src="https://unpkg.com/feather-icons@4.29.2/dist/feather.min.js"></script>
+  </head>
+<body>
+  <div id="toggle-color">
+    <button id="toggle-color-btn" aria-label="Switch to light mode" onclick="toggleColorMode()">
+      <span id="light-mode-icon" class="color-mode-icon"><i data-feather="sun"></i></span>
+      <span id="dark-mode-icon" class="color-mode-icon no-display"><i data-feather="moon"></i></span>
+    </button>
+  </div>
+  <main>
+    <div class="header">
+      <div class="image-box">
+        <img alt="Antelope Tools Logo" id="middle-logo" class="theme-filter-image" src="./images/antelope-tools.svg">
+        <img alt="" id="bg-image-mobile" src="./images/background-mobile.png">
+      </div>
+      <div class="image-box-desktop theme-filter-image">
+        <img alt="Antelope Tools Logo" src="./images/antelope-tools.svg">
+      </div>
+      <div class="box-paragraph-text" id="d-version">
+        <h1>Unlock Real-Time Visibility into Antelope Blockchains</h1>
+        <div class="text-container">
+          <div class="flex">
+            <div class="Line-4"></div>
+            <p>
+              Live dashboards for block producers, nodes, endpoints and rewards across the Antelope ecosystem.
+            </p>
+          </div>
+          <div class="flex">
+            <div class="Line-4"></div>
+            <p>
+              Open infrastructure data, developed and operated by EOSphere.
+            </p>
+          </div>
+        </div>
+        <a href="#nav" class="customButton">
+          <div class="visit-text">View Monitored Networks</div>
+        </a>
+      </div>
+    </div>
+    <div id="networks">
+      <div class="box-network">
+        <div class="flex2">
+          <div class="flex-text">
+            <div class="Line-5"></div>
+            <h2 id="nav">
+              Blockchain Networks
+            </h2>
+          </div>
+        </div>
+        <section id="mainnet-desktop">
+          <div class="grid" id="mainnet-grid"></div>
+        </section>
+      </div>
+      <div class="box-network">
+        <div class="flex2">
+          <div class="flex-text">
+            <div class="Line-5"></div>
+            <h2>
+              Test Networks
+            </h2>
+          </div>
+        </div>
+        <section id="testnet-desktop">
+          <div class="grid" id="testnet-grid"></div>
+        </section>
+      </div>
+    </div>
+    <div class="content">
+      <div class="section-wrapper">
+        <section class="box-paragraph">
+          <details>
+            <summary>
+              <span class="info-icon">
+                <img src="./images/feather-icon.png" alt="">
+                <span>What is Antelope Tools?</span>
+              </span>
+            </summary>
+            <p>
+              Antelope Tools is an open-source network monitor for Antelope blockchains: Vaulta (EOS), Telos, WAX, XPR Network, Libre, FIO and their testnets. It brings block producer, node, endpoint and reward information together in one place. Originally created by <a href="https://edenia.com" target="_blank">Edenia</a>, it is now developed and operated by <a href="https://eosphere.io" target="_blank">EOSphere</a> as <b>open infrastructure data</b> for the Antelope ecosystem.
+            </p>
+          </details>
+        </section>
+        <section class="box-paragraph">
+          <details>
+            <summary>
+              <span class="info-icon"><img src="./images/feather-icon.png" alt="">
+                <span>Why is it important?</span>
+              </span>
+            </summary>
+            <p>
+              Antelope networks are run by block producers elected by token holders, and developers and users depend on the infrastructure those producers operate. Antelope Tools shows how each producer and its nodes are performing, so token holders, node operators and developers can make informed decisions based on <b>transparent, reliable data</b>.
+            </p>
+          </details>
+        </section>
+        <section class="box-paragraph">
+          <details>
+            <summary>
+              <span class="info-icon">
+                <img src="./images/feather-icon.png" alt="">
+                <span>Where does the data come from?</span>
+              </span>
+            </summary>
+            <p>
+              Data is read directly from each chain's public system tables and enriched with every block producer's <a href="https://github.com/eosrio/bp-info-standard" target="_blank">bp.json</a> file and checks of the endpoints they publish. CPU benchmarks come from Hyperion history nodes. <b>Want to dig deeper?</b> The code is open source on <a href="https://github.com/eosphere/antelope-tools" target="_blank">GitHub</a>, or join the conversation on <a href="https://t.me/eosphere_io" target="_blank">Telegram</a>.
+            </p>
+          </details>
+        </section>
+      </div>
+    </div>
+  </main>
+  <div class="footer">
+    <div class="contact-us">
+      <h3>
+        Questions, ideas or want to get involved? Get in touch with EOSphere.
+      </h3>
+    </div>
+    <div class="box-social-media">
+      <a class="twitter" href="https://x.com/eosphere_io" target="_blank">
+        <img class="footerSocialMedia" alt="EOSphere on X" src="./images/twitter.png">
+      </a>
+      <a href="https://t.me/eosphere_io" target="_blank">
+        <img class="footerSocialMedia" alt="EOSphere Telegram" src="./images/telegram.png">
+      </a>
+      <a href="https://github.com/eosphere/antelope-tools" target="_blank">
+        <img class="footerSocialMedia" alt="Antelope Tools on GitHub" src="./images/github.png">
+      </a>
+    </div>
+    <div class="eos-costa-rica">
+      <h4 class="project-by">Open Infrastructure Data for the Antelope Ecosystem</h4>
+      <h4 class="project-by">Developed and Operated by</h4>
+      <div class="logo-text">
+        <a href="https://eosphere.io/" target="_blank" class="eosphere-credit">
+          <img class="eosphereLogo" alt="EOSphere website" src="./images/eosphere.png">
+          <span>EOSphere</span>
+        </a>
+      </div>
+      <p class="original-authors">Originally built by <a href="https://edenia.com/" target="_blank">Edenia</a></p>
+    </div>
+    <p id="copyright">antelope-tools.eosphere.io</p>
+    <a href="#" id="back-to-top">Back to Top</a>
+  </div>
+  <script>
+    // The network tiles come from networks.json: edit that file to add,
+    // remove or rename networks.
+    const renderNetworks = async () => {
+      const { mainnets = [], testnets = [] } = await fetch('networks.json').then(r => r.json())
+      const tile = network => {
+        const link = document.createElement('a')
+        link.className = 'grid-item'
+        link.href = network.url
+        const image = document.createElement('img')
+        image.src = network.image
+        image.alt = `${network.name} Network Monitor`
+        const name = document.createElement('span')
+        name.className = 'name-networks'
+        name.textContent = network.name
+        link.append(image, name)
+        return link
+      }
+      document.getElementById('mainnet-grid').append(...mainnets.map(tile))
+      document.getElementById('testnet-grid').append(...testnets.map(tile))
+    }
+    renderNetworks()
+  </script>
+  <script>
+    feather.replace();
+
+    const preference = localStorage.getItem('prefersDarkMode')
+    const prefersDarkMode = Boolean(JSON.parse(preference))
+
+    if (preference && !prefersDarkMode) {
+      toggleColorMode()
+    }
+  </script>
+</body>
+</html>

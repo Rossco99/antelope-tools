@@ -70,6 +70,11 @@ smoke: ##@local Headless browser check of every webapp page (needs `make start` 
 		sh -c 'cd /tmp && npm install --silent --no-save playwright@$(PLAYWRIGHT_VERSION) >/dev/null && \
 			cp /work/scripts/smoke-test.mjs /tmp/ && cd /work && node /tmp/smoke-test.mjs'
 
+.PHONY: landing
+landing: ##@local Serve the landing page (landing/) at http://localhost:8000
+	@echo "landing page at http://localhost:8000"
+	@python3 -m http.server 8000 --bind 0.0.0.0 --directory landing
+
 update-sitemaps:
 	python3 ./scripts/updateSitemaps.py --path ./webapp/public/
 
