@@ -1,5 +1,7 @@
 # the active network config written by `make <network>`; .env.<network> files are tracked
 .env
+# real credentials, created on the host with `make secrets`
+.env.secrets
 .vscode/
 db_data
 wallet_data

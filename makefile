@@ -17,14 +17,28 @@ run:
 %:
 @:
 
-NETWORKS := $(patsubst .env.%,%,$(wildcard .env.*))
+NETWORKS := $(filter-out secrets example,$(patsubst .env.%,%,$(wildcard .env.*)))
 RELEASE_TAG := $(shell git describe --tags `git rev-list --tags --max-count=1` 2>/dev/null)
+
+secrets: ##@devops Create .env.secrets with random passwords (never overwrites an existing one)
+	@if [ -f .env.secrets ]; then \
+		echo ".env.secrets already exists; not changing it"; \
+	else \
+		umask 077; \
+		{ echo "# Real credentials for this host. Not committed; keep a copy somewhere safe."; \
+		  echo "# Layered over .env.<network> by make <network>."; \
+		  echo "POSTGRES_PASSWORD=$$(python3 -c 'import secrets; print(secrets.token_hex(24))')"; \
+		  echo "HASURA_GRAPHQL_ADMIN_SECRET=$$(python3 -c 'import secrets; print(secrets.token_hex(32))')"; \
+		} > .env.secrets; \
+		echo "created .env.secrets (readable only by you)"; \
+	fi
 
 clean: ##@local Stop this instance and delete its containers and volumes (database included)
 	@docker compose down --volumes --remove-orphans
 
 $(NETWORKS): ##@local Switch .env to the named network (e.g. make jungle) and start
 	@sed -e 's/REACT_APP_VERSION=dev/REACT_APP_VERSION=$(RELEASE_TAG)/g' ".env.$@" > ".env"
+	@if [ -f .env.secrets ]; then printf '\n# --- from .env.secrets ---\n' >> .env; cat .env.secrets >> .env; fi
 	@$(MAKE) --no-print-directory stop
 	@$(MAKE) --no-print-directory start
 
