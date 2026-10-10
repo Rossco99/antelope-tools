@@ -1,0 +1,57 @@
+# Builds the production stack for Jungle4 from scratch and checks every
+# dashboard page in a headless browser (make smoke), plus the landing page.
+name: Build and smoke test
+
+on:
+  push:
+    branches: [dev-3.0]
+  pull_request:
+    branches: [dev-3.0]
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Production stack (Jungle4)
+        run: |
+          make secrets
+          make prod-up NETWORK=jungle
+
+      - name: Wait for producers to sync
+        run: |
+          for i in $(seq 1 60); do
+            count=$(curl -s localhost:8102/v1/graphql -H 'content-type: application/json' \
+              -d '{"query":"{ producer_aggregate { aggregate { count } } }"}' \
+              | python3 -c 'import sys, json; print(json.load(sys.stdin)["data"]["producer_aggregate"]["aggregate"]["count"])' 2>/dev/null || echo 0)
+            echo "producers: $count"
+            [ "$count" -gt 0 ] && exit 0
+            sleep 10
+          done
+          echo "producers did not sync"; exit 1
+
+      - name: Smoke test the dashboard
+        run: SMOKE_BASE_URL=http://localhost:8102 make smoke
+
+      - name: Landing page
+        run: |
+          make landing-up
+          curl -fsS localhost:8100/ > /dev/null
+          curl -fsS localhost:8100/networks.json | python3 -c 'import sys, json; d = json.load(sys.stdin); assert d["mainnets"] and d["testnets"]'
+
+      - name: Logs
+        if: failure()
+        run: docker compose -p antelope-jungle -f docker-compose.prod.yaml --env-file .deploy/jungle.env logs --tail 200
+        env:
+          NETWORK: jungle
+
+      - name: Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-results
+          path: smoke-results/
+          if-no-files-found: ignore
