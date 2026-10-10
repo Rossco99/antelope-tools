@@ -1308,3 +1308,18 @@ p {
 .grid img {
   object-fit: contain;
 }
+
+/* EOSphere wordmark: white "EOS" on the dark theme, black on the light theme */
+.eosphere-wordmark {
+  height: 30px;
+  width: auto;
+}
+
+.wordmark-on-light,
+.light-mode .wordmark-on-dark {
+  display: none;
+}
+
+.light-mode .wordmark-on-light {
+  display: inline;
+}

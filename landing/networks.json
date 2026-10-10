@@ -1,6 +1,6 @@
 {
   "mainnets": [
-    { "name": "Vaulta (EOS)", "url": "https://eos.antelope.eosphere.io", "image": "images/eos-grid.png" },
+    { "name": "Vaulta (EOS)", "url": "https://eos.antelope.eosphere.io", "image": "images/vaulta-grid.png" },
     { "name": "FIO", "url": "https://fio.antelope.eosphere.io", "image": "images/fio-grid.png" },
     { "name": "Libre", "url": "https://libre.antelope.eosphere.io", "image": "images/libre.png" },
     { "name": "Telos", "url": "https://telos.antelope.eosphere.io", "image": "images/telos-grid.png" },
