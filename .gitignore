@@ -13,3 +13,6 @@ build_k8s
 .DS_Store
 google-credentials.json
 smoke-results
+
+# per-network production env files written by make prod-up
+.deploy/

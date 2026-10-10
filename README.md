@@ -20,6 +20,7 @@ Developed and operated by [EOSphere](https://eosphere.io).
 - [Running it](#running-it)
 - [Configuration](#configuration)
 - [Building](#building)
+- [Production](#production)
 - [Testing](#testing)
 - [Project layout](#project-layout)
 - [Credits](#credits)
@@ -129,6 +130,19 @@ yarn build      # yarn preview serves the build locally
 
 The webapp Docker image (`webapp/Dockerfile`) builds the same output and serves it with nginx.
 
+## Production
+
+Each network runs as its own production stack behind EOSphere's HAProxy (which terminates SSL), plus a small container for the landing page:
+
+```bash
+make secrets                   # once per server: random passwords in .env.secrets
+make landing-up                # landing page on port 8100
+make prod-up NETWORK=jungle    # one network on its HTTP_PORT (8102 for Jungle)
+make prod-ps                   # what is running
+```
+
+Hasura runs with an admin secret, no console and read-only public access. See **[docs/deployment.md](docs/deployment.md)** for the server requirements, ports, the HAProxy configuration, updates and backups.
+
 ## Testing
 
 `make smoke` opens every dashboard page in a headless Chromium (the Playwright Docker image, so nothing extra to install) against the running webapp, saves screenshots to `smoke-results/` and fails on page errors, GraphQL errors and unexpected redirects to `/404`. Run it after any change, against both `make start-webapp` and a production build (`cd webapp && yarn build && yarn preview --port 3000`).
@@ -138,7 +152,10 @@ The webapp Docker image (`webapp/Dockerfile`) builds the same output and serves 
 ```
 antelope-tools/
 ├── .env.<network>       network configurations
-├── docker-compose.yaml  the stack for one network
+├── docker-compose.yaml  development stack for one network
+├── docker-compose.prod.yaml  production stack for one network
+├── docker-compose.landing.yaml  production landing page
+├── deploy/              production config (landing page nginx)
 ├── makefile             the commands above
 ├── hapi/                backend workers (Node.js)
 ├── hapi-evm/            EVM dashboard backend (TypeScript, parked)
@@ -152,6 +169,7 @@ antelope-tools/
 
 More documentation:
 
+- [Production deployment](docs/deployment.md)
 - [Producers REST API](docs/producers-API-documentation.md)
 - [Wallet configuration](docs/wallet-config.md) (testnet faucet only)
 

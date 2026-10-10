@@ -8,15 +8,6 @@ YELLOW := $(shell tput -Txterm setaf 3)
 GREEN  := $(shell tput -Txterm setaf 2)
 RESET  := $(shell tput -Txterm sgr0)
 
-K8S_BUILD_DIR ?= ./build_k8s
-K8S_FILES := $(shell find ./kubernetes -name '*.yaml' | sed 's:./kubernetes/::g')
-K8S_FILES_EVM := $(shell find ./kubernetes-evm -name '*.yaml' | sed 's:./kubernetes-evm/::g')
-
-run:
-	@echo "$(BLUE)running action $(filter-out $@,$(MAKECMDGOALS))$(RESET)"
-%:
-@:
-
 NETWORKS := $(filter-out secrets example,$(patsubst .env.%,%,$(wildcard .env.*)))
 RELEASE_TAG := $(shell git describe --tags `git rev-list --tags --max-count=1` 2>/dev/null)
 
@@ -89,9 +80,6 @@ landing: ##@local Serve the landing page (landing/) at http://localhost:8000
 	@echo "landing page at http://localhost:8000"
 	@python3 -m http.server 8000 --bind 0.0.0.0 --directory landing
 
-update-sitemaps:
-	python3 ./scripts/updateSitemaps.py --path ./webapp/public/
-
 add-language-webapp: ##copy en files in a new folder based on lang=
 	@mkdir ./webapp/src/language/$(lang)
 	@cp ./webapp/src/language/en/en.* ./webapp/src/language/$(lang)/
@@ -113,70 +101,41 @@ add-language-webapp: ##copy en files in a new folder based on lang=
 logs: ##@local Follow backend logs
 	@docker compose logs -f hapi hasura
 
-build-kubernetes: ##@devops Generate proper k8s files based on the templates
-build-kubernetes: ./kubernetes
-	@echo "Build kubernetes files..."
-	@rm -Rf $(K8S_BUILD_DIR) && mkdir -p $(K8S_BUILD_DIR)
-	@for file in $(K8S_FILES); do \
-		mkdir -p `dirname "$(K8S_BUILD_DIR)/$$file"`; \
-		$(SHELL_EXPORT) envsubst <./kubernetes/$$file >$(K8S_BUILD_DIR)/$$file; \
-	done
+# --- production -------------------------------------------------------------
+# One stack per network (compose project antelope-<network>), see
+# docs/deployment.md. Real credentials come from .env.secrets (make secrets).
 
-build-kubernetes-evm: ##@devops Generate proper k8s files based on the templates for evm
-build-kubernetes-evm: ./kubernetes-evm
-	@echo "Build kubernetes files for evm..."
-	@mkdir -p $(K8S_BUILD_DIR)
-	@for file in $(K8S_FILES_EVM); do \
-		mkdir -p `dirname "$(K8S_BUILD_DIR)/$$file"`; \
-		$(SHELL_EXPORT) envsubst <./kubernetes-evm/$$file >$(K8S_BUILD_DIR)/$$file; \
-	done
+PROD_COMPOSE = NETWORK=$(NETWORK) docker compose -p antelope-$(NETWORK) -f docker-compose.prod.yaml --env-file .deploy/$(NETWORK).env
 
-deploy-kubernetes: ##@devops Publish the build k8s files
-deploy-kubernetes: $(K8S_BUILD_DIR)
-	@kubectl create ns $(NAMESPACE) || echo "Namespace '$(NAMESPACE)' already exists.";
-	@echo "Creating SSL certificates..."
-	@kubectl create secret tls \
-		dashboard-tls-secret \
-		--key ./ssl/antelope.tools.priv.key \
-		--cert ./ssl/antelope.tools.crt \
-		-n $(NAMESPACE)  || echo "SSL cert already configured.";
-	@echo "Creating configmaps..."
-	@kubectl create configmap -n $(NAMESPACE) \
-	dashboard-wallet-config \
-	--from-file wallet/config/ || echo "Wallet configuration already created.";
-	@echo "Applying kubernetes files..."
-	@for file in $(shell find $(K8S_BUILD_DIR) -name '*.yaml' | sed 's:$(K8S_BUILD_DIR)/::g'); do \
-		kubectl apply -f $(K8S_BUILD_DIR)/$$file -n $(NAMESPACE) || echo "${file} Cannot be updated."; \
-	done
+prod-check:
+	@if [ -z "$(NETWORK)" ]; then echo "usage: make $(MAKECMDGOALS) NETWORK=<network>  (one of: $(NETWORKS))"; exit 1; fi
+	@if [ ! -f ".env.$(NETWORK)" ]; then echo "unknown network '$(NETWORK)' (one of: $(NETWORKS))"; exit 1; fi
+	@if [ ! -f .env.secrets ]; then echo ".env.secrets is missing: run 'make secrets' first"; exit 1; fi
 
-build-docker-images: ##@devops Build docker images
-build-docker-images:
-	@echo "Building docker containers..."
-	@for dir in $(SUBDIRS); do \
-		$(MAKE) build-docker -C $$dir; \
-	done
+prod-env: prod-check
+	@mkdir -p .deploy && chmod 700 .deploy
+	@umask 077; { sed -e 's/REACT_APP_VERSION=dev/REACT_APP_VERSION=$(RELEASE_TAG)/' ".env.$(NETWORK)"; \
+		printf '\n# --- from .env.secrets ---\n'; cat .env.secrets; } > .deploy/$(NETWORK).env
+	@{ grep '^REACT_APP_' .deploy/$(NETWORK).env | grep -v '^REACT_APP_HASURA_URL='; \
+		echo 'REACT_APP_HASURA_URL=/v1/graphql'; } > webapp/.env.build
 
-push-docker-images: ##@devops Publish docker images
-push-docker-images:
-	@echo $(DOCKER_PASSWORD) | docker login \
-		--username $(DOCKER_USERNAME) \
-		--password-stdin
-	for dir in $(SUBDIRS); do \
-		$(MAKE) push-image -C $$dir; \
-	done
+prod-up: prod-env ##@prod Build and start (or update) a network: make prod-up NETWORK=jungle
+	@$(PROD_COMPOSE) up -d --build --wait
+	@echo "antelope-$(NETWORK) is up on port $$(grep '^HTTP_PORT=' .deploy/$(NETWORK).env | cut -d= -f2)"
 
-release: ##@devops Create Release for Version "make version=v1.3.xx release"
-release:
-	ifndef version
-		$(error version is not set)
-	endif
-	@echo "Create release for version $(version)"
-	@git tag -a $(version) -m "Create release tag $(version)"
-	@git tag -a mainnet-$(version) -m "Create release tag mainnet-$(version)"
-	@git tag -a xpr-$(version) -m "Create release tag xpr-$(version)"
-	@git tag -a wax-$(version) -m "Create release tag wax-$(version)"
-	@git tag -a telos-$(version) -m "Create release tag telos-$(version)"
-	@git tag -a xpr-testnet-$(version) -m "Create release tag xpr-testnet-$(version)"
-	@git tag -a wax-testnet-$(version) -m "Create release tag wax-testnet-$(version)"
-	@git tag -a telos-testnet-$(version) -m "Create release tag telos-testnet-$(version)"
-	@git push --tags
+prod-down: prod-check ##@prod Stop a network, keeping its database: make prod-down NETWORK=jungle
+	@$(PROD_COMPOSE) down
+
+prod-logs: prod-check ##@prod Follow a network's logs: make prod-logs NETWORK=jungle
+	@$(PROD_COMPOSE) logs -f --tail 100
+
+prod-ps: ##@prod List the running production stacks
+	@docker ps --filter "label=com.docker.compose.project" --format '{{.Label "com.docker.compose.project"}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}' | grep '^antelope-' | grep -v '^antelope-tools\b' | sort
+
+landing-up: ##@prod Start (or update) the landing page on LANDING_PORT (default 8100)
+	@docker compose -p antelope-landing -f docker-compose.landing.yaml up -d --wait
+
+landing-down: ##@prod Stop the landing page
+	@docker compose -p antelope-landing -f docker-compose.landing.yaml down
+
+.PHONY: secrets clean stop start start-backend start-webapp smoke landing logs console prod-check prod-env prod-up prod-down prod-logs prod-ps landing-up landing-down
