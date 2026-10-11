@@ -11,7 +11,7 @@ RESET  := $(shell tput -Txterm sgr0)
 NETWORKS := $(filter-out secrets example,$(patsubst .env.%,%,$(wildcard .env.*)))
 RELEASE_TAG := $(shell git describe --tags `git rev-list --tags --max-count=1` 2>/dev/null)
 
-secrets: ##@devops Create .env.secrets with random passwords (never overwrites an existing one)
+secrets: ##@setup Create .env.secrets with random passwords (never overwrites an existing one)
 	@if [ -f .env.secrets ]; then \
 		echo ".env.secrets already exists; not changing it"; \
 	else \
@@ -24,23 +24,23 @@ secrets: ##@devops Create .env.secrets with random passwords (never overwrites a
 		echo "created .env.secrets (readable only by you)"; \
 	fi
 
-clean: ##@local Stop this instance and delete its containers and volumes (database included)
+clean: ##@development Stop this instance and delete its containers and volumes (database included)
 	@docker compose down --volumes --remove-orphans
 
-$(NETWORKS): ##@local Switch .env to the named network (e.g. make jungle) and start
+$(NETWORKS): ##@development Switch .env to the named network (e.g. make jungle) and start
 	@sed -e 's/REACT_APP_VERSION=dev/REACT_APP_VERSION=$(RELEASE_TAG)/g' ".env.$@" > ".env"
 	@if [ -f .env.secrets ]; then printf '\n# --- from .env.secrets ---\n' >> .env; cat .env.secrets >> .env; fi
 	@$(MAKE) --no-print-directory stop
 	@$(MAKE) --no-print-directory start
 
-stop: ##@local Stop all services
+stop: ##@development Stop all services
 	@docker compose stop
 
-start: ##@local Start backend services, then the webapp dev server in the foreground
+start: ##@development Start backend services, then the webapp dev server in the foreground
 	@$(MAKE) --no-print-directory start-backend
 	@$(MAKE) --no-print-directory start-webapp
 
-start-backend: ##@local Start postgres, hapi and hasura and wait until they are healthy
+start-backend: ##@development Start postgres, hapi and hasura and wait until they are healthy
 	@docker compose up -d --build --renew-anon-volumes --wait postgres hapi hasura
 
 start-postgres:
@@ -58,15 +58,15 @@ start-hapi-evm:
 start-hasura:
 	@docker compose up -d --build --wait hasura
 
-start-webapp: ##@local Run the webapp dev server against the running backend
+start-webapp: ##@development Run the webapp dev server against the running backend
 	@cd webapp && yarn && yarn dev
 
-console: ##@local Open the Hasura console (requires the hasura CLI)
+console: ##@development Open the Hasura console (requires the hasura CLI)
 	@cd hasura && hasura console --endpoint http://localhost:$${HASURA_PORT:-8080} --skip-update-check --no-browser --admin-secret $(HASURA_GRAPHQL_ADMIN_SECRET)
 
 PLAYWRIGHT_VERSION := 1.55.0
 
-smoke: ##@local Headless browser check of every webapp page (needs `make start` running)
+smoke: ##@development Headless browser check of every webapp page (SMOKE_BASE_URL=... for another URL)
 	@mkdir -p smoke-results
 	@docker run --rm --network host --user $$(id -u):$$(id -g) -e HOME=/tmp \
 		-e SMOKE_EVM -e SMOKE_VERBOSE -e SMOKE_BASE_URL -e SMOKE_WAIT_MS \
@@ -76,7 +76,7 @@ smoke: ##@local Headless browser check of every webapp page (needs `make start` 
 			cp /work/scripts/smoke-test.mjs /tmp/ && cd /work && node /tmp/smoke-test.mjs'
 
 .PHONY: landing
-landing: ##@local Serve the landing page (landing/) at http://localhost:8000
+landing: ##@development Serve the landing page (landing/) at http://localhost:8000
 	@echo "landing page at http://localhost:8000"
 	@python3 -m http.server 8000 --bind 0.0.0.0 --directory landing
 
@@ -98,7 +98,7 @@ add-language-webapp: ##copy en files in a new folder based on lang=
 	@echo "$${lang} added successfully"
 	@echo "Now it can be important where it is needed"
 
-logs: ##@local Follow backend logs
+logs: ##@development Follow backend logs
 	@docker compose logs -f hapi hasura
 
 # --- production -------------------------------------------------------------
@@ -119,23 +119,23 @@ prod-env: prod-check
 	@{ grep '^REACT_APP_' .deploy/$(NETWORK).env | grep -v '^REACT_APP_HASURA_URL='; \
 		echo 'REACT_APP_HASURA_URL=/v1/graphql'; } > webapp/.env.build
 
-prod-up: prod-env ##@prod Build and start (or update) a network: make prod-up NETWORK=jungle
+prod-up: prod-env ##@production Build and start (or update) a network: make prod-up NETWORK=jungle
 	@$(PROD_COMPOSE) up -d --build --wait
 	@echo "antelope-$(NETWORK) is up on port $$(grep '^HTTP_PORT=' .deploy/$(NETWORK).env | cut -d= -f2)"
 
-prod-down: prod-check ##@prod Stop a network, keeping its database: make prod-down NETWORK=jungle
+prod-down: prod-check ##@production Stop a network, keeping its database: make prod-down NETWORK=jungle
 	@$(PROD_COMPOSE) down
 
-prod-logs: prod-check ##@prod Follow a network's logs: make prod-logs NETWORK=jungle
+prod-logs: prod-check ##@production Follow a network's logs: make prod-logs NETWORK=jungle
 	@$(PROD_COMPOSE) logs -f --tail 100
 
-prod-ps: ##@prod List the running production stacks
+prod-ps: ##@production List the running production stacks
 	@docker ps --filter "label=com.docker.compose.project" --format '{{.Label "com.docker.compose.project"}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}' | grep '^antelope-' | grep -v '^antelope-tools\b' | sort
 
-landing-up: ##@prod Start (or update) the landing page on LANDING_PORT (default 8100)
+landing-up: ##@production Start (or update) the landing page on LANDING_PORT (default 8100)
 	@docker compose -p antelope-landing -f docker-compose.landing.yaml up -d --wait
 
-landing-down: ##@prod Stop the landing page
+landing-down: ##@production Stop the landing page
 	@docker compose -p antelope-landing -f docker-compose.landing.yaml down
 
 .PHONY: secrets clean stop start start-backend start-webapp smoke landing logs console prod-check prod-env prod-up prod-down prod-logs prod-ps landing-up landing-down
