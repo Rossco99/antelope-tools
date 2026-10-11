@@ -15,12 +15,11 @@ Developed and operated by [EOSphere](https://eosphere.io).
 ## Contents
 
 - [How it works](#how-it-works)
+- [Development or production?](#development-or-production)
 - [Requirements](#requirements)
-- [Quick start](#quick-start)
-- [Running it](#running-it)
-- [Configuration](#configuration)
-- [Building](#building)
+- [Development](#development)
 - [Production](#production)
+- [Configuration](#configuration)
 - [Testing](#testing)
 - [Project layout](#project-layout)
 - [Credits](#credits)
@@ -43,23 +42,50 @@ The landing page in [`landing/`](landing) lists every network and links to its d
 
 Data comes from each chain's public API, every block producer's [bp.json](https://github.com/eosrio/bp-info-standard), Hyperion history nodes (CPU benchmark) and, if configured, a SHiP node (block history).
 
+## Development or production?
+
+The same repository runs in two different ways. **Use the right commands for the right machine.**
+
+| | Development (sandbox, e.g. WSL) | Production (server) |
+|---|---|---|
+| Purpose | Working on and testing the code | Serving the public dashboards |
+| Start a network | `make jungle` (or `make <network>`) | `make prod-up NETWORK=jungle` |
+| Networks at once | One | All of them, each on its own port |
+| Website | Vite dev server on port 3000, reloads on code changes, stops when the terminal closes | Built site served by nginx on the network's port (8101, 8102, ...) |
+| Database and Hasura | Ports open on the host; Hasura console on | Not reachable from outside; console off; the public can only read |
+| Passwords | Development values from `.env.<network>` (or `.env.secrets` if present) | `.env.secrets`, created by `make secrets` |
+| After a reboot | Start it again | Restarts automatically |
+| Compose file | `docker-compose.yaml` | `docker-compose.prod.yaml` and `docker-compose.landing.yaml` |
+
+> **On the production server only use** `make secrets`, `make prod-*` and `make landing-up` / `landing-down`.
+> The development commands (`make <network>`, `make start`, `make stop`, ...) start a separate development copy and do not touch the production stacks.
+
+`make help` lists every command, grouped into *development*, *production* and *setup*.
+
 ## Requirements
 
-- **Linux**, or **Windows with WSL 2** (Ubuntu 24.04 recommended, with systemd enabled in `/etc/wsl.conf`)
-- **Docker Engine 24+ with the Compose plugin** (`docker compose`); your user in the `docker` group
-- **Node.js 24 LTS** and **Yarn 1** (`sudo corepack enable`), for the webapp dev server
-- **git**, **make** and **Python 3** (used by `make landing`)
-- Outbound HTTPS access to the network's API and Hyperion endpoints
+Both:
 
-## Quick start
+- **Linux** (Ubuntu 24.04 recommended), or for development **Windows with WSL 2** (with systemd enabled in `/etc/wsl.conf`)
+- **Docker Engine 24+ with the Compose plugin** (`docker compose`); your user in the `docker` group
+- **git**, **make** and **Python 3**
+- Outbound HTTPS access to each network's API and Hyperion endpoints
+
+Development only:
+
+- **Node.js 24 LTS** and **Yarn 1** (`sudo corepack enable`), for the webapp dev server
+
+## Development
+
+### Quick start
 
 ```bash
-git clone https://github.com/eosphere/antelope-tools.git
+git clone -b dev-3.0 https://github.com/eosphere/antelope-tools.git
 cd antelope-tools
 make jungle
 ```
 
-`make jungle` selects the Jungle4 testnet configuration, starts the backend in Docker and runs the webapp dev server in the foreground. When it is ready:
+`make jungle` selects the Jungle4 testnet configuration, starts the backend in Docker and runs the webapp dev server in the foreground (Ctrl+C stops the dev server; the backend keeps running). When it is ready:
 
 | | URL |
 |---|---|
@@ -69,7 +95,7 @@ make jungle
 
 The first start takes a few minutes while images are built and producers are synced.
 
-## Running it
+### Development commands
 
 | Command | What it does |
 |---|---|
@@ -77,22 +103,71 @@ The first start takes a few minutes while images are built and producers are syn
 | `make start` | Start everything with the current `.env` |
 | `make start-backend` | Start postgres, hapi and hasura, and wait until they are healthy |
 | `make start-webapp` | Run the webapp dev server against the running backend |
-| `make secrets` | Create `.env.secrets` with random database and Hasura passwords (never overwrites an existing one) |
+| `make console` | Open the Hasura console (needs the hasura CLI) |
 | `make landing` | Serve the landing page at http://localhost:8000 |
 | `make logs` | Follow the backend logs |
-| `make smoke` | Headless browser check of every dashboard page |
-| `make stop` | Stop the containers |
-| `make clean` | Remove this instance's containers **and its database** |
+| `make smoke` | Headless browser check of every dashboard page (see [Testing](#testing)) |
+| `make stop` | Stop the development containers |
+| `make clean` | Remove the development containers **and their database** |
 
 Available networks (`.env.<network>` files): `mainnet` (Vaulta/EOS), `jungle`, `wax`, `waxtestnet`, `telos`, `telostestnet`, `xpr`, `xprtestnet`, `libre`, `libretestnet`, `fio`, `fiotestnet`, `ultra`, `ultratestnet`, and `local` (for a local test chain).
 
-To switch networks, run `make <other network>`. Each network keeps its own data only while its database volume exists, so run `make clean` first if you want a fresh start.
+Development runs one network at a time. To switch, run `make <other network>`; run `make clean` first for a fresh database.
 
-To run several networks on one host, give each instance its own `COMPOSE_PROJECT_NAME` and host ports (`POSTGRES_PORT`, `HAPI_PORT`, `HASURA_PORT`, `WEBAPP_PORT`, `WALLET_PORT`, `HAPI_EVM_PORT`).
+### Building
+
+Container images (hapi, hapi-evm, wallet; postgres and hasura use upstream images):
+
+```bash
+docker compose build
+```
+
+Webapp production build (static files in `webapp/build/`), using the settings in the root `.env`:
+
+```bash
+cd webapp
+yarn install
+yarn build      # yarn preview serves the build locally
+```
+
+In production `make prod-up` does this inside Docker (`webapp/Dockerfile`) and serves the result with nginx.
+
+## Production
+
+Each network runs as its own stack (compose project `antelope-<network>`) on its own port, behind EOSphere's HAProxy (which terminates SSL), plus a small container for the landing page. Everything restarts automatically after a crash or reboot.
+
+First install on the server:
+
+```bash
+git clone -b dev-3.0 https://github.com/eosphere/antelope-tools.git ~/antelope-tools
+cd ~/antelope-tools
+make secrets                   # once per server: random passwords in .env.secrets (keep a copy safe)
+make landing-up                # landing page on port 8100
+make prod-up NETWORK=jungle    # one network on its HTTP_PORT (8102 for Jungle); repeat per network
+make prod-ps                   # everything should be "healthy"
+```
+
+### Production commands
+
+| Command | What it does |
+|---|---|
+| `make secrets` | Create `.env.secrets` with random passwords (once per server; never overwrites an existing one) |
+| `make prod-up NETWORK=<network>` | Build and start a network, or update it after `git pull` |
+| `make prod-ps` | List every running stack and its health |
+| `make prod-logs NETWORK=<network>` | Follow a network's logs |
+| `make prod-down NETWORK=<network>` | Stop a network (its database is kept) |
+| `make landing-up` / `make landing-down` | Start or stop the landing page |
+
+To update after changes are merged: `git pull`, then `make prod-up NETWORK=<network>` for each network.
+
+Hasura runs with an admin secret, no console and read-only public access. See **[docs/deployment.md](docs/deployment.md)** for the server requirements, ports, the HAProxy configuration, checks, updates and backups.
 
 ## Configuration
 
-All settings live in `.env.<network>`. `make <network>` copies the chosen file to `.env`, which is the only file the stack reads (and is not committed).
+All settings live in `.env.<network>` (one file per network, used by both development and production; `HTTP_PORT` is only used in production).
+
+- **Development:** `make <network>` copies the chosen file to `.env` (not committed), which is what the development stack reads.
+- **Production:** `make prod-up NETWORK=<network>` combines `.env.<network>` with `.env.secrets` into `.deploy/<network>.env` (not committed) for that network's stack.
 
 Each file is grouped into sections:
 
@@ -106,46 +181,20 @@ The landing page's network list is [`landing/networks.json`](landing/networks.js
 
 ### Passwords and secrets
 
-The committed `.env.<network>` files contain **development values only** (`POSTGRES_PASSWORD=antelope-dev-password`, `HASURA_GRAPHQL_ADMIN_SECRET=antelope-dev-admin-secret`). Each secret is defined once; `docker-compose.yaml` builds the database URLs and hapi's Hasura secret from them.
+The committed `.env.<network>` files contain **development values only** (`POSTGRES_PASSWORD=antelope-dev-password`, `HASURA_GRAPHQL_ADMIN_SECRET=antelope-dev-admin-secret`). Each secret is defined once; the compose files build the database URLs and hapi's Hasura secret from them.
 
-On a real server, run `make secrets` once. It creates `.env.secrets` (not committed, readable only by your user) with strong random values, and every `make <network>` then layers it over the network's settings. Keep a copy of `.env.secrets` somewhere safe: the database password is set when a network's database is first created.
+On a production server, run `make secrets` once. It creates `.env.secrets` (not committed, readable only by your user) with strong random values; `make prod-up` requires it and layers it over the network's settings (in development `make <network>` uses it too, if present). Keep a copy of `.env.secrets` somewhere safe: the database password is set when a network's database is first created.
 
 The database user and database name are both `antelope`.
 
-## Building
-
-Container images (hapi, hapi-evm, wallet; postgres and hasura use upstream images):
-
-```bash
-docker compose build
-```
-
-Webapp production build (static files in `webapp/build/`). Settings are read from the root `.env`, or from the environment when building in Docker:
-
-```bash
-cd webapp
-yarn install
-yarn build      # yarn preview serves the build locally
-```
-
-The webapp Docker image (`webapp/Dockerfile`) builds the same output and serves it with nginx.
-
-## Production
-
-Each network runs as its own production stack behind EOSphere's HAProxy (which terminates SSL), plus a small container for the landing page:
-
-```bash
-make secrets                   # once per server: random passwords in .env.secrets
-make landing-up                # landing page on port 8100
-make prod-up NETWORK=jungle    # one network on its HTTP_PORT (8102 for Jungle)
-make prod-ps                   # what is running
-```
-
-Hasura runs with an admin secret, no console and read-only public access. See **[docs/deployment.md](docs/deployment.md)** for the server requirements, ports, the HAProxy configuration, updates and backups.
-
 ## Testing
 
-`make smoke` opens every dashboard page in a headless Chromium (the Playwright Docker image, so nothing extra to install) against the running webapp, saves screenshots to `smoke-results/` and fails on page errors, GraphQL errors and unexpected redirects to `/404`. Run it after any change, against both `make start-webapp` and a production build (`cd webapp && yarn build && yarn preview --port 3000`).
+`make smoke` opens every dashboard page in a headless Chromium (the Playwright Docker image, so nothing extra to install), saves screenshots to `smoke-results/` and fails on page errors, GraphQL errors and unexpected redirects to `/404`.
+
+- **Development:** run it against the dev server (`make start-webapp`) and against a production build (`cd webapp && yarn build && yarn preview --port 3000`) after any change.
+- **Production:** point it at a network, e.g. `SMOKE_BASE_URL=http://localhost:8102 make smoke` on the server, or `SMOKE_BASE_URL=https://antelope-jungle.eosphere.io make smoke` from anywhere.
+
+GitHub Actions runs the same check on every pull request (it builds the Jungle production stack from scratch).
 
 ## Project layout
 
