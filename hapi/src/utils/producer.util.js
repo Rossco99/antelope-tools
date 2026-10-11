@@ -210,6 +210,9 @@ const getTelosRewards = async (producers) => {
 }
 
 const getEOSIORewards = async (producers, totalVotes) => {
+  // no votes at all (e.g. Ultra): nothing to estimate
+  if (!totalVotes) return []
+
   const currencyStats = await getCurrencyStats()
   let inflation = 0
 

@@ -34,7 +34,8 @@ const getProducers = async () => {
   }
 
   producers = producers
-    .filter(producer => !!producer.is_active)
+    // Ultra's producers table has no is_active column: treat missing as active
+    .filter(producer => producer.is_active === undefined || !!producer.is_active)
     .sort((a, b) => {
       if (parseInt(a.total_votes) > parseInt(b.total_votes)) {
         return -1
@@ -58,7 +59,8 @@ const getProducers = async () => {
       owner: producer.owner,
       ...(rewards[producer.owner] || nonPaidStandby),
       total_votes: producer.total_votes,
-      total_votes_percent: producer.total_votes / totalVoteWeight,
+      // no votes at all on chains like Ultra
+      total_votes_percent: totalVoteWeight ? producer.total_votes / totalVoteWeight : 0,
       total_votes_eos: producerUtil.getVotes(producer.total_votes),
       rank: index + 1,
       producer_key: producer.producer_key,
@@ -67,7 +69,7 @@ const getProducers = async () => {
       last_claim_time: producer.last_claim_time,
       location: producer.location,
       producer_authority: producer.producer_authority,
-      is_active: !!producer.is_active
+      is_active: producer.is_active === undefined || !!producer.is_active
     }
   })
 

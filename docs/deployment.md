@@ -16,7 +16,7 @@ Each network is its own Docker Compose project (`antelope-<network>`) with postg
 | Network | `make prod-up NETWORK=` | Port | Hostname |
 |---|---|---|---|
 | Landing page | `make landing-up` | 8100 | antelope-tools.eosphere.io |
-| Vaulta (EOS) | `mainnet` | 8101 | antelope-eos.eosphere.io |
+| Vaulta (EOS) | `mainnet` | 8101 | antelope-eos.eosphere.io (alias: antelope-vaulta.eosphere.io) |
 | Jungle4 | `jungle` | 8102 | antelope-jungle.eosphere.io |
 | WAX | `wax` | 8103 | antelope-wax.eosphere.io |
 | WAX Testnet | `waxtestnet` | 8104 | antelope-wax-testnet.eosphere.io |
@@ -29,6 +29,7 @@ Each network is its own Docker Compose project (`antelope-<network>`) with postg
 | FIO | `fio` | 8111 | antelope-fio.eosphere.io |
 | FIO Testnet | `fiotestnet` | 8112 | antelope-fio-testnet.eosphere.io |
 | Ultra Testnet | `ultratestnet` | 8113 | antelope-ultra-testnet.eosphere.io |
+| Ultra | `ultra` | 8114 | antelope-ultra.eosphere.io |
 
 ## 1. App server
 
@@ -55,38 +56,130 @@ make prod-ps          # what is running
 
 ## 3. HAProxy
 
-The network stacks speak plain HTTP; HAProxy terminates SSL with the `*.eosphere.io` certificate. Add to the existing HTTPS frontend (replace `APP_SERVER` with the app server's address):
+The network stacks speak plain HTTP; HAProxy terminates SSL with the `*.eosphere.io` certificate. Add to the existing HTTPS frontend, before any catch-all rules (replace `APP_SERVER` with the app server's address, e.g. `10.0.0.112`):
 
 ```
-frontend https-in
-    # ... existing bind/certificate lines ...
+    # --- Antelope Tools ---
+    acl antelope_redirect_acl          hdr(host) -i antelope.eosphere.io
+    acl antelope_landing_acl           hdr(host) -i antelope-tools.eosphere.io
+    acl antelope_eos_acl               hdr(host) -i antelope-eos.eosphere.io
+    acl antelope_vaulta_acl            hdr(host) -i antelope-vaulta.eosphere.io
+    acl antelope_jungle_acl            hdr(host) -i antelope-jungle.eosphere.io
+    acl antelope_wax_acl               hdr(host) -i antelope-wax.eosphere.io
+    acl antelope_wax_testnet_acl       hdr(host) -i antelope-wax-testnet.eosphere.io
+    acl antelope_telos_acl             hdr(host) -i antelope-telos.eosphere.io
+    acl antelope_telos_testnet_acl     hdr(host) -i antelope-telos-testnet.eosphere.io
+    acl antelope_xpr_acl               hdr(host) -i antelope-xpr.eosphere.io
+    acl antelope_xpr_testnet_acl       hdr(host) -i antelope-xpr-testnet.eosphere.io
+    acl antelope_libre_acl             hdr(host) -i antelope-libre.eosphere.io
+    acl antelope_libre_testnet_acl     hdr(host) -i antelope-libre-testnet.eosphere.io
+    acl antelope_fio_acl               hdr(host) -i antelope-fio.eosphere.io
+    acl antelope_fio_testnet_acl       hdr(host) -i antelope-fio-testnet.eosphere.io
+    acl antelope_ultra_testnet_acl     hdr(host) -i antelope-ultra-testnet.eosphere.io
+    acl antelope_ultra_acl             hdr(host) -i antelope-ultra.eosphere.io
 
     # antelope.eosphere.io -> landing page
-    http-request redirect location https://antelope-tools.eosphere.io%[capture.req.uri] code 301 if { hdr(host) -i antelope.eosphere.io }
+    http-request redirect location https://antelope-tools.eosphere.io%[capture.req.uri] code 301 if antelope_redirect_acl
 
-    use_backend antelope_landing if { hdr(host) -i antelope-tools.eosphere.io }
-    use_backend antelope_eos     if { hdr(host) -i antelope-eos.eosphere.io }
-    use_backend antelope_jungle  if { hdr(host) -i antelope-jungle.eosphere.io }
-    # ... one line per network ...
-
-backend antelope_landing
-    option httpchk GET /healthz
-    server app1 APP_SERVER:8100 check
-
-backend antelope_eos
-    option httpchk GET /healthz
-    timeout tunnel 1h           # keeps the dashboard's live websocket open
-    server app1 APP_SERVER:8101 check
-
-backend antelope_jungle
-    option httpchk GET /healthz
-    timeout tunnel 1h
-    server app1 APP_SERVER:8102 check
+    use_backend antelope_landing_servers       if antelope_landing_acl { path_beg / }
+    use_backend antelope_eos_servers           if antelope_eos_acl { path_beg / }
+    use_backend antelope_eos_servers           if antelope_vaulta_acl { path_beg / }
+    use_backend antelope_jungle_servers        if antelope_jungle_acl { path_beg / }
+    use_backend antelope_wax_servers           if antelope_wax_acl { path_beg / }
+    use_backend antelope_wax_testnet_servers   if antelope_wax_testnet_acl { path_beg / }
+    use_backend antelope_telos_servers         if antelope_telos_acl { path_beg / }
+    use_backend antelope_telos_testnet_servers if antelope_telos_testnet_acl { path_beg / }
+    use_backend antelope_xpr_servers           if antelope_xpr_acl { path_beg / }
+    use_backend antelope_xpr_testnet_servers   if antelope_xpr_testnet_acl { path_beg / }
+    use_backend antelope_libre_servers         if antelope_libre_acl { path_beg / }
+    use_backend antelope_libre_testnet_servers if antelope_libre_testnet_acl { path_beg / }
+    use_backend antelope_fio_servers           if antelope_fio_acl { path_beg / }
+    use_backend antelope_fio_testnet_servers   if antelope_fio_testnet_acl { path_beg / }
+    use_backend antelope_ultra_testnet_servers if antelope_ultra_testnet_acl { path_beg / }
+    use_backend antelope_ultra_servers         if antelope_ultra_acl { path_beg / }
 ```
 
-Each network backend's `/healthz` reports that network's Hasura, so HAProxy marks a network down when its stack is not working.
+And the backends:
 
-DNS: point `antelope-tools.eosphere.io`, `antelope.eosphere.io` and each `antelope-<network>.eosphere.io` at the HAProxy machine.
+```
+backend antelope_landing_servers
+    option httpchk GET /healthz
+    server antelope APP_SERVER:8100 check
+
+backend antelope_eos_servers
+    option httpchk GET /healthz
+    timeout tunnel 1h           # keeps the dashboard's live websocket open
+    server antelope APP_SERVER:8101 check
+
+backend antelope_jungle_servers
+    option httpchk GET /healthz
+    timeout tunnel 1h           # keeps the dashboard's live websocket open
+    server antelope APP_SERVER:8102 check
+
+backend antelope_wax_servers
+    option httpchk GET /healthz
+    timeout tunnel 1h           # keeps the dashboard's live websocket open
+    server antelope APP_SERVER:8103 check
+
+backend antelope_wax_testnet_servers
+    option httpchk GET /healthz
+    timeout tunnel 1h           # keeps the dashboard's live websocket open
+    server antelope APP_SERVER:8104 check
+
+backend antelope_telos_servers
+    option httpchk GET /healthz
+    timeout tunnel 1h           # keeps the dashboard's live websocket open
+    server antelope APP_SERVER:8105 check
+
+backend antelope_telos_testnet_servers
+    option httpchk GET /healthz
+    timeout tunnel 1h           # keeps the dashboard's live websocket open
+    server antelope APP_SERVER:8106 check
+
+backend antelope_xpr_servers
+    option httpchk GET /healthz
+    timeout tunnel 1h           # keeps the dashboard's live websocket open
+    server antelope APP_SERVER:8107 check
+
+backend antelope_xpr_testnet_servers
+    option httpchk GET /healthz
+    timeout tunnel 1h           # keeps the dashboard's live websocket open
+    server antelope APP_SERVER:8108 check
+
+backend antelope_libre_servers
+    option httpchk GET /healthz
+    timeout tunnel 1h           # keeps the dashboard's live websocket open
+    server antelope APP_SERVER:8109 check
+
+backend antelope_libre_testnet_servers
+    option httpchk GET /healthz
+    timeout tunnel 1h           # keeps the dashboard's live websocket open
+    server antelope APP_SERVER:8110 check
+
+backend antelope_fio_servers
+    option httpchk GET /healthz
+    timeout tunnel 1h           # keeps the dashboard's live websocket open
+    server antelope APP_SERVER:8111 check
+
+backend antelope_fio_testnet_servers
+    option httpchk GET /healthz
+    timeout tunnel 1h           # keeps the dashboard's live websocket open
+    server antelope APP_SERVER:8112 check
+
+backend antelope_ultra_testnet_servers
+    option httpchk GET /healthz
+    timeout tunnel 1h           # keeps the dashboard's live websocket open
+    server antelope APP_SERVER:8113 check
+
+backend antelope_ultra_servers
+    option httpchk GET /healthz
+    timeout tunnel 1h           # keeps the dashboard's live websocket open
+    server antelope APP_SERVER:8114 check
+```
+
+Each network backend's `/healthz` reports that network's Hasura, so HAProxy marks a network down when its stack is not working. `antelope-vaulta.eosphere.io` is an alias served by the EOS backend. Check the file with `haproxy -c -f /etc/haproxy/haproxy.cfg` before reloading.
+
+DNS: point `antelope-tools.eosphere.io`, `antelope.eosphere.io`, `antelope-vaulta.eosphere.io` and each `antelope-<network>.eosphere.io` at the HAProxy machine.
 
 ## 4. Updating
 
