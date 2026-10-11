@@ -35,13 +35,14 @@ Each network is its own Docker Compose project (`antelope-<network>`) with postg
 
 - Ubuntu 24.04 (or similar), Docker Engine 24+ with the Compose plugin, git, make, Python 3
 - A user for the app (e.g. `antelope`) in the `docker` group
-- Firewall: allow ports **8100-8199 only from the HAProxy machine**; nothing else needs to be reachable from outside apart from SSH
+- Network: ports 8100-8199 must be reachable from the HAProxy machine. The stacks need outbound HTTPS to each network's API and Hyperion endpoints. If the server has a public address, keep 8100-8199 closed to the internet (EOSphere's server sits behind an upstream firewall)
 - Sizing: about 1-1.5 GB RAM per network (16 GB for 6-7 networks), 4 cores, a few GB of disk per network (much more if SHiP block history is enabled)
 
 ## 2. First install
 
 ```bash
 # eosphere/antelope-tools, or the fork the work is developed in (e.g. Rossco99/antelope-tools)
+cd ~
 git clone -b dev-3.0 https://github.com/eosphere/antelope-tools.git
 cd antelope-tools
 
@@ -52,7 +53,20 @@ make prod-up NETWORK=mainnet
 make prod-ps          # what is running
 ```
 
-`make prod-up` builds the images, starts the stack and waits until every container is healthy. The first sync of producers takes a few minutes.
+`make prod-up` builds the images, starts the stack and waits until every container is healthy. The first build takes several minutes; later ones reuse the cached layers. Producers sync within a minute or two of start.
+
+Check each network directly on the app server before pointing HAProxy at it:
+
+```bash
+curl http://localhost:8100/healthz     # landing page: ok
+curl http://localhost:8102/healthz     # Jungle: ok when its Hasura is up
+curl -s http://localhost:8102/v1/graphql -H 'content-type: application/json' \
+  -d '{"query":"{ producer_aggregate { aggregate { count } } }"}'   # count above 0
+```
+
+Then open `http://APP_SERVER:8102` in a browser (from an address that can reach it).
+
+**If `make prod-up` fails with Hasura unhealthy** and `make prod-logs NETWORK=<network>` shows `password authentication failed`, that network's database was created with different secrets (for example `.env.secrets` was recreated). On a new install, delete the empty database and start again: `NETWORK=<network> docker compose -p antelope-<network> -f docker-compose.prod.yaml --env-file .deploy/<network>.env down -v`, then `make prod-up NETWORK=<network>`.
 
 ## 3. HAProxy
 
@@ -104,80 +118,144 @@ And the backends:
 ```
 backend antelope_landing_servers
     option httpchk GET /healthz
-    server antelope APP_SERVER:8100 check
+    timeout queue 10s
+    stick-table type ip size 50k expire 30s store http_req_rate(5s)
+    http-request track-sc2 src
+    http-request deny deny_status 429 if { sc_http_req_rate(2) gt 150 }
+    server antelope APP_SERVER:8100 check maxconn 200
 
 backend antelope_eos_servers
     option httpchk GET /healthz
-    timeout tunnel 1h           # keeps the dashboard's live websocket open
-    server antelope APP_SERVER:8101 check
+    timeout tunnel 1h
+    timeout queue 10s
+    stick-table type ip size 50k expire 30s store http_req_rate(5s)
+    http-request track-sc2 src
+    http-request deny deny_status 429 if { sc_http_req_rate(2) gt 300 }
+    server antelope APP_SERVER:8101 check maxconn 500
 
 backend antelope_jungle_servers
     option httpchk GET /healthz
-    timeout tunnel 1h           # keeps the dashboard's live websocket open
-    server antelope APP_SERVER:8102 check
+    timeout tunnel 1h
+    timeout queue 10s
+    stick-table type ip size 50k expire 30s store http_req_rate(5s)
+    http-request track-sc2 src
+    http-request deny deny_status 429 if { sc_http_req_rate(2) gt 300 }
+    server antelope APP_SERVER:8102 check maxconn 500
 
 backend antelope_wax_servers
     option httpchk GET /healthz
-    timeout tunnel 1h           # keeps the dashboard's live websocket open
-    server antelope APP_SERVER:8103 check
+    timeout tunnel 1h
+    timeout queue 10s
+    stick-table type ip size 50k expire 30s store http_req_rate(5s)
+    http-request track-sc2 src
+    http-request deny deny_status 429 if { sc_http_req_rate(2) gt 300 }
+    server antelope APP_SERVER:8103 check maxconn 500
 
 backend antelope_wax_testnet_servers
     option httpchk GET /healthz
-    timeout tunnel 1h           # keeps the dashboard's live websocket open
-    server antelope APP_SERVER:8104 check
+    timeout tunnel 1h
+    timeout queue 10s
+    stick-table type ip size 50k expire 30s store http_req_rate(5s)
+    http-request track-sc2 src
+    http-request deny deny_status 429 if { sc_http_req_rate(2) gt 300 }
+    server antelope APP_SERVER:8104 check maxconn 500
 
 backend antelope_telos_servers
     option httpchk GET /healthz
-    timeout tunnel 1h           # keeps the dashboard's live websocket open
-    server antelope APP_SERVER:8105 check
+    timeout tunnel 1h
+    timeout queue 10s
+    stick-table type ip size 50k expire 30s store http_req_rate(5s)
+    http-request track-sc2 src
+    http-request deny deny_status 429 if { sc_http_req_rate(2) gt 300 }
+    server antelope APP_SERVER:8105 check maxconn 500
 
 backend antelope_telos_testnet_servers
     option httpchk GET /healthz
-    timeout tunnel 1h           # keeps the dashboard's live websocket open
-    server antelope APP_SERVER:8106 check
+    timeout tunnel 1h
+    timeout queue 10s
+    stick-table type ip size 50k expire 30s store http_req_rate(5s)
+    http-request track-sc2 src
+    http-request deny deny_status 429 if { sc_http_req_rate(2) gt 300 }
+    server antelope APP_SERVER:8106 check maxconn 500
 
 backend antelope_xpr_servers
     option httpchk GET /healthz
-    timeout tunnel 1h           # keeps the dashboard's live websocket open
-    server antelope APP_SERVER:8107 check
+    timeout tunnel 1h
+    timeout queue 10s
+    stick-table type ip size 50k expire 30s store http_req_rate(5s)
+    http-request track-sc2 src
+    http-request deny deny_status 429 if { sc_http_req_rate(2) gt 300 }
+    server antelope APP_SERVER:8107 check maxconn 500
 
 backend antelope_xpr_testnet_servers
     option httpchk GET /healthz
-    timeout tunnel 1h           # keeps the dashboard's live websocket open
-    server antelope APP_SERVER:8108 check
+    timeout tunnel 1h
+    timeout queue 10s
+    stick-table type ip size 50k expire 30s store http_req_rate(5s)
+    http-request track-sc2 src
+    http-request deny deny_status 429 if { sc_http_req_rate(2) gt 300 }
+    server antelope APP_SERVER:8108 check maxconn 500
 
 backend antelope_libre_servers
     option httpchk GET /healthz
-    timeout tunnel 1h           # keeps the dashboard's live websocket open
-    server antelope APP_SERVER:8109 check
+    timeout tunnel 1h
+    timeout queue 10s
+    stick-table type ip size 50k expire 30s store http_req_rate(5s)
+    http-request track-sc2 src
+    http-request deny deny_status 429 if { sc_http_req_rate(2) gt 300 }
+    server antelope APP_SERVER:8109 check maxconn 500
 
 backend antelope_libre_testnet_servers
     option httpchk GET /healthz
-    timeout tunnel 1h           # keeps the dashboard's live websocket open
-    server antelope APP_SERVER:8110 check
+    timeout tunnel 1h
+    timeout queue 10s
+    stick-table type ip size 50k expire 30s store http_req_rate(5s)
+    http-request track-sc2 src
+    http-request deny deny_status 429 if { sc_http_req_rate(2) gt 300 }
+    server antelope APP_SERVER:8110 check maxconn 500
 
 backend antelope_fio_servers
     option httpchk GET /healthz
-    timeout tunnel 1h           # keeps the dashboard's live websocket open
-    server antelope APP_SERVER:8111 check
+    timeout tunnel 1h
+    timeout queue 10s
+    stick-table type ip size 50k expire 30s store http_req_rate(5s)
+    http-request track-sc2 src
+    http-request deny deny_status 429 if { sc_http_req_rate(2) gt 300 }
+    server antelope APP_SERVER:8111 check maxconn 500
 
 backend antelope_fio_testnet_servers
     option httpchk GET /healthz
-    timeout tunnel 1h           # keeps the dashboard's live websocket open
-    server antelope APP_SERVER:8112 check
+    timeout tunnel 1h
+    timeout queue 10s
+    stick-table type ip size 50k expire 30s store http_req_rate(5s)
+    http-request track-sc2 src
+    http-request deny deny_status 429 if { sc_http_req_rate(2) gt 300 }
+    server antelope APP_SERVER:8112 check maxconn 500
 
 backend antelope_ultra_testnet_servers
     option httpchk GET /healthz
-    timeout tunnel 1h           # keeps the dashboard's live websocket open
-    server antelope APP_SERVER:8113 check
+    timeout tunnel 1h
+    timeout queue 10s
+    stick-table type ip size 50k expire 30s store http_req_rate(5s)
+    http-request track-sc2 src
+    http-request deny deny_status 429 if { sc_http_req_rate(2) gt 300 }
+    server antelope APP_SERVER:8113 check maxconn 500
 
 backend antelope_ultra_servers
     option httpchk GET /healthz
-    timeout tunnel 1h           # keeps the dashboard's live websocket open
-    server antelope APP_SERVER:8114 check
+    timeout tunnel 1h
+    timeout queue 10s
+    stick-table type ip size 50k expire 30s store http_req_rate(5s)
+    http-request track-sc2 src
+    http-request deny deny_status 429 if { sc_http_req_rate(2) gt 300 }
+    server antelope APP_SERVER:8114 check maxconn 500
 ```
 
-Each network backend's `/healthz` reports that network's Hasura, so HAProxy marks a network down when its stack is not working. `antelope-vaulta.eosphere.io` is an alias served by the EOS backend. Check the file with `haproxy -c -f /etc/haproxy/haproxy.cfg` before reloading.
+Each network backend's `/healthz` reports that network's Hasura, so HAProxy marks a network down when its stack is not working.
+
+- `timeout tunnel 1h` keeps the dashboard's live websocket open; the landing page has none.
+- `maxconn 500` per network allows about 500 dashboards open at once (each holds one websocket); more wait up to `timeout queue 10s`, then get a 503.
+- The stick table limits each client IP to 300 requests per 5 seconds per dashboard (150 for the landing page), well above a first page load, and answers 429 above that. It uses counter `sc2` because EOSphere's frontend already tracks `sc0` and `sc1`; use whichever counter is free in your config (`tune.stick-counters` in `global` adds more). `antelope-vaulta.eosphere.io` is an alias served by the EOS backend. Check the file with `haproxy -c -f /etc/haproxy/haproxy.cfg` before reloading.
 
 DNS: point `antelope-tools.eosphere.io`, `antelope.eosphere.io`, `antelope-vaulta.eosphere.io` and each `antelope-<network>.eosphere.io` at the HAProxy machine.
 
