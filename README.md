@@ -84,7 +84,7 @@ The first start takes a few minutes while images are built and producers are syn
 | `make stop` | Stop the containers |
 | `make clean` | Remove this instance's containers **and its database** |
 
-Available networks (`.env.<network>` files): `mainnet` (Vaulta/EOS), `jungle`, `wax`, `waxtestnet`, `telos`, `telostestnet`, `xpr`, `xprtestnet`, `libre`, `libretestnet`, `fio`, `fiotestnet`, `ultratestnet`, and `local` (for a local test chain).
+Available networks (`.env.<network>` files): `mainnet` (Vaulta/EOS), `jungle`, `wax`, `waxtestnet`, `telos`, `telostestnet`, `xpr`, `xprtestnet`, `libre`, `libretestnet`, `fio`, `fiotestnet`, `ultra`, `ultratestnet`, and `local` (for a local test chain).
 
 To switch networks, run `make <other network>`. Each network keeps its own data only while its database volume exists, so run `make clean` first if you want a fresh start.
 

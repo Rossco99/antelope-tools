@@ -5,7 +5,8 @@
     { "name": "Libre", "url": "https://antelope-libre.eosphere.io", "image": "images/libre.png" },
     { "name": "Telos", "url": "https://antelope-telos.eosphere.io", "image": "images/telos-grid.png" },
     { "name": "WAX", "url": "https://antelope-wax.eosphere.io", "image": "images/wax-grid.png" },
-    { "name": "XPR Network", "url": "https://antelope-xpr.eosphere.io", "image": "images/xpr-grid.png" }
+    { "name": "XPR Network", "url": "https://antelope-xpr.eosphere.io", "image": "images/xpr-grid.png" },
+    { "name": "Ultra", "url": "https://antelope-ultra.eosphere.io", "image": "images/ultra-grid.png" }
   ],
   "testnets": [
     { "name": "Jungle4 Testnet", "url": "https://antelope-jungle.eosphere.io", "image": "images/jungle-grid.png" },
