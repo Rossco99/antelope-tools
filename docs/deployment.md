@@ -300,5 +300,5 @@ docker exec antelope-jungle-postgres-1 pg_dump -U antelope antelope | gzip > jun
 ## 8. Adding a network
 
 1. Create `.env.<network>` (copy a similar network) and give it an unused `HTTP_PORT`.
-2. Add it to `landing/networks.json` and to `REACT_APP_NETWORK_URL` in the other env files.
+2. Add it to `landing/networks.json` (as a new chain, or as the `testnet` of an existing one) and to `REACT_APP_NETWORK_URL` in the other env files.
 3. `make prod-up NETWORK=<network>`, then add the HAProxy `use_backend` line and backend, and the DNS record.

@@ -9,6 +9,7 @@ export const bpJsonOnChainScope =
 
 export const networkName = import.meta.env.REACT_APP_EOS_API_NETWORK_NAME
 export const networkLabel = import.meta.env.REACT_APP_EOS_API_NETWORK_LABEL
+export const producerTerm = import.meta.env.REACT_APP_PRODUCER_TERM
 export const networkLogo = import.meta.env.REACT_APP_EOS_API_NETWORK_LOGO
 export const tokenSymbol = import.meta.env.REACT_APP_TOKEN_SYMBOL
 

@@ -40,7 +40,7 @@ jobs:
         run: |
           make landing-up
           curl -fsS localhost:8100/ > /dev/null
-          curl -fsS localhost:8100/networks.json | python3 -c 'import sys, json; d = json.load(sys.stdin); assert d["mainnets"] and d["testnets"]'
+          curl -fsS localhost:8100/networks.json | python3 -c 'import sys, json; d = json.load(sys.stdin); assert all(c["name"] and c["mainnet"] for c in d["chains"])'
 
       - name: Logs
         if: failure()

@@ -6,7 +6,7 @@
 
 # Antelope Tools
 
-**Open Infrastructure Data for the Antelope Ecosystem.** Antelope Tools is a network monitor for Antelope blockchains: Vaulta (EOS), Telos, WAX, XPR Network, Libre, FIO and their testnets. It shows each network's block producers, nodes, endpoints, rewards and CPU benchmarks in one place.
+**Open Infrastructure Data for the Antelope Ecosystem.** Antelope Tools is a network monitor for Antelope blockchains: Vaulta (EOS), WAX, Telos, XPR Network, Libre, FIO, Ultra and their testnets. It shows each network's block producers, nodes, endpoints, rewards and CPU benchmarks in one place.
 
 Live at **[antelope-tools.eosphere.io](https://antelope-tools.eosphere.io)**: pick a network to open its dashboard at `antelope-<network>.eosphere.io`.
 
@@ -177,7 +177,7 @@ Each file is grouped into sections:
 - **EVM dashboard (hapi-evm) - parked:** kept for later, hidden until working EVM RPC endpoints exist.
 - **Webapp:** title, logos, footer links, block explorer, the network switcher (`REACT_APP_NETWORK_URL`) and pages to hide (`REACT_APP_DISABLED_MENU_ITEMS`)
 
-The landing page's network list is [`landing/networks.json`](landing/networks.json): one line per network (name, URL and logo).
+The landing page's network list is [`landing/networks.json`](landing/networks.json): one line per chain (name, logo, mainnet URL and testnet URL). A testnet can have its own `label`, and an `icon` and `style` for a button with its own look (as Jungle4 has).
 
 ### Passwords and secrets
 
