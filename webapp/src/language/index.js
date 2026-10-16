@@ -1,5 +1,6 @@
 import { eosConfig } from '../config'
 import { deepMerge } from '../utils/deep-merge'
+import { applyProducerTerm } from '../utils/producer-term'
 
 import en from './en'
 import es from './es'
@@ -25,7 +26,8 @@ const getLanguaje = (languaje) => {
 }
 
 export default {
-  en: getLanguaje('en'),
+  // the producer term (e.g. Guild on WAX) only has English wording so far
+  en: applyProducerTerm(getLanguaje('en'), eosConfig.producerTerm),
   es: getLanguaje('es'),
   ko: getLanguaje('ko'),
   zh: getLanguaje('zh'),

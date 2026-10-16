@@ -1,20 +1,11 @@
 {
-  "mainnets": [
-    { "name": "Vaulta (EOS)", "url": "https://antelope-eos.eosphere.io", "image": "images/vaulta-grid.png" },
-    { "name": "FIO", "url": "https://antelope-fio.eosphere.io", "image": "images/fio-grid.png" },
-    { "name": "Libre", "url": "https://antelope-libre.eosphere.io", "image": "images/libre.png" },
-    { "name": "Telos", "url": "https://antelope-telos.eosphere.io", "image": "images/telos-grid.png" },
-    { "name": "WAX", "url": "https://antelope-wax.eosphere.io", "image": "images/wax-grid.png" },
-    { "name": "XPR Network", "url": "https://antelope-xpr.eosphere.io", "image": "images/xpr-grid.png" },
-    { "name": "Ultra", "url": "https://antelope-ultra.eosphere.io", "image": "images/ultra-grid.png" }
-  ],
-  "testnets": [
-    { "name": "Jungle4 Testnet", "url": "https://antelope-jungle.eosphere.io", "image": "images/jungle-grid.png" },
-    { "name": "FIO Testnet", "url": "https://antelope-fio-testnet.eosphere.io", "image": "images/fio-grid.png" },
-    { "name": "Libre Testnet", "url": "https://antelope-libre-testnet.eosphere.io", "image": "images/libre.png" },
-    { "name": "Telos Testnet", "url": "https://antelope-telos-testnet.eosphere.io", "image": "images/telos-grid.png" },
-    { "name": "WAX Testnet", "url": "https://antelope-wax-testnet.eosphere.io", "image": "images/wax-grid.png" },
-    { "name": "XPR Testnet", "url": "https://antelope-xpr-testnet.eosphere.io", "image": "images/xpr-grid.png" },
-    { "name": "Ultra Testnet", "url": "https://antelope-ultra-testnet.eosphere.io", "image": "images/ultra-grid.png" }
+  "chains": [
+    { "name": "Vaulta (EOS)", "image": "images/vaulta-grid.png", "mainnet": "https://antelope-eos.eosphere.io", "testnet": { "label": "Jungle4", "url": "https://antelope-jungle.eosphere.io", "icon": "images/jungle-grid.png", "style": "jungle" } },
+    { "name": "WAX", "image": "images/wax-grid.png", "mainnet": "https://antelope-wax.eosphere.io", "testnet": { "url": "https://antelope-wax-testnet.eosphere.io" } },
+    { "name": "Telos", "image": "images/telos-grid.png", "mainnet": "https://antelope-telos.eosphere.io", "testnet": { "url": "https://antelope-telos-testnet.eosphere.io" } },
+    { "name": "XPR Network", "image": "images/xpr-grid.png", "mainnet": "https://antelope-xpr.eosphere.io", "testnet": { "url": "https://antelope-xpr-testnet.eosphere.io" } },
+    { "name": "Libre", "image": "images/libre.png", "mainnet": "https://antelope-libre.eosphere.io", "testnet": { "url": "https://antelope-libre-testnet.eosphere.io" } },
+    { "name": "FIO", "image": "images/fio-grid.png", "mainnet": "https://antelope-fio.eosphere.io", "testnet": { "url": "https://antelope-fio-testnet.eosphere.io" } },
+    { "name": "Ultra", "image": "images/ultra-grid.png", "mainnet": "https://antelope-ultra.eosphere.io", "testnet": { "url": "https://antelope-ultra-testnet.eosphere.io" } }
   ]
 }
