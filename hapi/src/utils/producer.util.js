@@ -126,6 +126,9 @@ const getExpectedRewards = async (producers, totalVotes) => {
     case eosConfig.knownNetworks.telos:
       rewards = await getTelosRewards(producers)
       break
+    case eosConfig.knownNetworks.wax:
+      rewards = await getWaxRewards()
+      break
     case eosConfig.knownNetworks.fio:
         break
     default:
@@ -215,15 +218,8 @@ const getTelosRewards = async (producers) => {
 // (10000 / votepay_factor, the rest is vote pay)
 const getSystemPayRates = async () => {
   try {
-    const { rows } = await eosUtil.getTableRows({
-      code: 'eosio',
-      scope: 'eosio',
-      table: 'global4',
-      limit: 1,
-      json: true
-    })
     const { continuous_rate, inflation_pay_factor, votepay_factor } =
-      rows?.at(0) || {}
+      await getSystemRow('global4')
 
     if (!continuous_rate || !inflation_pay_factor || !votepay_factor) return
 
@@ -235,6 +231,75 @@ const getSystemPayRates = async () => {
   } catch (error) {
     console.warn('SYSTEM PAY RATES', error.message || error)
   }
+}
+
+const getSystemRow = async (table) => {
+  const { rows } = await eosUtil.getTableRows({
+    code: 'eosio',
+    scope: 'eosio',
+    table,
+    limit: 1,
+    json: true
+  })
+
+  return rows?.at(0) || {}
+}
+
+// WAX's yearly inflation is a constant in its system contract
+// (wax-system-contracts eosio.system.hpp), not stored in a table
+const WAX_CONTINUOUS_RATE = 0.04879
+
+// WAX pays block producers from inflation only: a part goes to the RNG
+// treasury, then 30% of the rest is block pay (40% voters, 30% savings).
+// Block pay is split between the active schedule (by blocks produced, so
+// equally) and the standby slots (by time on standby), weighted by
+// active_producer_count and standby_slot_weight * num_standby_slots.
+// Guilds that are neither scheduled nor active standbys get nothing.
+const getWaxRewards = async () => {
+  const currencyStats = await getCurrencyStats()
+  const supply = currencyStats?.supply
+    ? parseFloat(currencyStats.supply.split(' ')[0])
+    : 0
+  const global4 = await getSystemRow('global4')
+  const global5 = await getSystemRow('global5')
+  const schedule = await eosUtil.getProducerSchedule()
+  const active = (schedule?.active?.producers || []).map(
+    (producer) => producer.producer_name
+  )
+  const { rows: standbyRows = [] } = await eosUtil.getTableRows({
+    code: 'eosio',
+    scope: 'eosio',
+    table: 'standbys',
+    limit: 100,
+    json: true
+  })
+  const standbys = standbyRows
+    .filter((row) => !!row.is_active && !active.includes(row.owner))
+    .map((row) => row.owner)
+
+  const perDay = (WAX_CONTINUOUS_RATE * supply) / 365
+  const rng = (perDay * (global5.rng_rate || 0)) / 10000
+  const blockPay = ((perDay - rng) * 3) / 10
+
+  const activeWeight = (global4.active_producer_count || active.length) * 10000
+  const standbyWeight =
+    (global4.standby_slot_weight || 0) * (global4.num_standby_slots || 0)
+  const toActive = (blockPay * activeWeight) / (activeWeight + standbyWeight)
+  const toStandby = blockPay - toActive
+
+  const reward = (producer, amount) => ({
+    producer,
+    vote_rewards: 0,
+    block_rewards: amount,
+    total_rewards: amount
+  })
+
+  return [
+    ...active.map((producer) => reward(producer, toActive / active.length)),
+    ...standbys.map((producer) =>
+      reward(producer, toStandby / (global4.num_standby_slots || standbys.length))
+    )
+  ]
 }
 
 const getEOSIORewards = async (producers, totalVotes) => {
@@ -251,9 +316,7 @@ const getEOSIORewards = async (producers, totalVotes) => {
   let inflation = supply / 100 / 365 // fallback: 1% of supply a year
   let blockReward = 0.25 // share of it paid per block produced
 
-  if (eosConfig.networkName === eosConfig.knownNetworks.wax) {
-    blockReward = 1 // in wax all rewards are from the blocks produced
-  } else if (payRates && eosConfig.networkName !== eosConfig.knownNetworks.xpr) {
+  if (payRates && eosConfig.networkName !== eosConfig.knownNetworks.xpr) {
     // XPR also sends part of its inflation to yield farms and a committee,
     // so these settings don't describe its producer pay; it keeps the fallback
     inflation = (supply * payRates.producersPerYear) / 365
