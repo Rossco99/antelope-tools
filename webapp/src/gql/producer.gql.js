@@ -28,6 +28,7 @@ export const PRODUCERS_QUERY = gql`
       total_votes_percent
       total_votes_eos
       total_rewards
+      tier
       health_status
       last_claim_time
       rank
@@ -56,6 +57,7 @@ export const PRODUCER_INFO_QUERY = gql`
       bp_json
       total_votes_eos
       total_rewards
+      tier
       health_status
       rank
       producer_key
@@ -97,6 +99,7 @@ export const SMALL_PRODUCERS_QUERY = gql`
       bp_json
       total_votes_eos
       total_rewards
+      tier
       health_status
       rank
       producer_key
@@ -154,6 +157,7 @@ const NODES_OPERATION = type => gql`
       bp_json
       total_votes_eos
       total_rewards
+      tier
       health_status
       rank
       nodes {

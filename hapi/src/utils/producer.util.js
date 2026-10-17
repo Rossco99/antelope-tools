@@ -287,17 +287,24 @@ const getWaxRewards = async () => {
   const toActive = (blockPay * activeWeight) / (activeWeight + standbyWeight)
   const toStandby = blockPay - toActive
 
-  const reward = (producer, amount) => ({
+  const reward = (producer, amount, tier) => ({
     producer,
     vote_rewards: 0,
     block_rewards: amount,
-    total_rewards: amount
+    total_rewards: amount,
+    tier
   })
 
   return [
-    ...active.map((producer) => reward(producer, toActive / active.length)),
+    ...active.map((producer) =>
+      reward(producer, toActive / active.length, 'active')
+    ),
     ...standbys.map((producer) =>
-      reward(producer, toStandby / (global4.num_standby_slots || standbys.length))
+      reward(
+        producer,
+        toStandby / (global4.num_standby_slots || standbys.length),
+        'standby'
+      )
     )
   ]
 }
