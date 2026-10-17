@@ -454,6 +454,9 @@
     "top21": "前21名",
     "paidStandby": "有偿备用",
     "nonPaidStandby": "无偿备用",
+    "active": "活跃",
+    "standby": "备用",
+    "notPaid": "无报酬",
     "title": "搜索节点",
     "producer": "节点",
     "placeholder": "节点名称"

@@ -23,7 +23,7 @@ const updateBPJSONs = async (producers = []) => {
 
 const updateProducers = async (producers = []) => {
   const includeRewards = eosConfig.networkName !== eosConfig.knownNetworks.fio
-  const additionalFields = includeRewards ? 'vote_rewards, block_rewards, total_rewards' : ''
+  const additionalFields = includeRewards ? 'vote_rewards, block_rewards, total_rewards, tier' : ''
   const upsertMutation = `
     mutation ($producers: [producer_insert_input!]!) {
       insert_producer(objects: $producers, on_conflict: {constraint: producer_owner_key, update_columns: [ producer_key, unpaid_blocks,last_claim_time, url, location, producer_authority, is_active, total_votes, total_votes_percent, total_votes_eos, endpoints, rank, bp_json_url, fio_address, addresshash, last_bpclaim, ${additionalFields}]}) {

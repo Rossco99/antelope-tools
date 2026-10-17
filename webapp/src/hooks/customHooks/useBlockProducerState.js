@@ -10,15 +10,23 @@ const isFIO = eosConfig.networkName.replace('-testnet', '') === 'fio'
 const minimumRewards = isFIO ? 1 : 100
 const CHIPS_FILTERS = [
   { where: { owner: { _like: '%%' }, bp_json: { _is_null: false } } },
-  {
-    where: { total_rewards: { _neq: 0 }, rank: { _lte: 21 } },
-  },
-  {
-    where: { total_rewards: { _gte: minimumRewards }, rank: { _gte: 22 } },
-  },
-  {
-    where: { total_rewards: { _eq: 0 } },
-  },
+  ...(eosConfig.hasProducerTiers
+    ? [
+        { where: { tier: { _eq: 'active' } } },
+        { where: { tier: { _eq: 'standby' } } },
+        { where: { tier: { _is_null: true } } },
+      ]
+    : [
+        {
+          where: { total_rewards: { _neq: 0 }, rank: { _lte: 21 } },
+        },
+        {
+          where: { total_rewards: { _gte: minimumRewards }, rank: { _gte: 22 } },
+        },
+        {
+          where: { total_rewards: { _eq: 0 } },
+        },
+      ]),
 ]
 const CHIPS_NAMES = ['all', ...eosConfig.producerTypes]
 

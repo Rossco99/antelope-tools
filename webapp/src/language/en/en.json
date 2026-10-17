@@ -455,6 +455,9 @@
     "top21": "Top 21",
     "paidStandby": "Paid Standby",
     "nonPaidStandby": "Non-Paid Standby",
+    "active": "Active",
+    "standby": "Standby",
+    "notPaid": "Not Paid",
     "title": "Search Producer",
     "producer": "Producer",
     "placeholder": "Producer Name"

@@ -119,8 +119,19 @@ prod-env: prod-check
 	@{ grep '^REACT_APP_' .deploy/$(NETWORK).env | grep -v '^REACT_APP_HASURA_URL='; \
 		echo 'REACT_APP_HASURA_URL=/v1/graphql'; } > webapp/.env.build
 
+# Hasura applies database migrations and metadata only when it starts, so
+# prod-up restarts it (then hapi, to resync) when they changed since the
+# network's last deploy.
+SCHEMA_HASH = $(shell find hasura/migrations hasura/metadata -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | cut -c1-16)
+
 prod-up: prod-env ##@production Build and start (or update) a network: make prod-up NETWORK=jungle
 	@$(PROD_COMPOSE) up -d --build --wait
+	@if [ "$$(cat .deploy/$(NETWORK).schema 2>/dev/null)" != "$(SCHEMA_HASH)" ]; then \
+		echo "applying database changes"; \
+		$(PROD_COMPOSE) restart hasura && $(PROD_COMPOSE) up -d --wait hasura && \
+		$(PROD_COMPOSE) restart hapi && $(PROD_COMPOSE) up -d --wait hapi && \
+		echo "$(SCHEMA_HASH)" > .deploy/$(NETWORK).schema; \
+	fi
 	@echo "antelope-$(NETWORK) is up on port $$(grep '^HTTP_PORT=' .deploy/$(NETWORK).env | cut -d= -f2)"
 
 prod-down: prod-check ##@production Stop a network, keeping its database: make prod-down NETWORK=jungle
