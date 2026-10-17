@@ -209,21 +209,55 @@ const getTelosRewards = async (producers) => {
   })
 }
 
+// The system contract's pay settings (eosio global4 table), as on Vaulta:
+// inflation a year (continuous_rate), the part of it paid to producers
+// (10000 / inflation_pay_factor) and the part of that paid per block
+// (10000 / votepay_factor, the rest is vote pay)
+const getSystemPayRates = async () => {
+  try {
+    const { rows } = await eosUtil.getTableRows({
+      code: 'eosio',
+      scope: 'eosio',
+      table: 'global4',
+      limit: 1,
+      json: true
+    })
+    const { continuous_rate, inflation_pay_factor, votepay_factor } =
+      rows?.at(0) || {}
+
+    if (!continuous_rate || !inflation_pay_factor || !votepay_factor) return
+
+    return {
+      producersPerYear:
+        (parseFloat(continuous_rate) * 10000) / inflation_pay_factor,
+      blockShare: 10000 / votepay_factor
+    }
+  } catch (error) {
+    console.warn('SYSTEM PAY RATES', error.message || error)
+  }
+}
+
 const getEOSIORewards = async (producers, totalVotes) => {
   // no votes at all (e.g. Ultra): nothing to estimate
   if (!totalVotes) return []
 
   const currencyStats = await getCurrencyStats()
-  let inflation = 0
+  const supply = currencyStats?.supply
+    ? parseFloat(currencyStats.supply.split(' ')[0])
+    : 0
+  const payRates = await getSystemPayRates()
 
-  if (currencyStats && currencyStats.supply) {
-    inflation = parseInt(currencyStats.supply.split(' ')[0]) / 100 / 365
-  }
-
-  let blockReward = 0.25 // reward for each block produced
+  // "inflation" is the amount paid to all producers per day
+  let inflation = supply / 100 / 365 // fallback: 1% of supply a year
+  let blockReward = 0.25 // share of it paid per block produced
 
   if (eosConfig.networkName === eosConfig.knownNetworks.wax) {
     blockReward = 1 // in wax all rewards are from the blocks produced
+  } else if (payRates && eosConfig.networkName !== eosConfig.knownNetworks.xpr) {
+    // XPR also sends part of its inflation to yield farms and a committee,
+    // so these settings don't describe its producer pay; it keeps the fallback
+    inflation = (supply * payRates.producersPerYear) / 365
+    blockReward = payRates.blockShare
   }
 
   const voteReward = 1 - blockReward // reward according to producer total_votes

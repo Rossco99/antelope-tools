@@ -40,7 +40,8 @@ module.exports = {
     fio: 'fio',
     libre: 'libre',
     telos: 'telos',
-    wax: 'wax'
+    wax: 'wax',
+    xpr: 'xpr'
   },
   healthCheckAPIs: [
     { pattern: /^chain-api$/, api: '/v1/chain/get_info' },
