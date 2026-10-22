@@ -56,7 +56,10 @@ switch (networkName) {
       _additionalNodesTypes = libreNodeTypes
     }
 
-    _producerTypes = ['top21', 'paidStandby', 'nonPaidStandby']
+    // WAX elects a smaller active schedule plus paid standby slots (hapi sets producer.tier)
+    _producerTypes = networkName.startsWith('wax')
+      ? ['active', 'standby', 'notPaid']
+      : ['top21', 'paidStandby', 'nonPaidStandby']
     _nodeChips = [
       ..._nodeTypes,
       {
@@ -94,6 +97,7 @@ export const nodeTypes = _nodeTypes
 export const nodeChips = _nodeChips || _nodeTypes
 export const additionalNodesTypes = _additionalNodesTypes || []
 export const producerTypes = _producerTypes
+export const hasProducerTiers = _producerTypes.includes('active')
 export const blockExplorerUrl = blockExplorerLinks?.url
 export const blockExplorerTxUrl = blockExplorerLinks?.url + blockExplorerLinks?.tx
 export const blockExplorerAccount = {

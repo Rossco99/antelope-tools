@@ -57,6 +57,7 @@ select_permissions:
         - producer_authority
         - block_rewards
         - total_rewards
+        - tier
         - total_votes_eos
         - total_votes_percent
         - vote_rewards

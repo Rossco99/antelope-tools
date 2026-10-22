@@ -268,7 +268,7 @@ make prod-up NETWORK=jungle     # rebuilds and restarts only what changed; repea
 make landing-up                 # landing page changes are live immediately (files are mounted)
 ```
 
-Database migrations are applied automatically when Hasura restarts.
+Database changes are applied automatically: when `hasura/migrations` or `hasura/metadata` changed since a network's last `make prod-up`, it restarts that network's Hasura (which applies them) and then hapi (which resyncs), a few seconds of downtime.
 
 ## 5. Day to day
 

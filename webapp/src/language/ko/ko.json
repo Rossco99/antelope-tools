@@ -454,6 +454,9 @@
     "top21": "상위 21개",
     "paidStandby": "유료 대기",
     "nonPaidStandby": "비유료 대기",
+    "active": "활성",
+    "standby": "대기",
+    "notPaid": "무급",
     "title": "생산자 검색",
     "producer": "생산자",
     "placeholder": "생산자 이름"

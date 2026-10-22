@@ -46,6 +46,7 @@ const NodesRow = ({ producer }) => {
         healthStatus: producer.health_status,
         dataType: producer.bp_json?.type,
         totalRewards: producer.total_rewards,
+        tier: producer.tier,
       }),
     )
     // eslint-disable-next-line

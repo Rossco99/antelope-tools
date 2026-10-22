@@ -52,7 +52,7 @@ const getProducers = async () => {
     producers,
     totalVoteWeight
   )
-  const nonPaidStandby = { vote_rewards: 0, block_rewards: 0, total_rewards: 0 }
+  const nonPaidStandby = { vote_rewards: 0, block_rewards: 0, total_rewards: 0, tier: null }
 
   producers = producers.map((producer, index) => {
     return {

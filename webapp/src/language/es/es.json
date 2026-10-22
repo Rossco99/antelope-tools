@@ -452,6 +452,9 @@
     "top21": "Top 21",
     "paidStandby": "Reserva con pago",
     "nonPaidStandby": "Reserva sin pago",
+    "active": "Activos",
+    "standby": "Reserva",
+    "notPaid": "Sin pago",
     "title": "Buscar Productor",
     "producer": "Productor",
     "placeholder": "Nombre del Productor"
