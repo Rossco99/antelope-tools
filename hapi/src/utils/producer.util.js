@@ -174,34 +174,53 @@ const getLibreRewards = async (producers) => {
   })
 }
 
+// Telos pays producers from a monthly budget set by the TLOS price
+// (telos.contracts producer_pay.cpp, claimrewards_snapshot):
+// min(189000 * price^-0.516, 315000) TLOS a month, price = the delphioracle
+// tlosusd average (30 days, else 14, else 7). It is shared by the first 35
+// active producers with tiered multipliers: ranks 1-21 get 2 * (1.22 - 0.02
+// * rank), standbys 22-35 get 1.64 - 0.02 * rank.
+const TELOS_MAX_PAID_PRODUCERS = 35
+
+const getTelosPrice = async () => {
+  try {
+    const { rows = [] } = await eosUtil.getTableRows({
+      code: 'delphioracle',
+      scope: 'tlosusd',
+      table: 'averages',
+      limit: 10,
+      json: true
+    })
+
+    // average types: 0 = 7 days, 1 = 14 days, 2 = 30 days
+    for (const type of [2, 1, 0]) {
+      const average = rows.find((row) => row.type === type && row.value > 0)
+
+      if (average) return average.value / 10000
+    }
+  } catch (error) {
+    console.warn('TELOS PRICE', error.message || error)
+  }
+}
+
 const getTelosRewards = async (producers) => {
-  const currencyStats = await getCurrencyStats()
-  const { rows: payrateRows } = await eosUtil.getTableRows({
-    code: 'eosio',
-    scope: 'eosio',
-    table: 'payrate',
-    reverse: false,
-    limit: 1,
-    json: true,
-    lower_bound: null
-  })
+  const price = await getTelosPrice()
+  // without a price the contract uses the smallest value, i.e. the cap
+  const perMonth = price
+    ? Math.min(189000 * Math.pow(price, -0.516), 315000)
+    : 315000
+  const perDay = (perMonth * 12) / 365
 
-  const tokenSupply = parseFloat(currencyStats.supply)
-  const bPayRate = payrateRows?.at(0)?.bpay_rate / 100000
-  const toProducers = (bPayRate * tokenSupply) / 365 // (bPayRate * tokenSupply * secondsPerDay) / secondsPerYear
+  const paidProducers = producers.slice(0, TELOS_MAX_PAID_PRODUCERS)
+  const multiplier = (rank) =>
+    rank <= 21 ? 2 * (1.22 - 0.02 * rank) : 1.64 - 0.02 * rank
+  const totalMultiplier = paidProducers.reduce(
+    (sum, _, index) => sum + multiplier(index + 1),
+    0
+  )
 
-  const MAX_PAID_PRODUCERS = 42
-  const topProducers = producers.slice(0, MAX_PAID_PRODUCERS)
-  const activeCount = topProducers.length
-  const shareCount =
-    activeCount <= 21
-      ? activeCount * 2
-      : MAX_PAID_PRODUCERS + (activeCount - 21)
-
-  const producerRewards = toProducers / shareCount
-
-  return topProducers.map((producer, i) => {
-    const totalRewards = i < 21 ? producerRewards * 2 : producerRewards
+  return paidProducers.map((producer, index) => {
+    const totalRewards = (perDay * multiplier(index + 1)) / totalMultiplier
 
     return {
       producer: producer.owner,
