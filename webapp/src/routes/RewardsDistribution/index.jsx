@@ -25,6 +25,9 @@ import RewardsDistributionStats from './RewardsDistributionStats'
 import TokenToUSD from './TokenToUSD'
 import useRewardsDistributionState from 'hooks/customHooks/useRewardsDistributionState'
 
+const MAP_WIDTH = 900
+const MAP_HEIGHT = 420
+
 const geoUrl =
   'https://raw.githubusercontent.com/zcreativelabs/react-simple-maps/v2/topojson-maps/world-110m.json'
 
@@ -145,36 +148,44 @@ const RewardsDistribution = () => {
       />
       {!loading && (
         <Paper className={classes.mapWrapper}>
+          {/* Natural Earth in a box shaped like the map (without Antarctica),
+              so nothing is cut off or stretched */}
           <ComposableMap
+            projection="geoNaturalEarth1"
+            width={MAP_WIDTH}
+            height={MAP_HEIGHT}
             projectionConfig={{
-              scale: 170,
+              scale: 165,
+              center: [1.5, 9],
             }}
           >
             <Geographies geography={geoUrl}>
               {({ geographies }) =>
-                geographies.map((geo, i) => {
-                  const nodeData = nodes.find(
-                    (node) => node.code === geo.properties.ISO_A2,
-                  )
-
-                  return (
-                    <Geography
-                      onMouseOver={
-                        nodeData ? handlePopoverOpen(nodeData) : () => {}
-                      }
-                      className={classes.geography}
-                      key={geo.rsmKey}
-                      geography={geo}
-                      stroke={theme.palette.neutral.main}
-                      strokeWidth={0.8}
-                      fill={
-                        nodeData && nodeData.rewards > 0
-                          ? colorScale(parseInt(nodeData.rewards))
-                          : theme.palette.neutral.light
-                      }
-                    />
-                  )
-                })
+                geographies
+                  .filter((geo) => geo.properties.ISO_A2 !== 'AQ')
+                  .map((geo, i) => {
+                    const nodeData = nodes.find(
+                      (node) => node.code === geo.properties.ISO_A2,
+                    )
+  
+                    return (
+                      <Geography
+                        onMouseOver={
+                          nodeData ? handlePopoverOpen(nodeData) : () => {}
+                        }
+                        className={classes.geography}
+                        key={geo.rsmKey}
+                        geography={geo}
+                        stroke={theme.palette.neutral.main}
+                        strokeWidth={0.8}
+                        fill={
+                          nodeData && nodeData.rewards > 0
+                            ? colorScale(parseInt(nodeData.rewards))
+                            : theme.palette.neutral.light
+                        }
+                      />
+                    )
+                  })
               }
             </Geographies>
           </ComposableMap>
