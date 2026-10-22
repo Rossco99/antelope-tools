@@ -27,7 +27,6 @@ export const networkLinks = import.meta.env.REACT_APP_NETWORK_URL
   : []
 export const historyEnabled =
   import.meta.env.REACT_APP_STATE_HISTORY_ENABLED === 'true'
-export const highchartsMapURL = 'https://code.highcharts.com/mapdata/countries/'
 export const healthLights = Object.freeze({
   greenLight: 'greenLight',
   timerOff: 'timerOff',

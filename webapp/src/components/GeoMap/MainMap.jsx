@@ -7,6 +7,7 @@ import { useTheme } from '@mui/material/styles'
 import { countries } from '../../utils/countries'
 
 import HighMapsWrapper from './HighMapsWrapper'
+import spreadLabels from './spreadLabels'
 import styles from './styles'
 
 const useStyles = makeStyles(styles)
@@ -22,6 +23,14 @@ const MainMap = ({ data, map, setMap }) => {
       const options = {
         chart: {
           backgroundColor: theme.palette.background.default,
+          // keeps the map's own proportions at any width
+          height: '52%',
+          events: {
+            // neighbouring countries' labels are moved apart, not overlaid
+            render() {
+              spreadLabels(this, theme.palette.text.secondary)
+            },
+          },
         },
         title: {
           text: '',
@@ -78,6 +87,7 @@ const MainMap = ({ data, map, setMap }) => {
             },
             dataLabels: {
               enabled: true,
+              allowOverlap: true,
               formatter: function () {
                 const node = data.find(
                   ({ country }) => country === this.point.country,
@@ -94,15 +104,17 @@ const MainMap = ({ data, map, setMap }) => {
         ],
       }
 
-      new HighMapsWrapper['Map'](myRef.current, options)
+      return new HighMapsWrapper['Map'](myRef.current, options)
     },
     [setMap, t, theme.palette],
   )
 
   useEffect(() => {
-    if (myRef.current) {
-      setupMapData(data, map)
-    }
+    if (!myRef.current) return
+
+    const chart = setupMapData(data, map)
+
+    return () => chart.destroy()
   }, [data, map, setupMapData])
 
   return <div ref={myRef} className={classes.divRef} />

@@ -2,13 +2,10 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { makeStyles } from '@mui/styles'
 import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
-import axios from 'axios'
 import clsx from 'clsx'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-
-import { generalConfig } from '../../config'
 
 import MainMap from './MainMap'
 import worldGeoData from './worldGeoData'
@@ -22,7 +19,6 @@ const GeoMap = ({ data }) => {
   const { t } = useTranslation()
   const [mapOptions, setMapOptions] = useState()
   const [mapSelected, setMapSelected] = useState()
-  const [mapGeoData, setMapGeoData] = useState()
 
   const getDataSeries = useCallback(() => {
     return data.reduce(
@@ -73,7 +69,6 @@ const GeoMap = ({ data }) => {
     const dataSeries = getDataSeries()
 
     setMapSelected(null)
-    setMapGeoData(null)
     setMapOptions(dataSeries.nodesSeries)
   }
 
@@ -86,30 +81,24 @@ const GeoMap = ({ data }) => {
   useEffect(() => {
     if (!mapSelected) return
 
-    const getMap = async () => {
-      const mapDataSelected = data.reduce((result, current) => {
-        if (
-          current.country === mapSelected.toUpperCase() &&
-          result.every(node => node.name !== current.name)
-        ) {
-          result.push(current)
-        }
+    // the close-up zooms the built-in world map, so nothing is downloaded
+    // (Highcharts' map server no longer allows it from other sites)
+    const mapDataSelected = data.reduce((result, current) => {
+      if (
+        current.country === mapSelected.toUpperCase() &&
+        result.every(node => node.name !== current.name)
+      ) {
+        result.push(current)
+      }
 
-        return result
-      }, [])
-      const { data: mapRes } = await axios.get(
-        `${generalConfig.highchartsMapURL}${mapSelected}/${mapSelected}-all.geo.json`,
-      )
+      return result
+    }, [])
 
-      setMapOptions(mapDataSelected)
-      setMapGeoData(mapRes)
-    }
-
-    getMap()
+    setMapOptions(mapDataSelected)
   }, [mapSelected, data])
 
   return (
-    <Card className={clsx({ [classes.mapWrapper]: mapSelected && mapGeoData })}>
+    <Card className={clsx({ [classes.mapWrapper]: mapSelected })}>
       <Button
         startIcon={<ArrowBackIcon />}
         onClick={handleGoBack}
@@ -121,9 +110,9 @@ const GeoMap = ({ data }) => {
       >
         {t('goBack')}
       </Button>
-      {mapSelected && mapGeoData ? (
+      {mapSelected ? (
         <CountryMap
-          map={mapGeoData}
+          map={worldGeoData}
           data={mapOptions || []}
           mapCode={mapSelected.toUpperCase()}
         />
