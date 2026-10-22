@@ -6,7 +6,6 @@ export default (theme) => ({
     display: 'none !important',
   },
   divRef: {
-    height: '100vh',
     '& a': {
       color: theme.palette.primary.main
     },
