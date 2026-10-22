@@ -242,6 +242,16 @@ const getSystemPayRates = async () => {
 
     if (!continuous_rate || !inflation_pay_factor || !votepay_factor) return
 
+    // XPR's contract splits new tokens its own way (seen in its bucket
+    // fills): 7.5% block pay + 22.5% vote pay to producers, the rest to
+    // savings, yield.farms and cfund.proton
+    if (eosConfig.networkName === eosConfig.knownNetworks.xpr) {
+      return {
+        producersPerYear: parseFloat(continuous_rate) * 0.3,
+        blockShare: 0.25
+      }
+    }
+
     return {
       producersPerYear:
         (parseFloat(continuous_rate) * 10000) / inflation_pay_factor,
@@ -342,9 +352,7 @@ const getEOSIORewards = async (producers, totalVotes) => {
   let inflation = supply / 100 / 365 // fallback: 1% of supply a year
   let blockReward = 0.25 // share of it paid per block produced
 
-  if (payRates && eosConfig.networkName !== eosConfig.knownNetworks.xpr) {
-    // XPR also sends part of its inflation to yield farms and a committee,
-    // so these settings don't describe its producer pay; it keeps the fallback
+  if (payRates) {
     inflation = (supply * payRates.producersPerYear) / 365
     blockReward = payRates.blockShare
   }
@@ -353,54 +361,48 @@ const getEOSIORewards = async (producers, totalVotes) => {
   const minimumPercenToGetVoteReward =
     100 / (inflation * (voteReward || blockReward)) // calculate the minimum percent to get vote reward
 
-  let distributedVoteRewardPercent = 0
-  let undistributedVoteRewardPercent = 0
+  // Vote pay nobody claims stays in the bucket and ends up with the producers
+  // who do claim, so each producer's vote share is taken out of the votes of
+  // producers that claim (above the minimum, claimed in the last 7 days)
+  const claimedSince = Date.now() - 7 * 24 * 3600 * 1000
+  const votePercent = (producer) =>
+    parseFloat(producer.total_votes) / totalVotes
+  const isPaid = (producer) =>
+    votePercent(producer) > minimumPercenToGetVoteReward
+  const hasClaimed = (producer) =>
+    new Date(`${producer.last_claim_time}Z`).getTime() > claimedSince
 
-  producers.forEach((producer) => {
-    const producerVotePercent = parseFloat(producer.total_votes) / totalVotes
+  let claimingVotePercent = producers
+    .filter((producer) => isPaid(producer) && hasClaimed(producer))
+    .reduce((sum, producer) => sum + votePercent(producer), 0)
 
-    if (producerVotePercent > minimumPercenToGetVoteReward) {
-      distributedVoteRewardPercent += producerVotePercent
-    } else {
-      undistributedVoteRewardPercent += producerVotePercent
-    }
-  })
+  // no claim times known: share among everyone above the minimum
+  if (!claimingVotePercent) {
+    claimingVotePercent = producers
+      .filter(isPaid)
+      .reduce((sum, producer) => sum + votePercent(producer), 0)
+  }
 
   const producersRewards = []
 
   for (const i in producers) {
     const producer = producers[i]
     const isBlockProducer = i < 21
-    const producerVotePercent = parseFloat(producer.total_votes) / totalVotes
 
-    let expectedVoteReward = 0
-    let expectedBlockReward = 0
+    if (!isPaid(producer)) break
 
-    if (producerVotePercent > minimumPercenToGetVoteReward) {
-      const producerDistributionPercent =
-        producerVotePercent / distributedVoteRewardPercent // calculates the percentage that the producer represents of the distributed vote reward percent
+    const expectedVoteReward =
+      (inflation * voteReward * votePercent(producer)) / claimingVotePercent
+    const expectedBlockReward = isBlockProducer
+      ? inflation * blockReward * (1 / 21)
+      : 0
 
-      const producerUndistributedRewardPercent =
-        producerDistributionPercent * undistributedVoteRewardPercent //  calculate the percentage that corresponds to the producer of the undistributed vote reward percent
-
-      expectedVoteReward =
-        inflation *
-        voteReward *
-        (producerUndistributedRewardPercent + producerVotePercent)
-
-      if (isBlockProducer) {
-        expectedBlockReward = inflation * blockReward * (1 / 21)
-      }
-
-      producersRewards.push({
-        producer: producer.owner,
-        vote_rewards: expectedVoteReward,
-        block_rewards: expectedBlockReward,
-        total_rewards: expectedVoteReward + expectedBlockReward
-      })
-    } else {
-      break
-    }
+    producersRewards.push({
+      producer: producer.owner,
+      vote_rewards: expectedVoteReward,
+      block_rewards: expectedBlockReward,
+      total_rewards: expectedVoteReward + expectedBlockReward
+    })
   }
 
   return producersRewards
