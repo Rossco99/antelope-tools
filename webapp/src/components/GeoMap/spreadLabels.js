@@ -142,6 +142,8 @@ export const spreadLabels = (chart, lineColor) => {
     const line = chart.renderer
       .path(['M', box.anchorX, box.anchorY, 'L', end.x, end.y])
       .attr({ stroke: lineColor, 'stroke-width': 1, zIndex: 5 })
+      // the line must not catch the mouse over a marker it crosses
+      .css({ pointerEvents: 'none' })
       .add(box.group)
 
     chart.labelConnectors.push(line)

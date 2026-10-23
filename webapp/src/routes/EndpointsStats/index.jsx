@@ -9,6 +9,7 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
 import useHealthCheckState from '../../hooks/customHooks/useHealthCheckHistoryState'
+import { eosConfig } from '../../config'
 import HighchartsWrapper from '../../components/HighChartsWrapper'
 
 import styles from './styles'
@@ -40,7 +41,7 @@ const EndpointsStats = () => {
       enabled: false,
     },
     title: {
-      text: t('charTitle'),
+      text: t('charTitle', { location: eosConfig.endpointsTestLocation }),
     },
     yAxis: {
       title: {
@@ -61,7 +62,7 @@ const EndpointsStats = () => {
         {loading && <LinearProgress />}
         {!loading && (
           <EndpointsTable
-            title={t('fastest')}
+            title={t('fastest', { location: eosConfig.endpointsTestLocation })}
             endpoints={fastestEndpoints || []}
           />
         )}
