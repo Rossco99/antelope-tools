@@ -140,7 +140,7 @@
     "/block-producers/bpName>moreDescription": "查看区块生产者的一般信息，如排名、奖励和合规性",
     "/nodes>moreDescription": "由区块生产者运行的网络组成的所有节点的列表，具体信息如端点和位置。",
     "/endpoints>moreDescription": "节点运营商提供的公共 API 端点的更新列表及其健康状态。",
-    "/endpoints-stats>moreDescription": "来自 Antelope Tools 的响应时间统计和生产者端点的可用性。",
+    "/endpoints-stats>moreDescription": "来自 {{location}} 的响应时间统计和生产者端点的可用性。",
     "/nodes-distribution>moreDescription": "此网络中节点地理分布的可视化。",
     "/accounts>moreDescription": "此工具帮助查找账户信息并与网络上的合约互动。输入一个账户名称并获取账户信息、智能合约操作和表数据。",
     "/block-distribution>moreDescription": "网络中节点产生的区块分布的可视化。",
@@ -498,11 +498,11 @@
     "numberOfNodes": "节点数量"
   },
   "EndpointsStatsRoute": {
-    "fastest": "Antelope Tools 查询的前5名最快端点",
+    "fastest": "{{location}} 查询的前5名最快端点",
     "byProducer": "生产者的端点统计数据",
     "avgAvailability": "平均可用性",
     "avgTime": "平均响应时间",
-    "charTitle": "从 Antelope Tools 测得的平均响应时间",
+    "charTitle": "从 {{location}} 测得的平均响应时间",
     "list": "端点列表",
     "timeInSecs": "时间（秒）"
   },

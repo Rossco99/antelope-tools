@@ -140,7 +140,7 @@
     "/block-producers/bpName>moreDescription": "순위, 보상 및 준수 여부와 같은 블록 생산자의 일반 정보를 확인하십시오.",
     "/nodes>moreDescription": "네트워크를 구성하는 블록 생산자가 운영하는 모든 노드의 목록으로, 엔드포인트 및 위치와 같은 구체적인 정보를 제공합니다.",
     "/endpoints>moreDescription": "노드 운영자가 제공하는 공개 API 엔드포인트 목록과 그 건강 상태를 업데이트합니다.",
-    "/endpoints-stats>moreDescription": "Antelope Tools의 응답 시간 통계 및 생산자 엔드포인트의 가용성.",
+    "/endpoints-stats>moreDescription": "{{location}}의 응답 시간 통계 및 생산자 엔드포인트의 가용성.",
     "/nodes-distribution>moreDescription": "이 네트워크의 노드 지리적 분포를 시각화합니다.",
     "/accounts>moreDescription": "이 도구를 사용하여 네트워크에서 계정에 대한 정보를 찾고 계약과 상호 작용할 수 있습니다. 계정 이름을 입력하고 계정 정보, 스마트 계약 조치 및 테이블 데이터를 얻으십시오.",
     "/block-distribution>moreDescription": "네트워크에서 노드가 생산하는 블록의 분포를 시각화합니다.",
@@ -498,11 +498,11 @@
     "numberOfNodes": "노드 수"
   },
   "EndpointsStatsRoute": {
-    "fastest": "Antelope Tools에서 쿼리한 가장 빠른 상위 5개 엔드포인트",
+    "fastest": "{{location}}에서 쿼리한 가장 빠른 상위 5개 엔드포인트",
     "byProducer": "생산자별 엔드포인트 통계",
     "avgAvailability": "평균 가용성",
     "avgTime": "평균 응답 시간",
-    "charTitle": "Antelope Tools에서 측정한 평균 응답 시간",
+    "charTitle": "{{location}}에서 측정한 평균 응답 시간",
     "list": "엔드포인트 목록",
     "timeInSecs": "초 단위 시간"
   },

@@ -131,7 +131,10 @@ const Dashboard = ({ children }) => {
         metaTitle={routeName.dynamicTitle || t('metaTitle')}
         metaDescription={
           (i18n.exists(`routes:${routeName.pathname}>moreDescription`)
-            ? t(`${routeName.pathname}>moreDescription`)
+            ? t(`${routeName.pathname}>moreDescription`, {
+                networkName: eosConfig.networkLabel,
+                location: eosConfig.endpointsTestLocation,
+              })
             : t('metaDescription')) || t('metaDescription')
         }
       />
@@ -177,6 +180,7 @@ const Dashboard = ({ children }) => {
                 {i18n.exists(`routes:${routeName.pathname}>moreDescription`)
                   ? t(`${routeName.pathname}>moreDescription`, {
                       networkName: eosConfig.networkLabel,
+                      location: eosConfig.endpointsTestLocation,
                     })
                   : ''}
               </Typography>

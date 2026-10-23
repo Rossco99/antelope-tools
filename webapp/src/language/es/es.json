@@ -143,7 +143,7 @@
     "/block-producers/bpName>moreDescription": "Vea la información general del productor de bloques como el rango, recompensas y compliance.",
     "/nodes>moreDescription": "Una lista de todos los nodos ejecutados por entidades que componen la red con información específica como puntos finales y ubicación.",
     "/endpoints>moreDescription": "Una lista actualizada de los puntos finales de la API pública proporcionada por los operadores de nodos en la red.",
-    "/endpoints-stats>moreDescription": "Estadísticas del tiempo de respuesta desde Antelope Tools y la disponibilidad de los puntos finales de un productor",
+    "/endpoints-stats>moreDescription": "Estadísticas del tiempo de respuesta desde {{location}} y la disponibilidad de los puntos finales de un productor",
     "/nodes-distribution>moreDescription": "Una visualización de la distribución geográfica de los nodos de esta red.",
     "/accounts>moreDescription": "Esta herramienta le ayuda a buscar información sobre cuentas y contratos de la red. Escriba el nombre de un contrato o cuenta en el espacio provisto para comenzar a buscar. Obtendrá los datos de las acciones del contrato, tablas de contrato, alcance, límites superior e inferior y límites.",
     "/block-distribution>moreDescription": "Una visualización de la distribución de bloques producida por los nodos de la red.",
@@ -516,11 +516,11 @@
     "numberOfNodes": "Cantidad de Nodos"
   },
   "EndpointsStatsRoute": {
-    "fastest": "Top 5 puntos finales más rápidos desde Antelope Tools",
+    "fastest": "Top 5 puntos finales más rápidos desde {{location}}",
     "byProducer": "Estadísticas de puntos finales por productor",
     "avgAvailability": "Disponibilidad promedio",
     "avgTime": "Tiempo de respuesta promedio",
-    "charTitle": "Tiempo de respuesta promedio desde Antelope Tools",
+    "charTitle": "Tiempo de respuesta promedio desde {{location}}",
     "list": "Lista de puntos finales",
     "timeInSecs": "Tiempo en segundos"
   },
