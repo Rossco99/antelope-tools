@@ -5,6 +5,7 @@ import { useTheme } from '@mui/material/styles'
 import HighMapsWrapper from '../../components/GeoMap/HighMapsWrapper'
 import worldGeoData from '../../components/GeoMap/worldGeoData'
 import spreadLabels from '../../components/GeoMap/spreadLabels'
+import 'flag-icon-css/css/flag-icons.css'
 
 const MAP_COUNTRIES = new Set(
   worldGeoData.features.map((feature) => feature.properties['iso-a2']),
@@ -49,7 +50,11 @@ const markerPosition = (node) => {
   return lat && lon ? [parseFloat(lat), parseFloat(lon)] : null
 }
 
-const label = (node) => `${node.flag || node.code} ${node.quantity}`
+// flag images (flag-icon-css) rather than emoji, which Windows shows as letters
+const flagHtml = (code) =>
+  `<span class="flag-icon flag-icon-${code.toLowerCase()}" style="margin-right:4px"></span>`
+
+const label = (node) => `${flagHtml(node.code)}${node.quantity}`
 
 // The same Highcharts world map (Miller projection) as Geographic
 // Distribution, shaded from the lowest to the highest daily rewards, with the
@@ -112,7 +117,13 @@ const RewardsMap = ({ nodes, maxRewards, onCountryHover }) => {
           dataLabels: {
             enabled: true,
             allowOverlap: true,
+            useHTML: true,
             format: '{point.text}',
+            style: {
+              color: theme.palette.text.primary,
+              textOutline: 'none',
+              textShadow: `0 0 3px ${theme.palette.background.default}`,
+            },
           },
           point: { events: { mouseOver: hover } },
         },
@@ -136,7 +147,13 @@ const RewardsMap = ({ nodes, maxRewards, onCountryHover }) => {
           dataLabels: {
             enabled: true,
             allowOverlap: true,
+            useHTML: true,
             format: '{point.text}',
+            style: {
+              color: theme.palette.text.primary,
+              textOutline: 'none',
+              textShadow: `0 0 3px ${theme.palette.background.default}`,
+            },
             y: -12,
           },
           point: { events: { mouseOver: hover } },
