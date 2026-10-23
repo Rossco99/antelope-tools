@@ -136,6 +136,14 @@ export const spreadLabels = (chart, lineColor) => {
   boxes.forEach((box) => {
     box.label.attr({ x: Math.round(box.x), y: Math.round(box.y) })
 
+    // HTML labels (useHTML, e.g. with flag images) are a separate element
+    // that the attr above doesn't move: shift it by the same amount
+    const html = box.label.text?.element
+
+    if (html instanceof HTMLElement) {
+      html.style.transform = `translate(${Math.round(box.x - box.startX)}px, ${Math.round(box.y - box.startY)}px)`
+    }
+
     if (Math.hypot(box.x - box.startX, box.y - box.startY) < 2) return
 
     const end = edgePoint(box, box.anchorX, box.anchorY)

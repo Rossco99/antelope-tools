@@ -9,6 +9,7 @@ import Paper from '@mui/material/Paper'
 import Popover from '@mui/material/Popover'
 
 import UnknowFlagIcon from '../../components/UnknowFlagIcon'
+import CountryFlag from '../../components/CountryFlag'
 import { formatWithThousandSeparator } from '../../utils'
 
 import styles from './styles'
@@ -73,9 +74,7 @@ const RewardsDistribution = () => {
               </span>
             )}
             <span>{currentNode?.name}</span>
-            {currentNode?.flag && (
-              <span className={classes.countryFlag}>{currentNode?.flag}</span>
-            )}
+            {currentNode?.flag && <CountryFlag code={currentNode?.code} />}
           </Typography>
           {summary && (
             <Typography>
