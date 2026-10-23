@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta content="website" property="type">
+  <meta content="https://antelope-tools.eosphere.io/" property="url">
+  <meta content="#051b34" name="theme-color">
+  <meta content="Antelope Tools – Antelope Blockchain Network Monitor" name="title">
+  <meta
+    content="Antelope Tools is a network monitor featuring real-time data on block producer nodes and blockchain infrastructure for Antelope blockchains, developed and operated by EOSphere."
+    name="description">
+  <meta name="keywords" content="Blockchain, Antelope, Vaulta, EOS, Telos, WAX, XPR, Libre, FIO, Ultra, Network Monitor, Dashboard">
+  <meta content="https://antelope-tools.eosphere.io/images/link-preview.png" property="image">
+  <meta content="website" property="og:type">
+  <meta content="summary_large_image" property="twitter:card">
+  <meta content="https://antelope-tools.eosphere.io/" property="twitter:url">
+  <meta content="Antelope Tools – Antelope Blockchain Network Monitor" property="og:title">
+  <meta content="https://antelope-tools.eosphere.io/images/link-preview.png" property="og:image">
+  <meta content="image/png" property="og:image:type">
+  <meta content="1281" property="og:image:width">
+  <meta content="641" property="og:image:height">
+  <meta content="https://antelope-tools.eosphere.io/images/link-preview.png" property="twitter:image">
+  <meta content="https://antelope-tools.eosphere.io/" property="og:url">
+  <meta content="Antelope Tools Network Monitor" property="og:site_name">
+  <meta
+    content="Antelope Tools Network Monitor is a network monitor featuring real-time data on block producer nodes and blockchain infrastructure for Antelope blockchains, developed and operated by EOSphere."
+    property="og:description">
+  <link href="./images/favicon.ico" rel="shortcut icon">
+  <link href="./images/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
+  <link href="./images/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
+  <link href="./images/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
+  <link href="./images/safari-pinned-tab.svg" rel="mask-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+  <title>Antelope Tools – Antelope Blockchain Network Monitor</title>
+  <script>
+    // light/dark choice is remembered per browser; dark is the default
+    try {
+      if (localStorage.getItem('prefersDarkMode') === 'false') {
+        document.documentElement.classList.add('light-mode')
+      }
+    } catch (error) {}
+  </script>
+</head>
+<body>
+  <header class="top">
+    <a href="/" class="brand" aria-label="Antelope Tools">
+      <img class="logo" alt="Antelope Tools" src="./images/antelope-tools.svg">
+    </a>
+    <button id="theme-toggle" type="button" aria-label="Switch light or dark mode">
+      <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <section class="intro">
+      <h1>Open Infrastructure Data for the Antelope Ecosystem</h1>
+      <p>Live block producer, node, endpoint and reward data for every major Antelope chain. Choose a network to open its dashboard.</p>
+    </section>
+
+    <!-- the cards come from networks.json: edit that file to add, remove or rename networks -->
+    <section class="chains" id="chains" aria-label="Networks"></section>
+  </main>
+
+  <footer class="bottom">
+    <a href="https://eosphere.io/" target="_blank" rel="noopener" class="credit">
+      <span>Developed and Operated by</span>
+      <img class="eosphere-logo" alt="" src="./images/eosphere.png">
+      <img class="eosphere-wordmark wordmark-on-dark" alt="EOSphere" src="./images/eosphere-wordmark-dark.png">
+      <img class="eosphere-wordmark wordmark-on-light" alt="EOSphere" src="./images/eosphere-wordmark-light.png">
+    </a>
+    <nav class="social" aria-label="EOSphere links">
+      <a href="https://x.com/eosphere_io" target="_blank" rel="noopener" aria-label="EOSphere on X">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="fill" d="M17.8 3h3l-6.6 7.6L22 21h-6.1l-4.8-6.3L5.6 21h-3l7.1-8.1L2.3 3h6.2l4.3 5.7zm-1 16.2h1.7L7.3 4.7H5.5z"/></svg>
+      </a>
+      <a href="https://t.me/eosphere_io" target="_blank" rel="noopener" aria-label="EOSphere on Telegram">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="fill" d="M21.4 3.6 2.9 10.7c-1.3.5-1.2 1.2-.2 1.5l4.7 1.5 1.8 5.6c.2.6.4.8.9.8.4 0 .6-.2.9-.4l2.3-2.2 4.7 3.5c.9.5 1.5.2 1.7-.8L22.8 5c.3-1.3-.5-1.9-1.4-1.4zM9.3 13.5l8.6-5.4c.4-.3.8-.1.5.2l-7.2 6.5-.3 3.2z"/></svg>
+      </a>
+      <a href="https://github.com/eosphere/antelope-tools" target="_blank" rel="noopener" aria-label="Antelope Tools on GitHub">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="fill" d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.3-3.4-1.3-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.2-.3-4.6-1.1-4.6-5a3.9 3.9 0 0 1 1-2.7c-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.8 1a9.6 9.6 0 0 1 5 0c1.9-1.3 2.8-1 2.8-1 .5 1.4.2 2.4.1 2.7a3.9 3.9 0 0 1 1 2.7c0 3.9-2.3 4.7-4.6 5 .4.3.7.9.7 1.9V21c0 .3.2.6.7.5A10 10 0 0 0 12 2z"/></svg>
+      </a>
+    </nav>
+    <p class="origin">Originally built by <a href="https://edenia.com/" target="_blank" rel="noopener">Edenia</a></p>
+  </footer>
+
+  <script>
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const isLight = document.documentElement.classList.toggle('light-mode')
+      try { localStorage.setItem('prefersDarkMode', String(!isLight)) } catch (error) {}
+    })
+
+    const renderChains = async () => {
+      const { chains = [] } = await fetch('networks.json').then(response => response.json())
+      const card = chain => {
+        const item = document.createElement('article')
+        item.className = 'chain'
+
+        const image = document.createElement('img')
+        image.src = chain.image
+        image.alt = ''
+        const name = document.createElement('h2')
+        name.textContent = chain.name
+
+        const links = document.createElement('div')
+        links.className = 'links'
+        // optional "icon" and "style" (a CSS class, e.g. jungle) give a button its own look
+        const link = (label, url, kind, { icon, style } = {}) => {
+          const anchor = document.createElement('a')
+          anchor.className = `button ${kind}${style ? ` ${style}` : ''}`
+          anchor.href = url
+          if (icon) {
+            const image = document.createElement('img')
+            image.src = icon
+            image.alt = ''
+            anchor.append(image)
+          }
+          anchor.append(label)
+          anchor.setAttribute('aria-label', `${chain.name} ${label}${kind === 'secondary' && label !== 'Testnet' ? ' Testnet' : ''} dashboard`)
+          anchor.title = anchor.getAttribute('aria-label')
+          return anchor
+        }
+        links.append(link('Mainnet', chain.mainnet, 'primary'))
+        if (chain.testnet) {
+          links.append(link(chain.testnet.label || 'Testnet', chain.testnet.url, 'secondary', chain.testnet))
+        }
+
+        item.append(image, name, links)
+        return item
+      }
+      document.getElementById('chains').append(...chains.map(card))
+    }
+    renderChains()
+  </script>
+</body>
+</html>

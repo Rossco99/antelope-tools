@@ -1,7 +1,6 @@
 /* eslint camelcase: 0 */
 import React, { useState, useCallback } from 'react'
 import { makeStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import Typography from '@mui/material/Typography'
 import Link from '@mui/material/Link'
@@ -9,24 +8,15 @@ import LinearProgress from '@mui/material/LinearProgress'
 import Paper from '@mui/material/Paper'
 import Popover from '@mui/material/Popover'
 
-import {
-  ComposableMap,
-  Geographies,
-  Geography,
-} from 'react-simple-maps'
-import { scaleLinear } from 'd3-scale'
-import { interpolateHcl } from 'd3-interpolate'
-
 import UnknowFlagIcon from '../../components/UnknowFlagIcon'
+import CountryFlag from '../../components/CountryFlag'
 import { formatWithThousandSeparator } from '../../utils'
 
 import styles from './styles'
 import RewardsDistributionStats from './RewardsDistributionStats'
 import TokenToUSD from './TokenToUSD'
+import RewardsMap from './RewardsMap'
 import useRewardsDistributionState from 'hooks/customHooks/useRewardsDistributionState'
-
-const geoUrl =
-  'https://raw.githubusercontent.com/zcreativelabs/react-simple-maps/v2/topojson-maps/world-110m.json'
 
 const useStyles = makeStyles(styles)
 
@@ -34,30 +24,24 @@ const RewardsDistribution = () => {
   const [anchorEl, setAnchorEl] = useState(null)
   const [currentNode, setCurrentNode] = useState(null)
   const classes = useStyles()
-  const theme = useTheme()
   const { t } = useTranslation('rewardsDistributionRoute')
   const open = Boolean(anchorEl)
   const [{ loading, nodes, setting, summary }] = useRewardsDistributionState()
 
-  const handlePopoverOpen = (node) => (event) => {
-    if (!nodes.length > 0) {
-      return
-    }
-    setCurrentNode(node)
-    setAnchorEl(event.currentTarget)
-  }
+  const handlePopoverOpen = useCallback(
+    (node) => (event) => {
+      if (!nodes.length > 0) {
+        return
+      }
+      setCurrentNode(node)
+      setAnchorEl(event.currentTarget)
+    },
+    [nodes],
+  )
 
   const handlePopoverClose = () => {
     setAnchorEl(null)
   }
-
-  const colorScale = useCallback(
-    scaleLinear()
-      .domain([0, summary?.topCountryByRewards?.rewards - 1])
-      .range([theme.palette.primary.light, theme.palette.primary.dark])
-      .interpolate(interpolateHcl),
-    [summary, theme.palette.primary],
-  )
 
   return (
     <div
@@ -90,9 +74,7 @@ const RewardsDistribution = () => {
               </span>
             )}
             <span>{currentNode?.name}</span>
-            {currentNode?.flag && (
-              <span className={classes.countryFlag}>{currentNode?.flag}</span>
-            )}
+            {currentNode?.flag && <CountryFlag code={currentNode?.code} />}
           </Typography>
           {summary && (
             <Typography>
@@ -145,39 +127,11 @@ const RewardsDistribution = () => {
       />
       {!loading && (
         <Paper className={classes.mapWrapper}>
-          <ComposableMap
-            projectionConfig={{
-              scale: 170,
-            }}
-          >
-            <Geographies geography={geoUrl}>
-              {({ geographies }) =>
-                geographies.map((geo, i) => {
-                  const nodeData = nodes.find(
-                    (node) => node.code === geo.properties.ISO_A2,
-                  )
-
-                  return (
-                    <Geography
-                      onMouseOver={
-                        nodeData ? handlePopoverOpen(nodeData) : () => {}
-                      }
-                      className={classes.geography}
-                      key={geo.rsmKey}
-                      geography={geo}
-                      stroke={theme.palette.neutral.main}
-                      strokeWidth={0.8}
-                      fill={
-                        nodeData && nodeData.rewards > 0
-                          ? colorScale(parseInt(nodeData.rewards))
-                          : theme.palette.neutral.light
-                      }
-                    />
-                  )
-                })
-              }
-            </Geographies>
-          </ComposableMap>
+          <RewardsMap
+            nodes={nodes}
+            maxRewards={summary?.topCountryByRewards?.rewards}
+            onCountryHover={handlePopoverOpen}
+          />
         </Paper>
       )}
     </div>

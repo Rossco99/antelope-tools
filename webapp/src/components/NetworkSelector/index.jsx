@@ -12,7 +12,7 @@ import jungleImg from '../../assets/jungle.webp'
 import waxImg from '../../assets/wax.webp'
 import telosImg from '../../assets/telos.webp'
 import xprNetworkImg from '../../assets/xpr.webp'
-import eosImg from '../../assets/eos.webp'
+import eosImg from '../../assets/vaulta.webp'
 import ultraImg from '../../assets/ultra.webp'
 import libreImg from '../../assets/libre.webp'
 import { getLocalePath } from 'utils/url-localization'
@@ -47,7 +47,7 @@ const LogoSvg = ({ name }) => {
       return <img src={fioImg} alt="fio logo" className={classes.fioImg} />
 
     default:
-      return <img src={eosImg} alt="eos logo" className={classes.eosImg} />
+      return <img src={eosImg} alt="vaulta logo" className={classes.eosImg} />
   }
 }
 

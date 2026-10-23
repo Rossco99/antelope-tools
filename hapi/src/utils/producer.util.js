@@ -126,6 +126,9 @@ const getExpectedRewards = async (producers, totalVotes) => {
     case eosConfig.knownNetworks.telos:
       rewards = await getTelosRewards(producers)
       break
+    case eosConfig.knownNetworks.wax:
+      rewards = await getWaxRewards()
+      break
     case eosConfig.knownNetworks.fio:
         break
     default:
@@ -171,34 +174,53 @@ const getLibreRewards = async (producers) => {
   })
 }
 
+// Telos pays producers from a monthly budget set by the TLOS price
+// (telos.contracts producer_pay.cpp, claimrewards_snapshot):
+// min(189000 * price^-0.516, 315000) TLOS a month, price = the delphioracle
+// tlosusd average (30 days, else 14, else 7). It is shared by the first 35
+// active producers with tiered multipliers: ranks 1-21 get 2 * (1.22 - 0.02
+// * rank), standbys 22-35 get 1.64 - 0.02 * rank.
+const TELOS_MAX_PAID_PRODUCERS = 35
+
+const getTelosPrice = async () => {
+  try {
+    const { rows = [] } = await eosUtil.getTableRows({
+      code: 'delphioracle',
+      scope: 'tlosusd',
+      table: 'averages',
+      limit: 10,
+      json: true
+    })
+
+    // average types: 0 = 7 days, 1 = 14 days, 2 = 30 days
+    for (const type of [2, 1, 0]) {
+      const average = rows.find((row) => row.type === type && row.value > 0)
+
+      if (average) return average.value / 10000
+    }
+  } catch (error) {
+    console.warn('TELOS PRICE', error.message || error)
+  }
+}
+
 const getTelosRewards = async (producers) => {
-  const currencyStats = await getCurrencyStats()
-  const { rows: payrateRows } = await eosUtil.getTableRows({
-    code: 'eosio',
-    scope: 'eosio',
-    table: 'payrate',
-    reverse: false,
-    limit: 1,
-    json: true,
-    lower_bound: null
-  })
+  const price = await getTelosPrice()
+  // without a price the contract uses the smallest value, i.e. the cap
+  const perMonth = price
+    ? Math.min(189000 * Math.pow(price, -0.516), 315000)
+    : 315000
+  const perDay = (perMonth * 12) / 365
 
-  const tokenSupply = parseFloat(currencyStats.supply)
-  const bPayRate = payrateRows?.at(0)?.bpay_rate / 100000
-  const toProducers = (bPayRate * tokenSupply) / 365 // (bPayRate * tokenSupply * secondsPerDay) / secondsPerYear
+  const paidProducers = producers.slice(0, TELOS_MAX_PAID_PRODUCERS)
+  const multiplier = (rank) =>
+    rank <= 21 ? 2 * (1.22 - 0.02 * rank) : 1.64 - 0.02 * rank
+  const totalMultiplier = paidProducers.reduce(
+    (sum, _, index) => sum + multiplier(index + 1),
+    0
+  )
 
-  const MAX_PAID_PRODUCERS = 42
-  const topProducers = producers.slice(0, MAX_PAID_PRODUCERS)
-  const activeCount = topProducers.length
-  const shareCount =
-    activeCount <= 21
-      ? activeCount * 2
-      : MAX_PAID_PRODUCERS + (activeCount - 21)
-
-  const producerRewards = toProducers / shareCount
-
-  return topProducers.map((producer, i) => {
-    const totalRewards = i < 21 ? producerRewards * 2 : producerRewards
+  return paidProducers.map((producer, index) => {
+    const totalRewards = (perDay * multiplier(index + 1)) / totalMultiplier
 
     return {
       producer: producer.owner,
@@ -209,72 +231,178 @@ const getTelosRewards = async (producers) => {
   })
 }
 
-const getEOSIORewards = async (producers, totalVotes) => {
-  const currencyStats = await getCurrencyStats()
-  let inflation = 0
+// The system contract's pay settings (eosio global4 table), as on Vaulta:
+// inflation a year (continuous_rate), the part of it paid to producers
+// (10000 / inflation_pay_factor) and the part of that paid per block
+// (10000 / votepay_factor, the rest is vote pay)
+const getSystemPayRates = async () => {
+  try {
+    const { continuous_rate, inflation_pay_factor, votepay_factor } =
+      await getSystemRow('global4')
 
-  if (currencyStats && currencyStats.supply) {
-    inflation = parseInt(currencyStats.supply.split(' ')[0]) / 100 / 365
+    if (!continuous_rate || !inflation_pay_factor || !votepay_factor) return
+
+    // XPR's contract splits new tokens its own way (seen in its bucket
+    // fills): 7.5% block pay + 22.5% vote pay to producers, the rest to
+    // savings, yield.farms and cfund.proton
+    if (eosConfig.networkName === eosConfig.knownNetworks.xpr) {
+      return {
+        producersPerYear: parseFloat(continuous_rate) * 0.3,
+        blockShare: 0.25
+      }
+    }
+
+    return {
+      producersPerYear:
+        (parseFloat(continuous_rate) * 10000) / inflation_pay_factor,
+      blockShare: 10000 / votepay_factor
+    }
+  } catch (error) {
+    console.warn('SYSTEM PAY RATES', error.message || error)
   }
+}
 
-  let blockReward = 0.25 // reward for each block produced
+const getSystemRow = async (table) => {
+  const { rows } = await eosUtil.getTableRows({
+    code: 'eosio',
+    scope: 'eosio',
+    table,
+    limit: 1,
+    json: true
+  })
 
-  if (eosConfig.networkName === eosConfig.knownNetworks.wax) {
-    blockReward = 1 // in wax all rewards are from the blocks produced
+  return rows?.at(0) || {}
+}
+
+// WAX's yearly inflation is a constant in its system contract
+// (wax-system-contracts eosio.system.hpp), not stored in a table
+const WAX_CONTINUOUS_RATE = 0.04879
+
+// WAX pays block producers from inflation only: a part goes to the RNG
+// treasury, then 30% of the rest is block pay (40% voters, 30% savings).
+// Block pay is split between the active schedule (by blocks produced, so
+// equally) and the standby slots (by time on standby), weighted by
+// active_producer_count and standby_slot_weight * num_standby_slots.
+// Guilds that are neither scheduled nor active standbys get nothing.
+const getWaxRewards = async () => {
+  const currencyStats = await getCurrencyStats()
+  const supply = currencyStats?.supply
+    ? parseFloat(currencyStats.supply.split(' ')[0])
+    : 0
+  const global4 = await getSystemRow('global4')
+  const global5 = await getSystemRow('global5')
+  const schedule = await eosUtil.getProducerSchedule()
+  const active = (schedule?.active?.producers || []).map(
+    (producer) => producer.producer_name
+  )
+  const { rows: standbyRows = [] } = await eosUtil.getTableRows({
+    code: 'eosio',
+    scope: 'eosio',
+    table: 'standbys',
+    limit: 100,
+    json: true
+  })
+  const standbys = standbyRows
+    .filter((row) => !!row.is_active && !active.includes(row.owner))
+    .map((row) => row.owner)
+
+  const perDay = (WAX_CONTINUOUS_RATE * supply) / 365
+  const rng = (perDay * (global5.rng_rate || 0)) / 10000
+  const blockPay = ((perDay - rng) * 3) / 10
+
+  const activeWeight = (global4.active_producer_count || active.length) * 10000
+  const standbyWeight =
+    (global4.standby_slot_weight || 0) * (global4.num_standby_slots || 0)
+  const toActive = (blockPay * activeWeight) / (activeWeight + standbyWeight)
+  const toStandby = blockPay - toActive
+
+  const reward = (producer, amount, tier) => ({
+    producer,
+    vote_rewards: 0,
+    block_rewards: amount,
+    total_rewards: amount,
+    tier
+  })
+
+  return [
+    ...active.map((producer) =>
+      reward(producer, toActive / active.length, 'active')
+    ),
+    ...standbys.map((producer) =>
+      reward(
+        producer,
+        toStandby / (global4.num_standby_slots || standbys.length),
+        'standby'
+      )
+    )
+  ]
+}
+
+const getEOSIORewards = async (producers, totalVotes) => {
+  // no votes at all (e.g. Ultra): nothing to estimate
+  if (!totalVotes) return []
+
+  const currencyStats = await getCurrencyStats()
+  const supply = currencyStats?.supply
+    ? parseFloat(currencyStats.supply.split(' ')[0])
+    : 0
+  const payRates = await getSystemPayRates()
+
+  // "inflation" is the amount paid to all producers per day
+  let inflation = supply / 100 / 365 // fallback: 1% of supply a year
+  let blockReward = 0.25 // share of it paid per block produced
+
+  if (payRates) {
+    inflation = (supply * payRates.producersPerYear) / 365
+    blockReward = payRates.blockShare
   }
 
   const voteReward = 1 - blockReward // reward according to producer total_votes
   const minimumPercenToGetVoteReward =
     100 / (inflation * (voteReward || blockReward)) // calculate the minimum percent to get vote reward
 
-  let distributedVoteRewardPercent = 0
-  let undistributedVoteRewardPercent = 0
+  // Vote pay nobody claims stays in the bucket and ends up with the producers
+  // who do claim, so each producer's vote share is taken out of the votes of
+  // producers that claim (above the minimum, claimed in the last 7 days)
+  const claimedSince = Date.now() - 7 * 24 * 3600 * 1000
+  const votePercent = (producer) =>
+    parseFloat(producer.total_votes) / totalVotes
+  const isPaid = (producer) =>
+    votePercent(producer) > minimumPercenToGetVoteReward
+  const hasClaimed = (producer) =>
+    new Date(`${producer.last_claim_time}Z`).getTime() > claimedSince
 
-  producers.forEach((producer) => {
-    const producerVotePercent = parseFloat(producer.total_votes) / totalVotes
+  let claimingVotePercent = producers
+    .filter((producer) => isPaid(producer) && hasClaimed(producer))
+    .reduce((sum, producer) => sum + votePercent(producer), 0)
 
-    if (producerVotePercent > minimumPercenToGetVoteReward) {
-      distributedVoteRewardPercent += producerVotePercent
-    } else {
-      undistributedVoteRewardPercent += producerVotePercent
-    }
-  })
+  // no claim times known: share among everyone above the minimum
+  if (!claimingVotePercent) {
+    claimingVotePercent = producers
+      .filter(isPaid)
+      .reduce((sum, producer) => sum + votePercent(producer), 0)
+  }
 
   const producersRewards = []
 
   for (const i in producers) {
     const producer = producers[i]
     const isBlockProducer = i < 21
-    const producerVotePercent = parseFloat(producer.total_votes) / totalVotes
 
-    let expectedVoteReward = 0
-    let expectedBlockReward = 0
+    if (!isPaid(producer)) break
 
-    if (producerVotePercent > minimumPercenToGetVoteReward) {
-      const producerDistributionPercent =
-        producerVotePercent / distributedVoteRewardPercent // calculates the percentage that the producer represents of the distributed vote reward percent
+    const expectedVoteReward =
+      (inflation * voteReward * votePercent(producer)) / claimingVotePercent
+    const expectedBlockReward = isBlockProducer
+      ? inflation * blockReward * (1 / 21)
+      : 0
 
-      const producerUndistributedRewardPercent =
-        producerDistributionPercent * undistributedVoteRewardPercent //  calculate the percentage that corresponds to the producer of the undistributed vote reward percent
-
-      expectedVoteReward =
-        inflation *
-        voteReward *
-        (producerUndistributedRewardPercent + producerVotePercent)
-
-      if (isBlockProducer) {
-        expectedBlockReward = inflation * blockReward * (1 / 21)
-      }
-
-      producersRewards.push({
-        producer: producer.owner,
-        vote_rewards: expectedVoteReward,
-        block_rewards: expectedBlockReward,
-        total_rewards: expectedVoteReward + expectedBlockReward
-      })
-    } else {
-      break
-    }
+    producersRewards.push({
+      producer: producer.owner,
+      vote_rewards: expectedVoteReward,
+      block_rewards: expectedBlockReward,
+      total_rewards: expectedVoteReward + expectedBlockReward
+    })
   }
 
   return producersRewards

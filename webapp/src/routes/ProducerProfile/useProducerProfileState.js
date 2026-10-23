@@ -45,6 +45,7 @@ const useProducerProfileState = (name, previousData) => {
             rank: bpData.rank,
             dataType: bpData.bp_json?.type,
             totalRewards: bpData.total_rewards,
+        tier: bpData.tier,
             url: bpData.url,
           }),
           ...(bpData?.nodes && {

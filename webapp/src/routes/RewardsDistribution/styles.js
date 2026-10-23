@@ -29,10 +29,6 @@ export default (theme) => ({
   producersList: {
     margin: 0,
   },
-  geography: {
-    outline: 'none',
-    cursor: 'pointer',
-  },
   squareRewards: {
     width: '38px',
     height: '38px',

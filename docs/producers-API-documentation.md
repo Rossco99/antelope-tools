@@ -2,22 +2,22 @@
 
 ## Overview
 
-The API allows getting important data on block producers on the different EOSIO + Antelope blockchain networks available on [Antelope Tools](https://antelope.tools/) such as EOS and jungle4 testnet. Among the data that can be obtained is the [BP JSON](https://github.com/eosrio/bp-info-standard) of each BP. This is useful because the logic to get all these objects is not needed to implement from scratch.  
+The API allows getting important data on block producers on the different Antelope blockchain networks available on [Antelope Tools](https://antelope-tools.eosphere.io/) such as EOS and jungle4 testnet. Among the data that can be obtained is the [BP JSON](https://github.com/eosrio/bp-info-standard) of each BP. This is useful because the logic to get all these objects is not needed to implement from scratch.  
 Also, in the Antelope Tools backend, each API endpoint is requested through HTTP, and the obtained status is saved, which allows to obtain the status code of the request.
 
 ## How is the data obtained?
 
-Through the eosjs API, the system queries the `producers` table of the eosio account, with this table, we get the URLs of the Top 150 producers to obtain their `bp.json`. When the BP JSON is not obtained the producer is not consider in the results.That information is updated every 4 hours.  
+The backend queries the `producers` table of the eosio account, with this table, we get the URLs of the Top 150 producers to obtain their `bp.json`. When the BP JSON is not obtained the producer is not consider in the results.That information is updated every 4 hours.  
 **Note:** if the BP JSON is not from the current network, the nodes are removed. 
 
-You can check the [producer's table](https://eos.antelope.tools/accounts?account=eosio&table=producers) of eosio account of the EOS Network in the section of Contract Tables.
+You can check the [producer's table](https://antelope-eos.eosphere.io/accounts?account=eosio&table=producers) of eosio account of the EOS Network in the section of Contract Tables.
 
 ## API Endpoint
 
 | Blockchain | Endpoint URL |
 |:----|:----|
-| EOS Network Mainnet | https://graphql-eos.antelope.tools/api/rest/ |
-| Jungle4 Testnet  |  https://graphql-jungle.antelope.tools/api/rest/ |
+| Vaulta (EOS) Mainnet | https://antelope-eos.eosphere.io/api/rest/ |
+| Jungle4 Testnet  |  https://antelope-jungle.eosphere.io/api/rest/ |
 
 ### Methods
 
@@ -70,7 +70,7 @@ Where each BP has the following format:
 
 ```
 curl -X 'POST' \
-  'https://graphql-eos.antelope.tools/api/rest/get-producers-info' \
+  'https://antelope-eos.eosphere.io/api/rest/get-producers-info' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -88,7 +88,7 @@ This parameter is used to request a list of specific block producers. The query 
 
 ```
 curl -X 'POST' \
-  'https://graphql-eos.antelope.tools/api/rest/get-producers-info' \
+  'https://antelope-eos.eosphere.io/api/rest/get-producers-info' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -145,7 +145,7 @@ This parameter is used to get in the `endpoints` key only those with the type re
 
 ```
 curl -X 'POST' \
-  'https://graphql-eos.antelope.tools/api/rest/get-producers-info' \
+  'https://antelope-eos.eosphere.io/api/rest/get-producers-info' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -214,7 +214,7 @@ When both parameters are provided, the query returns the producers of the list o
 
 ```
 curl -X 'POST' \
-  'https://graphql-eos.antelope.tools/api/rest/get-producers-info' \
+  'https://antelope-eos.eosphere.io/api/rest/get-producers-info' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -259,7 +259,7 @@ curl -X 'POST' \
 
 ```
 curl -X 'POST' \
-  'https://graphql-eos.antelope.tools/api/rest/get-producers-info' \
+  'https://antelope-eos.eosphere.io/api/rest/get-producers-info' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{

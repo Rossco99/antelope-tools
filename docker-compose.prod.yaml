@@ -1,0 +1,95 @@
+# Production stack for ONE network. Run it through the makefile:
+#
+#   make prod-up NETWORK=jungle
+#
+# which writes .deploy/<network>.env (.env.<network> + .env.secrets) and
+# starts this file as the compose project "antelope-<network>". Only the
+# webapp port (HTTP_PORT) is published; HAProxy terminates SSL in front of it.
+
+x-env: &env
+  env_file: .deploy/${NETWORK:?set NETWORK}.env
+
+x-restart: &restart
+  restart: unless-stopped
+
+services:
+  postgres:
+    <<: [*env, *restart]
+    image: postgres:18.6-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  hapi:
+    <<: [*env, *restart]
+    build: ./hapi
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      HAPI_DATABASE_URL: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}'
+      HAPI_HASURA_URL: http://hasura:8080/v1/graphql
+      HAPI_HASURA_ADMIN_SECRET: '${HASURA_GRAPHQL_ADMIN_SECRET}'
+      HAPI_SERVER_ADDRESS: hapi
+      HAPI_SERVER_PORT: '9090'
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://hapi:9090/healthz').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  hasura:
+    <<: *restart
+    image: hasura/graphql-engine:v2.50.3.cli-migrations-v3
+    depends_on:
+      postgres:
+        condition: service_healthy
+      hapi:
+        condition: service_healthy
+    volumes:
+      - ./hasura/migrations:/hasura-migrations:ro
+      - ./hasura/metadata:/hasura-metadata:ro
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}'
+      HASURA_GRAPHQL_MIGRATIONS_DIR: /hasura-migrations
+      HASURA_GRAPHQL_METADATA_DIR: /hasura-metadata
+      # the public only gets what the "guest" role may read
+      HASURA_GRAPHQL_ADMIN_SECRET: '${HASURA_GRAPHQL_ADMIN_SECRET}'
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: guest
+      HASURA_GRAPHQL_ENABLE_CONSOLE: 'false'
+      HASURA_GRAPHQL_DEV_MODE: 'false'
+      HASURA_GRAPHQL_ENABLE_TELEMETRY: 'false'
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log
+      HASURA_GRAPHQL_ACTION_BASE_URL: http://hapi:9090
+      HASURA_GRAPHQL_ACTION_EVM_URL: http://hapi-evm:9090
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://localhost:8080/healthz']
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  webapp:
+    <<: *restart
+    build: ./webapp
+    depends_on:
+      hasura:
+        condition: service_healthy
+    ports:
+      - '${HTTP_PORT:?set HTTP_PORT in .env.<network>}:80'
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1/healthz']
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:

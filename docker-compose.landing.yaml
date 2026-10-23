@@ -1,0 +1,15 @@
+# The landing page (landing/) that lists every network: make landing-up
+services:
+  landing:
+    image: nginx:1.30.5-alpine
+    restart: unless-stopped
+    ports:
+      - '${LANDING_PORT:-8100}:80'
+    volumes:
+      - ./landing:/usr/share/nginx/html:ro
+      - ./deploy/landing-nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1/healthz']
+      interval: 30s
+      timeout: 5s
+      retries: 3

@@ -7,6 +7,12 @@ import { useTheme } from '@mui/material/styles'
 import { countries } from '../../utils/countries'
 
 import HighMapsWrapper from './HighMapsWrapper'
+import spreadLabels from './spreadLabels'
+import 'flag-icon-css/css/flag-icons.css'
+
+// flag images (flag-icon-css) rather than emoji, which Windows shows as letters
+const flagHtml = (code) =>
+  `<span class="flag-icon flag-icon-${code.toLowerCase()}" style="margin-right:4px"></span>`
 import styles from './styles'
 
 const useStyles = makeStyles(styles)
@@ -22,6 +28,14 @@ const MainMap = ({ data, map, setMap }) => {
       const options = {
         chart: {
           backgroundColor: theme.palette.background.default,
+          // keeps the map's own proportions at any width
+          height: '52%',
+          events: {
+            // neighbouring countries' labels are moved apart, not overlaid
+            render() {
+              spreadLabels(this, theme.palette.text.secondary)
+            },
+          },
         },
         title: {
           text: '',
@@ -78,15 +92,20 @@ const MainMap = ({ data, map, setMap }) => {
             },
             dataLabels: {
               enabled: true,
+              allowOverlap: true,
+              useHTML: true,
+              style: {
+                color: theme.palette.text.primary,
+                textOutline: 'none',
+                textShadow: `0 0 3px ${theme.palette.background.default}`,
+              },
               formatter: function () {
                 const node = data.find(
                   ({ country }) => country === this.point.country,
                 )
 
                 return this.point.country
-                  ? `${
-                      countries[this.point.country]?.flag || this.point.country
-                    } ${node.value}`
+                  ? `${flagHtml(this.point.country)}${node.value}`
                   : null
               },
             },
@@ -94,15 +113,17 @@ const MainMap = ({ data, map, setMap }) => {
         ],
       }
 
-      new HighMapsWrapper['Map'](myRef.current, options)
+      return new HighMapsWrapper['Map'](myRef.current, options)
     },
     [setMap, t, theme.palette],
   )
 
   useEffect(() => {
-    if (myRef.current) {
-      setupMapData(data, map)
-    }
+    if (!myRef.current) return
+
+    const chart = setupMapData(data, map)
+
+    return () => chart.destroy()
   }, [data, map, setupMapData])
 
   return <div ref={myRef} className={classes.divRef} />

@@ -15,6 +15,9 @@ import LocaleLink from 'components/LocaleLink'
 
 import styles from './styles'
 
+// networks like Ultra hide the producer pages; don't link to them there
+const hasProfilePages = !generalConfig.disabledMenuItems.includes('/block-producers')
+
 const RADIAN = Math.PI / 180
 
 const polarToCartesian = (cx, cy, radius, angle) => ({
@@ -80,6 +83,8 @@ const CustomBarLabel = memo(
     }
 
     const ProfileLink = ({ link, owner, Content }) => {
+      if (!hasProfilePages) return <Content />
+
       return (
         <Link
           to={link}

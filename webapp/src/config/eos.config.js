@@ -9,6 +9,10 @@ export const bpJsonOnChainScope =
 
 export const networkName = import.meta.env.REACT_APP_EOS_API_NETWORK_NAME
 export const networkLabel = import.meta.env.REACT_APP_EOS_API_NETWORK_LABEL
+export const producerTerm = import.meta.env.REACT_APP_PRODUCER_TERM
+// where hapi checks the endpoints from, shown on API Endpoints Stats
+export const endpointsTestLocation =
+  import.meta.env.REACT_APP_ENDPOINTS_TEST_LOCATION || 'Antelope Tools'
 export const networkLogo = import.meta.env.REACT_APP_EOS_API_NETWORK_LOGO
 export const tokenSymbol = import.meta.env.REACT_APP_TOKEN_SYMBOL
 
@@ -55,7 +59,10 @@ switch (networkName) {
       _additionalNodesTypes = libreNodeTypes
     }
 
-    _producerTypes = ['top21', 'paidStandby', 'nonPaidStandby']
+    // WAX elects a smaller active schedule plus paid standby slots (hapi sets producer.tier)
+    _producerTypes = networkName.startsWith('wax')
+      ? ['active', 'standby', 'notPaid']
+      : ['top21', 'paidStandby', 'nonPaidStandby']
     _nodeChips = [
       ..._nodeTypes,
       {
@@ -93,6 +100,7 @@ export const nodeTypes = _nodeTypes
 export const nodeChips = _nodeChips || _nodeTypes
 export const additionalNodesTypes = _additionalNodesTypes || []
 export const producerTypes = _producerTypes
+export const hasProducerTiers = _producerTypes.includes('active')
 export const blockExplorerUrl = blockExplorerLinks?.url
 export const blockExplorerTxUrl = blockExplorerLinks?.url + blockExplorerLinks?.tx
 export const blockExplorerAccount = {

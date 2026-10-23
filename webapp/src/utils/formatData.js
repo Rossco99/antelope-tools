@@ -1,3 +1,5 @@
+import { eosConfig } from '../config'
+
 /* eslint complexity: 0 */
 /* eslint camelcase: 0 */
 export const formatData = ({
@@ -7,9 +9,17 @@ export const formatData = ({
   healthStatus,
   dataType,
   totalRewards,
+  tier,
   url
 }) => {
   const getSubTitle = () => {
+    if (eosConfig.hasProducerTiers) {
+      if (tier === 'active') return 'Active'
+      if (tier === 'standby') return 'Standby'
+
+      return 'Not Paid'
+    }
+
     if (rank <= 21) return 'Top 21'
 
     if (rank > 21 && totalRewards >= 100) return 'Paid Standby'

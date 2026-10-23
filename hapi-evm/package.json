@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "EVM Dashbaord Backend Service",
   "main": "dist/index.js",
-  "author": "edenia.com",
+  "author": "EOSphere",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
@@ -41,5 +41,6 @@
     "prettier": "^3.0.0",
     "ts-node": "^10.9.2",
     "typescript": "~5.9.3"
-  }
+  },
+  "repository": "https://github.com/eosphere/antelope-tools.git"
 }

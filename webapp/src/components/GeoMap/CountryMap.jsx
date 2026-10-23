@@ -8,6 +8,7 @@ import { countries } from '../../utils/countries'
 import { eosConfig } from '../../config'
 
 import HighMapsWrapper from './HighMapsWrapper'
+import spreadLabels from './spreadLabels'
 import styles from './styles'
 
 const useStyles = makeStyles(styles)
@@ -46,21 +47,47 @@ const ClusterMap = ({ data, map, mapCode }) => {
         }
       }
 
+      // the built-in world map, zoomed to the selected country
+      // with some margin around the country
+      const zoomToCountry = (chart) => {
+        chart.series[0].points
+          .find((point) => point['iso-a2'] === mapCode)
+          ?.zoomTo()
+        chart.mapZoom(1.6)
+      }
+
       const options = {
         chart: {
           map,
           backgroundColor: theme.palette.background.default,
+          animation: false,
+          height: '60%',
           events: {
             load() {
               const chart = this
 
+              zoomToCountry(chart)
               chart.renderer
                 .button('Reset zoom', chart.plotLeft, chart.plotTop + 70)
                 .on('click', () => {
-                  chart.zoomOut()
+                  zoomToCountry(chart)
                 })
                 .add()
                 .toFront()
+            },
+            // nodes in the same area get their names moved apart
+            render() {
+              spreadLabels(this, theme.palette.text.secondary)
+
+              // a name opens its producer's profile, like clicking the point
+              this.series[1]?.points.forEach((point) => {
+                const owner = point.producer?.owner
+
+                if (point.dataLabel?.element && owner) {
+                  point.dataLabel.element.onclick = () =>
+                    navigate(`/${eosConfig.producersRoute}/${owner}`)
+                }
+              })
             },
           },
         },
@@ -95,17 +122,20 @@ const ClusterMap = ({ data, map, mapCode }) => {
           series: {
             dataLabels: {
               enabled: true,
-              useHTML: true,
+              allowOverlap: true,
+              y: -12,
               style: {
                 fontWeight: 'bold',
                 fontSize: '1.1em',
-                paddingBottom: '8px',
+                color: theme.palette.primary.main,
+                textOutline: `2px ${theme.palette.background.default}`,
+                cursor: 'pointer',
               },
               formatter: function () {
                 const producer = this?.point?.producer
 
                 return producer?.owner
-                  ? `<a href=/${eosConfig.producersRoute}/${producer?.owner}>${producer?.fio_address || producer?.owner}</a>`
+                  ? producer?.fio_address || producer?.owner
                   : ''
               },
             },
@@ -121,6 +151,10 @@ const ClusterMap = ({ data, map, mapCode }) => {
         series: [
           {
             name: 'NodeDistribution',
+            data: [{ 'iso-a2': mapCode, color: theme.palette.neutral.lighter }],
+            joinBy: 'iso-a2',
+            enableMouseTracking: false,
+            dataLabels: { enabled: false },
             borderColor: theme.palette.neutral.main,
             nullColor: theme.palette.neutral.light,
             showInLegend: false,
@@ -137,15 +171,18 @@ const ClusterMap = ({ data, map, mapCode }) => {
         ],
       }
 
-      new HighMapsWrapper['Map'](myRef.current, options)
+      return new HighMapsWrapper['Map'](myRef.current, options)
     },
     [navigate, theme.palette],
   )
 
   useEffect(() => {
-    if (myRef.current) {
-      setupMapData(data, map, mapCode)
-    }
+    if (!myRef.current) return
+
+    // a new chart replaces the old one, which must not keep animating
+    const chart = setupMapData(data, map, mapCode)
+
+    return () => chart.destroy()
   }, [data, map, mapCode, setupMapData])
 
   return <div ref={myRef} className={classes.divRef} />
