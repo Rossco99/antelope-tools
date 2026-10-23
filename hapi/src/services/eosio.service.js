@@ -107,7 +107,14 @@ const getBPJsons = async (producers = []) => {
           }
         }
 
-        if (bpJson && !chainUrl && !isEosNetwork) {
+        // without a chains.json the /bp.json may be the producer's EOS file:
+        // keep only org details unless its own endpoints serve this chain
+        if (
+          bpJson &&
+          !chainUrl &&
+          !isEosNetwork &&
+          !(await nodesServeThisChain(bpJson))
+        ) {
           const { org, producer_account_name: name } = bpJson
 
           bpJson = {
@@ -133,6 +140,27 @@ const getBPJsons = async (producers = []) => {
   )
 
   return topProducers.concat(producers.slice(eosConfig.eosTopLimit))
+}
+
+// asks up to three of the bp.json's API endpoints which chain they serve
+const nodesServeThisChain = async (bpJson) => {
+  const endpoints = (Array.isArray(bpJson?.nodes) ? bpJson.nodes : [])
+    .flatMap((node) => [node?.ssl_endpoint, node?.api_endpoint])
+    .filter((endpoint) => typeof endpoint === 'string' && endpoint.startsWith('http'))
+    .slice(0, 3)
+
+  for (const endpoint of endpoints) {
+    try {
+      const { data } = await axiosUtil.instance.get(
+        `${endpoint.replace(/\/+$/, '')}/v1/chain/get_info`,
+        { timeout: 5000 }
+      )
+
+      return data?.chain_id === eosConfig.chainId
+    } catch (error) {}
+  }
+
+  return false
 }
 
 const getBPJsonUrl = (producerUrl, chainUrl) => {
